@@ -1,15 +1,9 @@
 // ════════════════════════════════════════════════════════
-// game_select_page.dart — 게임 선택 (HTML 기준 8개)
-// Flame 4개(벽돌깨기·러너·코인받기·뱀게임)
-// WebView 4개(탭배틀·퀴즈왕·카드매칭·반응속도)
+// game_select_page.dart — 게임 선택 (HTML5 WebView 8개)
 // ════════════════════════════════════════════════════════
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import 'global_rank_page.dart';
-import 'games/brick_game_page.dart';
-import 'games/jump_game_page.dart';
-import 'games/catch_game_page.dart';
-import 'games/snake_game_page.dart';
 import 'games/webview_game_page.dart';
 
 class GameSelectPage extends StatelessWidget {
@@ -17,10 +11,10 @@ class GameSelectPage extends StatelessWidget {
 
   // HTML 기준 순서·이름·이모지·색상·최대보상
   static const List<_GameInfo> _games = [
-    _GameInfo(id: 'brick',  emoji: '🧱', title: '벽돌깨기',  maxReward: '+₩90', borderColor: Color(0xFFFF6B35), bgColor: Color(0xFFFFF0E8), webview: false),
-    _GameInfo(id: 'jump',   emoji: '🏃', title: '러너',      maxReward: '+₩70', borderColor: Color(0xFF2C7FFF), bgColor: Color(0xFFE8F0FF), webview: false),
-    _GameInfo(id: 'catch',  emoji: '🎯', title: '코인받기',  maxReward: '+₩80', borderColor: Color(0xFFF5A623), bgColor: Color(0xFFFFF6E8), webview: false),
-    _GameInfo(id: 'snake',  emoji: '🐍', title: '뱀 게임',   maxReward: '+₩32', borderColor: Color(0xFF27AE60), bgColor: Color(0xFFE8FBF0), webview: false),
+    _GameInfo(id: 'brick',  emoji: '🧱', title: '벽돌깨기',  maxReward: '+₩90', borderColor: Color(0xFFFF6B35), bgColor: Color(0xFFFFF0E8), webview: true),
+    _GameInfo(id: 'jump',   emoji: '🏃', title: '러너',      maxReward: '+₩70', borderColor: Color(0xFF2C7FFF), bgColor: Color(0xFFE8F0FF), webview: true),
+    _GameInfo(id: 'catch',  emoji: '🎯', title: '코인받기',  maxReward: '+₩80', borderColor: Color(0xFFF5A623), bgColor: Color(0xFFFFF6E8), webview: true),
+    _GameInfo(id: 'snake',  emoji: '🐍', title: '뱀 게임',   maxReward: '+₩32', borderColor: Color(0xFF27AE60), bgColor: Color(0xFFE8FBF0), webview: true),
     _GameInfo(id: 'tap',    emoji: '⚡', title: '탭 배틀',   maxReward: '+₩50', borderColor: Color(0xFF2C7FFF), bgColor: Color(0xFFE8F0FF), webview: true),
     _GameInfo(id: 'quiz',   emoji: '🃏', title: '퀴즈왕',    maxReward: '+₩50', borderColor: Color(0xFFFF9F43), bgColor: Color(0xFFFFF6D8), webview: true),
     _GameInfo(id: 'memory', emoji: '🧩', title: '카드매칭',  maxReward: '+₩60', borderColor: Color(0xFF8E44AD), bgColor: Color(0xFFF5EAFF), webview: true),
@@ -136,41 +130,31 @@ class _GameCard extends StatelessWidget {
   final _GameInfo game;
   const _GameCard({super.key, required this.game});
 
+  static const _assetMap = {
+    'brick':  'assets/games/brick_breaker.html',
+    'jump':   'assets/games/runner_game.html',
+    'catch':  'assets/games/coin_catch.html',
+    'snake':  'assets/games/snake_game.html',
+    'tap':    'assets/games/tap_battle.html',
+    'quiz':   'assets/games/quiz_king.html',
+    'memory': 'assets/games/memory_match.html',
+    'reflex': 'assets/games/reflex_test.html',
+  };
+
   void _onTap(BuildContext context) {
-    Widget? page;
-    switch (game.id) {
-      case 'brick':  page = const BrickGamePage(); break;
-      case 'jump':   page = const JumpGamePage();  break;
-      case 'catch':  page = const CatchGamePage(); break;
-      case 'snake':  page = const SnakeGamePage(); break;
-      case 'tap':
-        page = WebViewGamePage(
-          gameId: 'tap', emoji: '⚡', title: '탭 배틀',
-          assetPath: 'assets/games/tap_battle.html',
-        );
-        break;
-      case 'quiz':
-        page = WebViewGamePage(
-          gameId: 'quiz', emoji: '🃏', title: '퀴즈왕',
-          assetPath: 'assets/games/quiz_king.html',
-        );
-        break;
-      case 'memory':
-        page = WebViewGamePage(
-          gameId: 'memory', emoji: '🧩', title: '카드매칭',
-          assetPath: 'assets/games/memory_match.html',
-        );
-        break;
-      case 'reflex':
-        page = WebViewGamePage(
-          gameId: 'reflex', emoji: '🎯', title: '반응속도',
-          assetPath: 'assets/games/reflex_test.html',
-        );
-        break;
-    }
-    if (page != null) {
-      Navigator.push(context, MaterialPageRoute(builder: (_) => page!));
-    }
+    final asset = _assetMap[game.id];
+    if (asset == null) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => WebViewGamePage(
+          gameId: game.id,
+          emoji: game.emoji,
+          title: game.title,
+          assetPath: asset,
+        ),
+      ),
+    );
   }
 
   @override

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>COIN CATCH</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+button{touch-action:manipulation;}
+body{background:#05091a;overflow:hidden;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+canvas{display:block;touch-action:none;}
+#ui{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:rgba(5,9,26,.9);z-index:10;}
+#ui span{color:#F5A623;font-size:11px;font-weight:900;font-family:monospace;}
+.overlay{position:fixed;inset:0;background:rgba(5,9,26,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:20;}
+.overlay h1{color:#F5A623;font-size:20px;font-family:monospace;font-weight:900;text-align:center;}
+.overlay p{color:#888;font-size:12px;text-align:center;line-height:1.8;}
+.btn{font-size:12px;color:#fff;background:#F5A623;border:none;padding:13px 30px;cursor:pointer;border-radius:8px;font-weight:900;}
+.rbtn{font-size:11px;color:#5a8ab0;background:#1a3a5c;border:none;padding:10px 20px;cursor:pointer;border-radius:8px;font-weight:700;}
+.res{font-size:13px;color:#F5A623;font-weight:900;}
+</style>
+</head>
+<body>
+<div id="ui"><span>🎯 COIN CATCH</span><span id="scoreEl">코인: 0 / 남은 목숨: ❤️❤️❤️</span></div>
+<canvas id="c"></canvas>
+
+<div class="overlay" id="ovTitle">
+  <h1>🎯 COIN<br>CATCH!</h1>
+  <p>화면을 터치하면 바구니가 움직여요!<br>코인을 받고 폭탄은 피하세요!</p>
+  <div id="topRankTitle" style="font-size:10px;color:#5a8ab0;text-align:center;margin-bottom:4px;"></div>
+  <button class="btn" ontouchend="event.preventDefault();startGame()" onclick="startGame()">▶ START</button>
+  <button class="rbtn" ontouchend="event.preventDefault();goBack()" onclick="goBack()">← MENU</button>
+</div>
+
+<div class="overlay" id="ovResult" style="display:none;">
+  <h1>RESULT!</h1>
+  <div class="res" id="resScore"></div>
+  <div id="resEarn" style="font-size:14px;color:#F5A623;font-weight:900;"></div>
+  <div id="resRank" style="font-size:11px;color:#FFD700;"></div>
+  <div id="rankList" style="font-size:10px;color:#5a8ab0;text-align:left;min-width:200px;margin-top:4px;"></div>
+  <button class="btn" ontouchend="event.preventDefault();startGame()" onclick="startGame()">▶ RETRY</button>
+  <button class="rbtn" ontouchend="event.preventDefault();goBack()" onclick="goBack()">← MENU</button>
+</div>
+
+<script>
+const DUMMY=[{name:'코인왕',s:65},{name:'황금손',s:58},{name:'동전모음',s:50},{name:'부자꿈',s:42},{name:'돈모아',s:35}];
+function getRanks(){try{const d=JSON.parse(localStorage.getItem('mmCoinRanks')||'null');if(d&&d.length)return d;}catch(e){}return DUMMY.slice();}
+function saveRank(s){const r=getRanks().filter(x=>x.name!=='YOU');r.push({name:'YOU',s});r.sort((a,b)=>b.s-a.s);const t=r.slice(0,10);localStorage.setItem('mmCoinRanks',JSON.stringify(t));return t.findIndex(x=>x.name==='YOU')+1;}
+function renderRanks(el){if(!el)return;const r=getRanks();const md=['🥇','🥈','🥉'];el.innerHTML=r.slice(0,5).map((x,i)=>`<div style="padding:3px 0;border-bottom:1px solid #1a3a5c;">${md[i]||i+1} ${x.name} <span style="color:#fff">${x.s}개</span></div>`).join('');}
+
+const cv=document.getElementById('c');
+const ctx=cv.getContext('2d');
+let W,H,BKT_W,BKT_H;
+let bktX,items,lives,coinCount,frameCount,running,touchXPos;
+const GAME_TIME=40000;let startTime;
+
+function resize(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight-44;BKT_W=80;BKT_H=30;}
+
+function startGame(){
+  document.getElementById('ovTitle').style.display='none';
+  document.getElementById('ovResult').style.display='none';
+  resize();
+  bktX=W/2-BKT_W/2;items=[];lives=3;coinCount=0;frameCount=0;running=true;
+  startTime=Date.now();touchXPos=null;
+  requestAnimationFrame(loop);
+}
+
+function loop(){
+  if(!running)return;
+  const elapsed=Date.now()-startTime;
+  if(elapsed>GAME_TIME){endGame();return;}
+  update(elapsed);draw(elapsed);
+  requestAnimationFrame(loop);
+}
+
+function update(elapsed){
+  frameCount++;
+  // 바구니 이동
+  if(touchXPos!==null) bktX=Math.max(0,Math.min(W-BKT_W,touchXPos-BKT_W/2));
+
+  // 아이템 생성 (점점 빨리)
+  const interval=Math.max(30,50-Math.floor(elapsed/3000));
+  if(frameCount%interval===0){
+    const isBomb=Math.random()<0.25+elapsed/200000;
+    items.push({x:Math.random()*(W-24)+12,y:44,r:12,vy:3+Math.random()*3+elapsed/8000,bomb:isBomb});
+  }
+
+  // 아이템 이동 + 충돌
+  const bktY=H-BKT_H-20;
+  items.forEach(it=>{
+    it.y+=it.vy;
+    if(it.y+it.r>bktY&&it.y-it.r<bktY+BKT_H&&it.x>bktX-it.r&&it.x<bktX+BKT_W+it.r&&!it.caught&&!it.missed){
+      it.caught=true;
+      if(it.bomb){lives--;if(lives<=0){endGame();return;}}else coinCount++;
+    }
+    if(it.y>H+it.r)it.missed=true;
+  });
+  items=items.filter(it=>!it.caught&&!it.missed);
+
+  document.getElementById('scoreEl').textContent='코인: '+coinCount+' / 남은 목숨: '+'❤️'.repeat(lives);
+}
+
+function draw(elapsed){
+  ctx.fillStyle='#05091a';ctx.fillRect(0,0,W,H);
+  // 타이머 바
+  const prog=Math.max(0,1-(elapsed/GAME_TIME));
+  ctx.fillStyle='#1a3a5c';ctx.fillRect(0,H-4,W,4);
+  ctx.fillStyle='#F5A623';ctx.fillRect(0,H-4,W*prog,4);
+
+  // 아이템
+  items.forEach(it=>{
+    if(it.bomb){
+      ctx.font='24px serif';ctx.textAlign='center';
+      ctx.fillText('💣',it.x,it.y+8);
+    }else{
+      ctx.fillStyle='#FFD043';ctx.beginPath();ctx.arc(it.x,it.y,it.r,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#B38000';ctx.font='bold 11px serif';ctx.textAlign='center';
+      ctx.fillText('₩',it.x,it.y+4);
+    }
+  });
+
+  // 바구니
+  const bktY=H-BKT_H-20;
+  ctx.fillStyle='#F5A623';
+  ctx.beginPath();
+  ctx.moveTo(bktX,bktY);ctx.lineTo(bktX+BKT_W,bktY);
+  ctx.lineTo(bktX+BKT_W-10,bktY+BKT_H);ctx.lineTo(bktX+10,bktY+BKT_H);
+  ctx.closePath();ctx.fill();
+  ctx.strokeStyle='#b36e2e';ctx.lineWidth=2;ctx.stroke();
+}
+
+function endGame(){
+  running=false;
+  const earn=Math.min(coinCount,80);
+  const rank=saveRank(coinCount);
+  document.getElementById('resScore').textContent='코인 '+coinCount+'개 획득!';
+  document.getElementById('resEarn').textContent='+₩'+earn+' 적립!';
+  document.getElementById('resRank').textContent='🏆 '+rank+'위';
+  renderRanks(document.getElementById('rankList'));
+  document.getElementById('ovResult').style.display='flex';
+  if(earn>0&&typeof GameChannel!=='undefined')GameChannel.postMessage(earn.toString());
+}
+
+function goBack(){if(typeof GameChannel!=='undefined')GameChannel.postMessage('back');}
+
+cv.addEventListener('touchstart',e=>{touchXPos=e.touches[0].clientX;},{passive:true});
+cv.addEventListener('touchmove',e=>{e.preventDefault();touchXPos=e.touches[0].clientX;},{passive:false});
+cv.addEventListener('touchend',()=>{touchXPos=null;},{passive:true});
+cv.addEventListener('mousemove',e=>{if(running)touchXPos=e.clientX;});
+
+renderRanks(document.getElementById('topRankTitle'));
+</script>
+</body>
+</html>

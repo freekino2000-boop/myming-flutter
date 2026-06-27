@@ -49,7 +49,21 @@ class _CardNewsPageState extends State<CardNewsPage> {
             // 앱바
             SliverAppBar(
               floating: true, backgroundColor: AppColors.card,
-              title: const Text('📰 마이밍 뉴스'),
+              title: Row(
+                children: [
+                  const Text('마이밍뉴스',
+                      style: TextStyle(fontWeight: FontWeight.w900, color: AppColors.text, fontSize: 17)),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryDim,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const Text('LIVE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.primary)),
+                  ),
+                ],
+              ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pushNamed(context, '/shop'),
@@ -64,8 +78,9 @@ class _CardNewsPageState extends State<CardNewsPage> {
                 children: [
                   // ── 배너 ──────────────────────────────────
                   Container(
-                    margin: const EdgeInsets.all(16),
-                    padding: const EdgeInsets.all(18),
+                    width: double.infinity,
+                    margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                    padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
                         colors: [Color(0xFF1A4FA8), AppColors.primary],
@@ -75,10 +90,16 @@ class _CardNewsPageState extends State<CardNewsPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('💹 마이밍 뉴스', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w900)),
-                        const SizedBox(height: 4),
-                        Text('기사 3건 읽으면 +₩30 보너스!\n오늘의 핵심 이슈를 빠르게 확인하세요 📊',
-                          style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 12)),
+                        const Text('마이밍뉴스',
+                            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w900)),
+                        const SizedBox(height: 6),
+                        SizedBox(
+                          width: double.infinity,
+                          child: Text(
+                            '기사 3건 읽으면 +₩30 보너스!\n오늘의 핵심 경제·부동산 이슈를 빠르게 확인하세요 📊',
+                            style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 12, height: 1.5),
+                          ),
+                        ),
                       ],
                     ),
                   ),

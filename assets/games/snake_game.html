@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>SNAKE GAME</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+button{touch-action:manipulation;}
+body{background:#05091a;overflow:hidden;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+canvas{display:block;}
+#ui{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;padding:10px 16px;background:rgba(5,9,26,.9);z-index:10;}
+#ui span{color:#27AE60;font-size:11px;font-weight:900;font-family:monospace;}
+#dpad{position:fixed;bottom:0;left:0;right:0;height:140px;display:none;align-items:center;justify-content:center;z-index:10;background:rgba(5,9,26,.8);}
+.dpad-row{display:flex;gap:8px;}
+.dpad-btn{width:54px;height:54px;background:rgba(39,174,96,.2);border:2px solid #27AE60;border-radius:12px;color:#27AE60;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;-webkit-user-select:none;}
+.overlay{position:fixed;inset:0;background:rgba(5,9,26,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:20;}
+.overlay h1{color:#27AE60;font-size:20px;font-family:monospace;font-weight:900;text-align:center;}
+.overlay p{color:#888;font-size:12px;text-align:center;line-height:1.8;}
+.btn{font-size:12px;color:#fff;background:#27AE60;border:none;padding:13px 30px;cursor:pointer;border-radius:8px;font-weight:900;}
+.rbtn{font-size:11px;color:#5a8ab0;background:#1a3a5c;border:none;padding:10px 20px;cursor:pointer;border-radius:8px;font-weight:700;}
+.res{font-size:13px;color:#27AE60;font-weight:900;}
+</style>
+</head>
+<body>
+<div id="ui"><span>🐍 SNAKE</span><span id="scoreEl">길이: 1</span></div>
+<canvas id="c"></canvas>
+<div id="dpad">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+    <div class="dpad-row">
+      <div class="dpad-btn" ontouchend="event.preventDefault();dir(0,-1)" onclick="dir(0,-1)">↑</div>
+    </div>
+    <div class="dpad-row">
+      <div class="dpad-btn" ontouchend="event.preventDefault();dir(-1,0)" onclick="dir(-1,0)">←</div>
+      <div class="dpad-btn" ontouchend="event.preventDefault();dir(0,1)" onclick="dir(0,1)">↓</div>
+      <div class="dpad-btn" ontouchend="event.preventDefault();dir(1,0)" onclick="dir(1,0)">→</div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="ovTitle">
+  <h1>🐍 SNAKE<br>GAME!</h1>
+  <p>먹이를 먹어 뱀을 키워라!<br>방향키로 조작하세요!</p>
+  <div id="topRankTitle" style="font-size:10px;color:#5a8ab0;text-align:center;margin-bottom:4px;"></div>
+  <button class="btn" ontouchend="event.preventDefault();startGame()" onclick="startGame()">▶ START</button>
+  <button class="rbtn" ontouchend="event.preventDefault();goBack()" onclick="goBack()">← MENU</button>
+</div>
+
+<div class="overlay" id="ovResult" style="display:none;">
+  <h1>GAME OVER!</h1>
+  <div class="res" id="resLen"></div>
+  <div id="resEarn" style="font-size:14px;color:#27AE60;font-weight:900;"></div>
+  <div id="resRank" style="font-size:11px;color:#FFD700;"></div>
+  <div id="rankList" style="font-size:10px;color:#5a8ab0;text-align:left;min-width:200px;margin-top:4px;"></div>
+  <button class="btn" ontouchend="event.preventDefault();startGame()" onclick="startGame()">▶ RETRY</button>
+  <button class="rbtn" ontouchend="event.preventDefault();goBack()" onclick="goBack()">← MENU</button>
+</div>
+
+<script>
+const DUMMY=[{name:'뱀왕',l:24},{name:'뱀신',l:20},{name:'기다란뱀',l:16},{name:'중간뱀',l:12},{name:'아기뱀',l:8}];
+function getRanks(){try{const d=JSON.parse(localStorage.getItem('mmSnakeRanks')||'null');if(d&&d.length)return d;}catch(e){}return DUMMY.slice();}
+function saveRank(l){const r=getRanks().filter(x=>x.name!=='YOU');r.push({name:'YOU',l});r.sort((a,b)=>b.l-a.l);const t=r.slice(0,10);localStorage.setItem('mmSnakeRanks',JSON.stringify(t));return t.findIndex(x=>x.name==='YOU')+1;}
+function renderRanks(el){if(!el)return;const r=getRanks();const md=['🥇','🥈','🥉'];el.innerHTML=r.slice(0,5).map((x,i)=>`<div style="padding:3px 0;border-bottom:1px solid #1a3a5c;">${md[i]||i+1} ${x.name} <span style="color:#fff">길이 ${x.l}</span></div>`).join('');}
+
+const cv=document.getElementById('c');
+const ctx=cv.getContext('2d');
+let COLS,ROWS,CS,GX,GY,GW,GH;
+let snake,dx,dy,food,running,tickInterval,score;
+let touchSX,touchSY;
+
+function resize(){
+  const pad=140; // dpad 높이
+  cv.width=window.innerWidth;cv.height=window.innerHeight-44-pad;
+  CS=Math.floor(Math.min(cv.width,cv.height)/20);
+  COLS=Math.floor(cv.width/CS);ROWS=Math.floor(cv.height/CS);
+  GW=COLS*CS;GH=ROWS*CS;
+  GX=(cv.width-GW)/2;GY=(cv.height-GH)/2;
+}
+
+function placeFood(){
+  let fx,fy;
+  do{fx=Math.floor(Math.random()*COLS);fy=Math.floor(Math.random()*ROWS);}
+  while(snake.some(s=>s.x===fx&&s.y===fy));
+  food={x:fx,y:fy};
+}
+
+function startGame(){
+  document.getElementById('ovTitle').style.display='none';
+  document.getElementById('ovResult').style.display='none';
+  document.getElementById('dpad').style.display='flex';
+  resize();
+  const cx=Math.floor(COLS/2),cy=Math.floor(ROWS/2);
+  snake=[{x:cx,y:cy},{x:cx-1,y:cy},{x:cx-2,y:cy}];
+  dx=1;dy=0;score=3;running=true;
+  placeFood();
+  if(tickInterval)clearInterval(tickInterval);
+  tickInterval=setInterval(tick,160);
+  draw();
+}
+
+function dir(ndx,ndy){
+  if(ndx!==0&&dx!==0)return;
+  if(ndy!==0&&dy!==0)return;
+  dx=ndx;dy=ndy;
+}
+
+function tick(){
+  if(!running)return;
+  const head={x:snake[0].x+dx,y:snake[0].y+dy};
+  // 벽 충돌
+  if(head.x<0||head.x>=COLS||head.y<0||head.y>=ROWS){endGame();return;}
+  // 자기 충돌
+  if(snake.some(s=>s.x===head.x&&s.y===head.y)){endGame();return;}
+  snake.unshift(head);
+  if(head.x===food.x&&head.y===food.y){score++;placeFood();}
+  else snake.pop();
+  document.getElementById('scoreEl').textContent='길이: '+snake.length;
+  draw();
+}
+
+function draw(){
+  ctx.fillStyle='#05091a';ctx.fillRect(0,0,cv.width,cv.height);
+  // 그리드
+  ctx.strokeStyle='rgba(39,174,96,.1)';ctx.lineWidth=0.5;
+  for(let r=0;r<=ROWS;r++){ctx.beginPath();ctx.moveTo(GX,GY+r*CS);ctx.lineTo(GX+GW,GY+r*CS);ctx.stroke();}
+  for(let c=0;c<=COLS;c++){ctx.beginPath();ctx.moveTo(GX+c*CS,GY);ctx.lineTo(GX+c*CS,GY+GH);ctx.stroke();}
+  // 뱀
+  snake.forEach((s,i)=>{
+    ctx.fillStyle=i===0?'#27AE60':'#1a5e30';
+    ctx.beginPath();ctx.roundRect(GX+s.x*CS+1,GY+s.y*CS+1,CS-2,CS-2,i===0?5:3);ctx.fill();
+    if(i===0){ctx.fillStyle='#fff';const ex=dx===1?0.7:dx===-1?0.3:0.5;const ey=dy===1?0.7:dy===-1?0.3:0.5;ctx.beginPath();ctx.arc(GX+s.x*CS+CS*ex,GY+s.y*CS+CS*ey,2,0,Math.PI*2);ctx.fill();}
+  });
+  // 먹이
+  ctx.font=(CS-4)+'px serif';ctx.textAlign='center';
+  ctx.fillText('🍎',GX+food.x*CS+CS/2,GY+food.y*CS+CS-2);
+}
+
+function endGame(){
+  running=false;
+  clearInterval(tickInterval);
+  document.getElementById('dpad').style.display='none';
+  const len=snake.length;
+  const earn=Math.min(Math.floor(len*2),32);
+  const rank=saveRank(len);
+  document.getElementById('resLen').textContent='길이: '+len;
+  document.getElementById('resEarn').textContent='+₩'+earn+' 적립!';
+  document.getElementById('resRank').textContent='🏆 '+rank+'위';
+  renderRanks(document.getElementById('rankList'));
+  document.getElementById('ovResult').style.display='flex';
+  if(earn>0&&typeof GameChannel!=='undefined')GameChannel.postMessage(earn.toString());
+}
+
+function goBack(){clearInterval(tickInterval);if(typeof GameChannel!=='undefined')GameChannel.postMessage('back');}
+
+// 스와이프 제어
+cv.addEventListener('touchstart',e=>{touchSX=e.touches[0].clientX;touchSY=e.touches[0].clientY;},{passive:true});
+cv.addEventListener('touchend',e=>{
+  const dx2=e.changedTouches[0].clientX-touchSX,dy2=e.changedTouches[0].clientY-touchSY;
+  if(Math.abs(dx2)>Math.abs(dy2)){if(Math.abs(dx2)>20)dir(dx2>0?1:-1,0);}
+  else{if(Math.abs(dy2)>20)dir(0,dy2>0?1:-1);}
+},{passive:true});
+
+renderRanks(document.getElementById('topRankTitle'));
+</script>
+</body>
+</html>

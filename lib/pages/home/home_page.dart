@@ -67,13 +67,7 @@ class _HomePageState extends State<HomePage> {
               floating: true,
               backgroundColor: AppColors.surface,
               elevation: 0,
-              title: Row(
-                children: [
-                  Text('마이밍', style: AppTheme.headline2.copyWith(color: AppColors.primary)),
-                  const SizedBox(width: 4),
-                  Text('만보기 리워드', style: AppTheme.caption),
-                ],
-              ),
+              title: Text('마이밍', style: AppTheme.headline2.copyWith(color: AppColors.primary)),
               actions: [
                 IconButton(
                   onPressed: () => Navigator.pushNamed(context, '/profile'),
@@ -107,6 +101,10 @@ class _HomePageState extends State<HomePage> {
                   const _RentSavingCard(),
                   const SizedBox(height: 12),
 
+                  // ── 1-1. 고정비 등록하기 ──────────────────────
+                  const _FixedCostBanner(),
+                  const SizedBox(height: 12),
+
                   // ── 2. 만보기 카드 ───────────────────────────
                   const PedometerCard(),
                   const SizedBox(height: 12),
@@ -124,6 +122,76 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 80),
                 ]),
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// 1-1. 고정비 등록하기 배너
+// ══════════════════════════════════════════════════════════
+class _FixedCostBanner extends StatelessWidget {
+  const _FixedCostBanner();
+
+  static const _items = [
+    ('🏠', '월세'),
+    ('📱', '통신비'),
+    ('⚡', '공과금'),
+    ('🔄', '구독료'),
+    ('🛡', '보험료'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Navigator.pushNamed(context, '/bill'),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: AppColors.border),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('📋 고정비 등록하기',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: AppColors.text)),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Text('등록하기 ›',
+                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.white)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            const Text('월세·통신비·공과금 등 고정 지출을 등록해 절감 현황을 파악하세요',
+                style: TextStyle(fontSize: 11, color: AppColors.muted, height: 1.4)),
+            const SizedBox(height: 10),
+            Row(
+              children: _items.map((item) => Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryDim,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text('${item.$1} ${item.$2}',
+                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primary)),
+                ),
+              )).toList(),
             ),
           ],
         ),

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>RUNNER</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+button{touch-action:manipulation;}
+body{background:#05091a;overflow:hidden;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+canvas{display:block;touch-action:none;}
+#ui{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;padding:10px 16px;background:rgba(5,9,26,.9);z-index:10;}
+#ui span{color:#2C7FFF;font-size:11px;font-weight:900;font-family:monospace;}
+.overlay{position:fixed;inset:0;background:rgba(5,9,26,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:20;}
+.overlay h1{color:#2C7FFF;font-size:20px;font-family:monospace;font-weight:900;text-align:center;}
+.overlay p{color:#888;font-size:12px;text-align:center;line-height:1.8;}
+.btn{font-size:12px;color:#fff;background:#2C7FFF;border:none;padding:13px 30px;cursor:pointer;border-radius:8px;font-weight:900;}
+.rbtn{font-size:11px;color:#5a8ab0;background:#1a3a5c;border:none;padding:10px 20px;cursor:pointer;border-radius:8px;font-weight:700;}
+.res{font-size:13px;color:#2C7FFF;font-weight:900;}
+</style>
+</head>
+<body>
+<div id="ui"><span>🏃 RUNNER</span><span id="scoreEl">DIST: 0m</span></div>
+<canvas id="c"></canvas>
+
+<div class="overlay" id="ovTitle">
+  <h1>🏃 RUNNER!</h1>
+  <p>장애물을 피해 달려라!<br>TAP하면 점프!</p>
+  <div id="topRankTitle" style="font-size:10px;color:#5a8ab0;text-align:center;margin-bottom:4px;"></div>
+  <button class="btn" ontouchend="event.preventDefault();startGame()" onclick="startGame()">▶ START</button>
+  <button class="rbtn" ontouchend="event.preventDefault();goBack()" onclick="goBack()">← MENU</button>
+</div>
+
+<div class="overlay" id="ovResult" style="display:none;">
+  <h1>RESULT!</h1>
+  <div class="res" id="resDist"></div>
+  <div id="resEarn" style="font-size:14px;color:#2C7FFF;font-weight:900;"></div>
+  <div id="resRank" style="font-size:11px;color:#FFD700;"></div>
+  <div id="rankList" style="font-size:10px;color:#5a8ab0;text-align:left;min-width:200px;margin-top:4px;"></div>
+  <button class="btn" ontouchend="event.preventDefault();startGame()" onclick="startGame()">▶ RETRY</button>
+  <button class="rbtn" ontouchend="event.preventDefault();goBack()" onclick="goBack()">← MENU</button>
+</div>
+
+<script>
+const DUMMY=[{name:'달리기왕',d:3200},{name:'마라토너',d:2800},{name:'스프린터',d:2400},{name:'조깅맨',d:1800},{name:'걷는자',d:1200}];
+function getRanks(){try{const d=JSON.parse(localStorage.getItem('mmRunnerRanks')||'null');if(d&&d.length)return d;}catch(e){}return DUMMY.slice();}
+function saveRank(d){const r=getRanks().filter(x=>x.name!=='YOU');r.push({name:'YOU',d});r.sort((a,b)=>b.d-a.d);const t=r.slice(0,10);localStorage.setItem('mmRunnerRanks',JSON.stringify(t));return t.findIndex(x=>x.name==='YOU')+1;}
+function renderRanks(el){if(!el)return;const r=getRanks();const md=['🥇','🥈','🥉'];el.innerHTML=r.slice(0,5).map((x,i)=>`<div style="padding:3px 0;border-bottom:1px solid #1a3a5c;">${md[i]||i+1} ${x.name} <span style="color:#fff">${x.d}m</span></div>`).join('');}
+
+const cv=document.getElementById('c');
+const ctx=cv.getContext('2d');
+let W,H,GY,running,dist,speed;
+let runner={x:0,y:0,vy:0,onGround:true,w:30,h:40};
+let obstacles=[],clouds=[],frameCount,score;
+
+function resize(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight-44;GY=H*0.72;}
+
+function startGame(){
+  document.getElementById('ovTitle').style.display='none';
+  document.getElementById('ovResult').style.display='none';
+  resize();
+  runner.x=W*0.15;runner.y=GY-runner.h;runner.vy=0;runner.onGround=true;
+  obstacles=[];clouds=[];frameCount=0;dist=0;speed=5;running=true;
+  requestAnimationFrame(loop);
+}
+
+function jump(){
+  if(runner.onGround){runner.vy=-16;runner.onGround=false;}
+}
+
+function loop(){
+  if(!running)return;
+  update();draw();
+  requestAnimationFrame(loop);
+}
+
+function update(){
+  frameCount++;
+  dist=Math.floor(frameCount*0.5);
+  document.getElementById('scoreEl').textContent='DIST: '+dist+'m';
+  speed=5+Math.floor(dist/300)*0.5;
+
+  // 물리
+  runner.vy+=0.7;
+  runner.y+=runner.vy;
+  if(runner.y>=GY-runner.h){runner.y=GY-runner.h;runner.vy=0;runner.onGround=true;}
+
+  // 장애물 생성
+  if(frameCount%Math.max(50,80-Math.floor(dist/200))==0){
+    const h=30+Math.random()*30;
+    obstacles.push({x:W+10,y:GY-h,w:22,h,color:Math.random()>0.5?'#2C7FFF':'#FF6B35'});
+  }
+
+  // 구름 생성
+  if(frameCount%120==0) clouds.push({x:W,y:50+Math.random()*H*0.3,w:60+Math.random()*40,spd:1+Math.random()});
+
+  // 이동
+  obstacles.forEach(o=>o.x-=speed);
+  clouds.forEach(c=>c.x-=c.spd);
+  obstacles=obstacles.filter(o=>o.x+o.w>0);
+  clouds=clouds.filter(c=>c.x+c.w>0);
+
+  // 충돌
+  for(let o of obstacles){
+    if(runner.x+runner.w-6>o.x+4&&runner.x+6<o.x+o.w-4&&runner.y+runner.h-4>o.y+4&&runner.y+4<o.y+o.h){
+      endGame();return;
+    }
+  }
+}
+
+function draw(){
+  // 배경
+  ctx.fillStyle='#05091a';ctx.fillRect(0,0,W,H);
+  // 구름
+  ctx.fillStyle='rgba(44,127,255,.1)';
+  clouds.forEach(c=>{ctx.beginPath();ctx.ellipse(c.x+c.w/2,c.y,c.w/2,12,0,0,Math.PI*2);ctx.fill();});
+  // 지면
+  ctx.fillStyle='#1a3a5c';ctx.fillRect(0,GY,W,H-GY);
+  ctx.fillStyle='#2C7FFF';ctx.fillRect(0,GY,W,3);
+  // 장애물
+  obstacles.forEach(o=>{
+    ctx.fillStyle=o.color;
+    ctx.beginPath();ctx.roundRect(o.x,o.y,o.w,o.h,4);ctx.fill();
+  });
+  // 러너 (스틱맨)
+  const rx=runner.x,ry=runner.y,rh=runner.h;
+  ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.lineCap='round';
+  // 머리
+  ctx.fillStyle='#2C7FFF';ctx.beginPath();ctx.arc(rx+15,ry+8,8,0,Math.PI*2);ctx.fill();
+  // 몸
+  ctx.beginPath();ctx.moveTo(rx+15,ry+16);ctx.lineTo(rx+15,ry+rh*0.7);ctx.stroke();
+  // 다리 (애니메이션)
+  const legAnim=Math.sin(frameCount*0.4)*20;
+  ctx.beginPath();ctx.moveTo(rx+15,ry+rh*0.7);ctx.lineTo(rx+8+legAnim*0.3,ry+rh);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(rx+15,ry+rh*0.7);ctx.lineTo(rx+22-legAnim*0.3,ry+rh);ctx.stroke();
+  // 팔
+  ctx.beginPath();ctx.moveTo(rx+15,ry+rh*0.4);ctx.lineTo(rx+5,ry+rh*0.55+legAnim*0.15);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(rx+15,ry+rh*0.4);ctx.lineTo(rx+25,ry+rh*0.55-legAnim*0.15);ctx.stroke();
+}
+
+function endGame(){
+  running=false;
+  const earn=Math.min(Math.floor(dist/30),70);
+  const rank=saveRank(dist);
+  document.getElementById('resDist').textContent='거리: '+dist+'m';
+  document.getElementById('resEarn').textContent='+₩'+earn+' 적립!';
+  document.getElementById('resRank').textContent='🏆 '+rank+'위';
+  renderRanks(document.getElementById('rankList'));
+  document.getElementById('ovResult').style.display='flex';
+  if(earn>0&&typeof GameChannel!=='undefined')GameChannel.postMessage(earn.toString());
+}
+
+function goBack(){if(typeof GameChannel!=='undefined')GameChannel.postMessage('back');}
+
+cv.addEventListener('touchend',e=>{e.preventDefault();jump();},{passive:false});
+cv.addEventListener('click',jump);
+renderRanks(document.getElementById('topRankTitle'));
+</script>
+</body>
+</html>
