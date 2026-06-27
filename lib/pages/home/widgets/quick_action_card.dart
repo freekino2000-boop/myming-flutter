@@ -22,7 +22,7 @@ class QuickActionSection extends StatelessWidget {
         )),
         const SizedBox(width: 8),
         Expanded(child: _ActionCard(
-          icon: '🎁', title: '행운 뽑기', sub: '최대+₩100',
+          icon: '🎁', title: '행운 뽑기', sub: '최대+₩50',
           color: const Color(0xFFFF6B35),
           onTap: () => _doLuckyBox(context),
         )),
@@ -78,35 +78,8 @@ class QuickActionSection extends StatelessWidget {
                     style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.muted))))
                 .toList()),
             const SizedBox(height: 6),
-            // 날짜 그리드
-            GridView.builder(
-              shrinkWrap: true, physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 7, mainAxisSpacing: 4, crossAxisSpacing: 4, childAspectRatio: 1),
-              itemCount: firstWeekday + daysInMonth,
-              itemBuilder: (_, i) {
-                if (i < firstWeekday) return const SizedBox.shrink();
-                final day = i - firstWeekday + 1;
-                final isToday = day == now.day;
-                final isChecked = checkedDays.contains(day);
-                return Container(
-                  decoration: BoxDecoration(
-                    color: isChecked ? AppColors.primaryDim : Colors.transparent,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: isToday ? AppColors.primary : Colors.transparent,
-                      width: 1.5,
-                    ),
-                  ),
-                  child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    Text('$day', style: TextStyle(
-                        fontSize: 11, fontWeight: FontWeight.w700,
-                        color: isChecked ? AppColors.primary : AppColors.muted)),
-                    if (isChecked) const Text('✅', style: TextStyle(fontSize: 9)),
-                  ]),
-                );
-              },
-            ),
+            // 날짜 그리드 (Table로 intrinsic height 문제 회피)
+            _buildCalendarTable(firstWeekday, daysInMonth, checkedDays, now.day),
           ],
         ),
         actions: [
@@ -120,8 +93,49 @@ class QuickActionSection extends StatelessWidget {
   }
 
   // ── 행운 뽑기: 10~100원 랜덤 보상 ───────────────────────
+  // 달력 그리드를 Table로 구성 (AlertDialog 내 GridView intrinsic height 문제 회피)
+  Widget _buildCalendarTable(int firstWeekday, int daysInMonth, Set<int> checkedDays, int today) {
+    final totalCells = firstWeekday + daysInMonth;
+    final rows = (totalCells / 7).ceil();
+    return Table(
+      children: List.generate(rows, (row) {
+        return TableRow(
+          children: List.generate(7, (col) {
+            final idx = row * 7 + col;
+            if (idx < firstWeekday || idx >= firstWeekday + daysInMonth) {
+              return const SizedBox(height: 34);
+            }
+            final day = idx - firstWeekday + 1;
+            final isToday = day == today;
+            final isChecked = checkedDays.contains(day);
+            return Padding(
+              padding: const EdgeInsets.all(2),
+              child: Container(
+                height: 32,
+                decoration: BoxDecoration(
+                  color: isChecked ? AppColors.primaryDim : Colors.transparent,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: isToday ? AppColors.primary : Colors.transparent,
+                    width: 1.5,
+                  ),
+                ),
+                child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  Text('$day', style: TextStyle(
+                      fontSize: 11, fontWeight: FontWeight.w700,
+                      color: isChecked ? AppColors.primary : AppColors.muted)),
+                  if (isChecked) const Text('✅', style: TextStyle(fontSize: 8)),
+                ]),
+              ),
+            );
+          }),
+        );
+      }),
+    );
+  }
+
   void _doLuckyBox(BuildContext context) {
-    final luck = Random().nextInt(91) + 10; // 10~100원
+    final luck = Random().nextInt(41) + 10; // 10~50원 (HTML 기준)
     context.read<AppState>().earn('🎁', '행운 뽑기', luck);
     _showSnack(context, '행운 뽑기! ₩$luck 적립 🎲');
   }

@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════════
-// home_page.dart — 홈 화면
-// 만보기 카드 / 빠른 액션 / 절감머니내역
+// home_page.dart — 홈 화면 (HTML 동기화)
+// 월세절감 메인카드 / 만보기 / 오늘의보너스 / 오퍼월 인라인
 // ════════════════════════════════════════════════════════
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:pedometer/pedometer.dart';
 
 import '../../models/app_state.dart';
+import '../../models/offer_model.dart';
 import '../../theme/app_theme.dart';
 import 'widgets/pedometer_card.dart';
 import 'widgets/quick_action_card.dart';
@@ -38,9 +39,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _initPedometer() {
-    // pedometer 패키지: 실기기에서만 동작
-    // Info.plist (iOS): NSMotionUsageDescription 필요
-    // AndroidManifest (Android): ACTIVITY_RECOGNITION 권한 필요
     _stepSub = Pedometer.stepCountStream.listen(
       (StepCount event) {
         if (!mounted) return;
@@ -105,24 +103,24 @@ class _HomePageState extends State<HomePage> {
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
 
-                  // ── 만보기 카드 ──────────────────────────
+                  // ── 1. 월세 절감 포인트 메인 카드 ────────────
+                  const _RentSavingCard(),
+                  const SizedBox(height: 12),
+
+                  // ── 2. 만보기 카드 ───────────────────────────
                   const PedometerCard(),
                   const SizedBox(height: 12),
 
-                  // ── 절감머니 내역 진입 버튼 ──────────────
+                  // ── 3. 절감머니 내역 진입 버튼 ──────────────
                   const BillHistoryEntry(),
                   const SizedBox(height: 12),
 
-                  // ── 빠른 액션 (출석/행운뽑기/광고보너스) ──
+                  // ── 4. 빠른 액션 (출석/행운뽑기/광고보너스) ──
                   const QuickActionSection(),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
 
-                  // ── 오늘의 고정비 절감 미션 요약 ──────────
-                  _MissionSummaryCard(),
-                  const SizedBox(height: 12),
-
-                  // ── 빠른 메뉴 그리드 ────────────────────
-                  _QuickMenuGrid(),
+                  // ── 5. 고정비 절감 미션 (오퍼월 인라인) ────
+                  const _OfferwallInlineSection(),
                   const SizedBox(height: 80),
                 ]),
               ),
@@ -134,107 +132,311 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-// ── 미션 요약 카드 (홈 하단) ─────────────────────────────
-class _MissionSummaryCard extends StatelessWidget {
+// ══════════════════════════════════════════════════════════
+// 1. 월세 절감 포인트 메인 카드 (HTML homeMainCard 이식)
+// ══════════════════════════════════════════════════════════
+class _RentSavingCard extends StatelessWidget {
+  const _RentSavingCard();
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: AppTheme.cardDecoration,
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('🎯 오늘의 미션', style: AppTheme.headline2),
-              TextButton(
-                onPressed: () => Navigator.pushNamed(context, '/offerwall'),
-                child: Text('전체보기 ›', style: TextStyle(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.w700)),
-              ),
-            ],
+    final wallet = context.watch<AppState>().walletAmount.floor();
+    return GestureDetector(
+      onTap: () => Navigator.pushNamed(context, '/shop'),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF1A4FA8), AppColors.primary],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-          const SizedBox(height: 12),
-          _MissionItem(icon: '👟', title: '만보 달성 (10,000보)', reward: 100, done: false),
-          const SizedBox(height: 8),
-          _MissionItem(icon: '📰', title: '카드뉴스 3건 읽기', reward: 30, done: false),
-          const SizedBox(height: 8),
-          _MissionItem(icon: '📅', title: '출석 체크', reward: 10, done: false),
-        ],
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(color: AppColors.primary.withOpacity(0.35), blurRadius: 16, offset: const Offset(0, 6)),
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('🏠 이번 달 월세 절감 포인트',
+                      style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 8),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Text(
+                        _fmt(wallet),
+                        style: const TextStyle(color: Colors.white, fontSize: 34, fontWeight: FontWeight.w900),
+                      ),
+                      const SizedBox(width: 4),
+                      const Text('원 ›', style: TextStyle(color: Colors.white70, fontSize: 18, fontWeight: FontWeight.w700)),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.18),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.white.withOpacity(0.3)),
+                    ),
+                    child: const Text('절감머니 내역 ›',
+                        style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700)),
+                  ),
+                ],
+              ),
+            ),
+            // 금화 스택 SVG → Flutter 위젯으로 재현
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: _GoldCoinStack(),
+            ),
+          ],
+        ),
       ),
     );
   }
+
+  String _fmt(int n) => n.toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},');
 }
 
-// ── 빠른 메뉴 그리드 ─────────────────────────────────────
-class _QuickMenuGrid extends StatelessWidget {
+class _GoldCoinStack extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final menus = [
-      _MenuEntry('📋', '고정비 관리', '/bill'),
-      _MenuEntry('🔮', '오늘의 운세', '/fortune'),
-      _MenuEntry('🎯', '절감 미션',   '/offerwall'),
-      _MenuEntry('🎟', '쿠폰함',      '/coupon'),
-    ];
-    return GridView.count(
-      crossAxisCount: 4,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 8,
-      crossAxisSpacing: 8,
-      children: menus.map((m) => GestureDetector(
-        onTap: () => Navigator.pushNamed(context, m.route),
-        child: Container(
-          decoration: BoxDecoration(color: AppColors.card, border: Border.all(color: AppColors.border), borderRadius: BorderRadius.circular(16)),
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Text(m.icon, style: const TextStyle(fontSize: 26)),
-            const SizedBox(height: 6),
-            Text(m.label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primary), textAlign: TextAlign.center),
-          ]),
-        ),
-      )).toList(),
+    return SizedBox(
+      width: 88,
+      height: 64,
+      child: CustomPaint(painter: _CoinPainter()),
     );
   }
 }
 
-class _MenuEntry {
-  final String icon, label, route;
-  const _MenuEntry(this.icon, this.label, this.route);
+class _CoinPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width;
+    final h = size.height;
+
+    void drawCoin(double cx, double cy, double rx, double ry, Color top, Color side) {
+      // 옆면
+      final sidePaint = Paint()..color = side;
+      canvas.drawRect(Rect.fromLTWH(cx - rx, cy, rx * 2, ry * 0.8), sidePaint);
+      // 아랫면
+      canvas.drawOval(Rect.fromCenter(center: Offset(cx, cy + ry * 0.8), width: rx * 2, height: ry), sidePaint);
+      // 윗면
+      final topPaint = Paint()..color = top;
+      canvas.drawOval(Rect.fromCenter(center: Offset(cx, cy), width: rx * 2, height: ry), topPaint);
+    }
+
+    // 뒤 스택
+    drawCoin(w * 0.72, h * 0.35, w * 0.22, h * 0.13, const Color(0xFFF5C842), const Color(0xFFDDA00A));
+    // 중간 스택
+    drawCoin(w * 0.50, h * 0.52, w * 0.22, h * 0.13, const Color(0xFFFFE07A), const Color(0xFFDDA00A));
+    // 앞 코인 (크게)
+    drawCoin(w * 0.80, h * 0.68, w * 0.20, h * 0.12, const Color(0xFFFFD043), const Color(0xFFB38000));
+
+    // ₩ 텍스트
+    final tp = TextPainter(
+      text: const TextSpan(
+        text: '₩',
+        style: TextStyle(color: Color(0xFFB38000), fontSize: 10, fontWeight: FontWeight.w900),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    tp.paint(canvas, Offset(w * 0.73, h * 0.62));
+  }
+
+  @override
+  bool shouldRepaint(_) => false;
 }
 
-class _MissionItem extends StatelessWidget {
-  final String icon;
-  final String title;
-  final int reward;
-  final bool done;
+// ══════════════════════════════════════════════════════════
+// 5. 고정비 절감 미션 인라인 섹션 (HTML owFilterBar + owInlineList)
+// ══════════════════════════════════════════════════════════
+class _OfferwallInlineSection extends StatefulWidget {
+  const _OfferwallInlineSection();
 
-  const _MissionItem({required this.icon, required this.title, required this.reward, required this.done});
+  @override
+  State<_OfferwallInlineSection> createState() => _OfferwallInlineSectionState();
+}
+
+class _OfferwallInlineSectionState extends State<_OfferwallInlineSection> {
+  OfferCategory? _cat; // null = 전체
+
+  static const _cats = [
+    (null,                     '🔥 전체'),
+    (OfferCategory.rent,       '🏠 월세'),
+    (OfferCategory.telecom,    '📱 통신비'),
+    (OfferCategory.utility,    '⚡ 공과금'),
+    (OfferCategory.subscribe,  '🔄 구독료'),
+    (OfferCategory.manage,     '🏢 관리비'),
+    (OfferCategory.insurance,  '🛡 보험료'),
+    (OfferCategory.transit,    '🚇 교통비'),
+  ];
+
+  List<Offer> get _filtered => _cat == null
+      ? kOffers
+      : kOffers.where((o) => o.category == _cat).toList();
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(icon, style: const TextStyle(fontSize: 18)),
-        const SizedBox(width: 10),
-        Expanded(child: Text(title, style: AppTheme.body.copyWith(
-          decoration: done ? TextDecoration.lineThrough : null,
-          color: done ? AppColors.muted : AppColors.text,
-        ))),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-          decoration: BoxDecoration(
-            color: done ? Colors.grey.shade100 : AppColors.primaryDim,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            done ? '완료' : '+₩$reward',
-            style: TextStyle(
-              fontSize: 11, fontWeight: FontWeight.w700,
-              color: done ? AppColors.muted : AppColors.primary,
+        // 섹션 헤더
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('고정비 절감 미션',
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: AppColors.text)),
+            TextButton(
+              onPressed: () => Navigator.pushNamed(context, '/offerwall'),
+              child: const Text('전체보기 ›',
+                  style: TextStyle(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.w700)),
             ),
+          ],
+        ),
+        const SizedBox(height: 8),
+
+        // 카테고리 필터 탭 (HTML owFilterBar)
+        SizedBox(
+          height: 34,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: _cats.length,
+            itemBuilder: (_, i) {
+              final (cat, label) = _cats[i];
+              final active = _cat == cat;
+              return GestureDetector(
+                onTap: () => setState(() => _cat = cat),
+                child: Container(
+                  margin: const EdgeInsets.only(right: 7),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: active ? AppColors.primaryDim : AppColors.card,
+                    border: Border.all(
+                        color: active ? AppColors.primary : AppColors.border, width: 1.5),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(label,
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: active ? AppColors.primary : AppColors.muted)),
+                ),
+              );
+            },
           ),
         ),
+        const SizedBox(height: 10),
+
+        // 미션 목록 (HTML owInlineList)
+        ..._filtered.map((offer) => _OfferwallInlineCard(offer: offer)),
       ],
     );
   }
+}
+
+class _OfferwallInlineCard extends StatelessWidget {
+  final Offer offer;
+  const _OfferwallInlineCard({required this.offer});
+
+  @override
+  Widget build(BuildContext context) {
+    final typeColor = offer.type == OfferType.high
+        ? const Color(0xFFE06C00)
+        : offer.type == OfferType.recom
+            ? AppColors.primary
+            : AppColors.muted;
+    final typeLabel = offer.type == OfferType.high
+        ? '💰 고보상'
+        : offer.type == OfferType.recom
+            ? '🌟 추천'
+            : '⚡ 간단';
+
+    return GestureDetector(
+      onTap: () => Navigator.pushNamed(context, '/offerwall'),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: AppColors.card,
+          border: Border.all(
+              color: offer.type == OfferType.high
+                  ? const Color(0xFFE06C00).withOpacity(0.25)
+                  : AppColors.border),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 6, offset: const Offset(0, 2))
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                  color: AppColors.primaryDim, borderRadius: BorderRadius.circular(12)),
+              child: Center(child: Text(offer.icon, style: const TextStyle(fontSize: 22))),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                      decoration: BoxDecoration(
+                          color: typeColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(4)),
+                      child: Text(typeLabel,
+                          style: TextStyle(
+                              fontSize: 9, fontWeight: FontWeight.w700, color: typeColor)),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(offer.category.label, style: AppTheme.caption.copyWith(fontSize: 9)),
+                  ]),
+                  const SizedBox(height: 3),
+                  Text(offer.name,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w800, fontSize: 13, color: AppColors.text)),
+                  Text(offer.desc,
+                      style: AppTheme.caption.copyWith(fontSize: 11),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis),
+                ],
+              ),
+            ),
+            const SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text('+₩${_fmt(offer.reward)}',
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 14,
+                        color: AppColors.primary)),
+                if (offer.clicked)
+                  const Text('완료', style: TextStyle(fontSize: 10, color: AppColors.muted))
+                else
+                  const Text('참여하기 ›',
+                      style: TextStyle(fontSize: 10, color: AppColors.primary)),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _fmt(int n) => n.toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},');
 }
