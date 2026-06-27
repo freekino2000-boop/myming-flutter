@@ -27,6 +27,9 @@ dependencies:
   # 게임 엔진 (벽돌깨기, 무한점프, 낚시대전)
   flame: ^1.18.0
 
+  # WebView (HTML 게임 임베드)
+  webview_flutter: ^4.7.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -34,3 +37,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/games/

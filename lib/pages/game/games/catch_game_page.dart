@@ -66,7 +66,7 @@ class CatchGame extends FlameGame with PanDetector, TapCallbacks {
       final iRect = Rect.fromCircle(center: Offset(item.position.x, item.position.y), radius: itemR);
       final bRect = Rect.fromLTWH(basket.position.x, basket.position.y, basketW, basketH);
       if (iRect.overlaps(bRect)) {
-        score += item.type == 2 ? -10 : 10 + item.type * 5;
+        score += item.type == 2 ? -10 : (10 + item.type * 5).toInt();
         item.removeFromParent(); _items.remove(item);
         continue;
       }

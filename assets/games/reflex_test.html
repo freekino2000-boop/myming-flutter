@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>REFLEX TEST</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:#05091a;font-family:'Press Start 2P',monospace;overflow:hidden;height:100vh;display:flex;flex-direction:column;}
+.scr{display:none;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;padding:20px;}
+.scr.on{display:flex;}
+#reflexGame{padding:0;gap:0;}
+#reflexField{width:100%;flex:1;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .1s;user-select:none;-webkit-user-select:none;}
+.logo{font-size:20px;color:#00D2D3;text-shadow:3px 3px #005f60;margin-bottom:10px;text-align:center;line-height:1.8;}
+.earn{font-size:14px;color:#00D2D3;margin:8px 0;}
+.rbtn{font-family:'Press Start 2P',monospace;font-size:9px;padding:10px 14px;border:none;cursor:pointer;margin:3px;}
+.rank-row{display:flex;align-items:center;gap:8px;font-size:9px;color:#5a8ab0;padding:5px 0;border-bottom:1px solid #1a3a5c;width:100%;max-width:280px;}
+.rank-row.me{color:#00D2D3;}
+.rank-num{width:26px;text-align:right;flex-shrink:0;}
+.rank-name{flex:1;}
+.rank-score{color:#fff;white-space:nowrap;}
+</style>
+</head>
+<body>
+<!-- 타이틀 -->
+<div class="scr on" id="scrTitle">
+  <div class="logo">⚡ REFLEX<br>TEST!</div>
+  <div style="font-size:9px;color:#5a8ab0;margin:6px 0 18px;text-align:center;line-height:2.2;">화면이 초록으로 바뀌면<br>바로 탭! 5회 평균 측정</div>
+  <div id="topRanks" style="width:100%;max-width:280px;margin-bottom:16px;"></div>
+  <button onclick="reflexStart()" style="font-family:'Press Start 2P',monospace;font-size:11px;color:#000;background:#00D2D3;border:none;padding:13px 30px;cursor:pointer;box-shadow:4px 4px #005f60;">▶ START</button>
+  <button class="rbtn" style="background:#1a3a5c;color:#5a8ab0;margin-top:16px;" onclick="goBack()">← MENU</button>
+</div>
+
+<!-- 게임 화면 -->
+<div class="scr" id="reflexGame" style="justify-content:flex-start;">
+  <div style="padding:10px 16px;font-size:9px;color:#5a8ab0;text-align:center;">라운드 <span id="roundEl">1</span>/5 · 결과: <span id="resultsEl">-</span></div>
+  <div id="reflexField" onclick="reflexTap()">
+    <div id="reflexMsg" style="font-size:16px;color:#5a8ab0;text-align:center;line-height:2;pointer-events:none;"></div>
+  </div>
+</div>
+
+<!-- 결과 화면 -->
+<div class="scr" id="scrResult" style="gap:8px;">
+  <div style="font-size:22px;color:#00D2D3;">RESULT!</div>
+  <div id="resSub" style="font-size:9px;color:#888;line-height:2.5;text-align:center;"></div>
+  <div id="resEarn" class="earn"></div>
+  <div id="resRank" style="font-size:10px;color:#FFD700;"></div>
+  <div id="rankList" style="width:100%;max-width:280px;margin:6px 0;"></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
+    <button class="rbtn" style="background:#00D2D3;color:#000;" onclick="reflexStart()">▶ RETRY</button>
+    <button class="rbtn" style="background:#1a3a5c;color:#5a8ab0;" onclick="goBack()">← MENU</button>
+  </div>
+</div>
+
+<script>
+const DUMMY=[{name:'번개손',ms:178},{name:'반응신화',ms:201},{name:'빠른반응',ms:228},{name:'스피드러',ms:256},{name:'보통반응',ms:312},{name:'느린편',ms:398}];
+let rnd=0,times=[],waiting=false,rTimeout=null,rStart=0;
+
+function getRanks(){try{const s=JSON.parse(localStorage.getItem('mmReflexRanks')||'null');if(s&&s.length)return s;}catch(e){}localStorage.setItem('mmReflexRanks',JSON.stringify(DUMMY));return DUMMY.slice();}
+function saveRank(ms){const ranks=getRanks().filter(r=>r.name!=='YOU');ranks.push({name:'YOU',ms});ranks.sort((a,b)=>a.ms-b.ms);const top=ranks.slice(0,10);localStorage.setItem('mmReflexRanks',JSON.stringify(top));return top.findIndex(r=>r.name==='YOU')+1;}
+function renderRanks(el){if(!el)return;const ranks=getRanks();const md=['🥇','🥈','🥉'];el.innerHTML=ranks.slice(0,5).map((r,i)=>`<div class="rank-row${r.name==='YOU'?' me':''}"><span class="rank-num">${md[i]||i+1}</span><span class="rank-name">${r.name}</span><span class="rank-score">${r.ms}ms</span></div>`).join('');}
+function scr(id){document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));document.getElementById(id).classList.add('on');}
+
+function reflexStart(){
+  rnd=0;times=[];waiting=false;
+  document.getElementById('roundEl').textContent='1';
+  document.getElementById('resultsEl').textContent='-';
+  scr('reflexGame');
+  nextRound();
+}
+function nextRound(){
+  const field=document.getElementById('reflexField');
+  const msg=document.getElementById('reflexMsg');
+  field.style.background='#05091a';
+  msg.innerHTML='<span style="font-size:22px;color:#5a8ab0;">대기 중...</span><br><span style="font-size:11px;color:#3a5a7a;">초록 되면 TAP!</span>';
+  waiting=true;
+  const delay=1000+Math.random()*3000;
+  rTimeout=setTimeout(()=>{
+    if(!waiting)return;
+    field.style.background='#27AE60';
+    msg.innerHTML='<span style="font-size:28px;color:#fff;">TAP!</span>';
+    rStart=Date.now();
+    waiting=false;
+  },delay);
+}
+function reflexTap(){
+  if(waiting){
+    clearTimeout(rTimeout);
+    waiting=false;
+    const field=document.getElementById('reflexField');
+    const msg=document.getElementById('reflexMsg');
+    field.style.background='#8B0000';
+    msg.innerHTML='<span style="font-size:14px;color:#FF6B6B;">너무 빨랐어요!</span>';
+    times.push(999);
+    setTimeout(after,1200);
+    return;
+  }
+  if(rStart===0)return;
+  const ms=Date.now()-rStart;
+  rStart=0;
+  times.push(ms);
+  const field=document.getElementById('reflexField');
+  const msg=document.getElementById('reflexMsg');
+  field.style.background='#1a3a5c';
+  msg.innerHTML='<span style="font-size:18px;color:#00D2D3;">'+ms+'ms!</span>';
+  const valid=times.filter(t=>t<999);
+  document.getElementById('resultsEl').textContent=valid.length?Math.round(valid.reduce((a,b)=>a+b)/valid.length)+'ms avg':'-';
+  setTimeout(after,900);
+}
+function after(){
+  rnd++;
+  document.getElementById('roundEl').textContent=Math.min(rnd+1,5);
+  if(rnd>=5){finish();return;}
+  nextRound();
+}
+function finish(){
+  const valid=times.filter(t=>t<999);
+  const avg=valid.length?Math.round(valid.reduce((a,b)=>a+b)/valid.length):999;
+  const earn=valid.length===0?0:Math.min(40,Math.max(0,Math.floor((600-avg)/14)));
+  const rank=saveRank(avg);
+  document.getElementById('resSub').innerHTML='평균 반응속도 : '+avg+'ms<br>EARN : +₩'+earn+'<br>MY RANK : '+rank+'위';
+  document.getElementById('resEarn').textContent='+₩'+earn+' 적립!';
+  document.getElementById('resRank').textContent='🏆 '+rank+'위 / '+getRanks().length+'명';
+  renderRanks(document.getElementById('rankList'));
+  scr('scrResult');
+  if(earn>0&&typeof GameChannel!=='undefined')GameChannel.postMessage(earn.toString());
+}
+function goBack(){if(typeof GameChannel!=='undefined')GameChannel.postMessage('back');}
+
+renderRanks(document.getElementById('topRanks'));
+</script>
+</body>
+</html>

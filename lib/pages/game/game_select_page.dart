@@ -1,6 +1,7 @@
 // ════════════════════════════════════════════════════════
-// game_select_page.dart — 게임 선택 (8개 랭킹게임)
-// 앱 화이트/블루 톤앤매너 / 2×4 그리드 / 전체 RANK 뱃지
+// game_select_page.dart — 게임 선택 (HTML 기준 8개)
+// Flame 4개(벽돌깨기·러너·코인받기·뱀게임)
+// WebView 4개(탭배틀·퀴즈왕·카드매칭·반응속도)
 // ════════════════════════════════════════════════════════
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
@@ -9,19 +10,21 @@ import 'games/brick_game_page.dart';
 import 'games/jump_game_page.dart';
 import 'games/catch_game_page.dart';
 import 'games/snake_game_page.dart';
+import 'games/webview_game_page.dart';
 
 class GameSelectPage extends StatelessWidget {
   const GameSelectPage({super.key});
 
+  // HTML 기준 순서·이름·이모지·색상·최대보상
   static const List<_GameInfo> _games = [
-    _GameInfo(id: 'brick',    emoji: '🧱', title: '벽돌 깨기',  sub: 'RANK',  borderColor: Color(0xFFFF6B35), bgColor: Color(0xFFFFF0E8)),
-    _GameInfo(id: 'jump',     emoji: '🏃', title: '무한점프',   sub: 'RANK',  borderColor: Color(0xFF2C7FFF), bgColor: Color(0xFFE8F0FF)),
-    _GameInfo(id: 'puzzle',   emoji: '🧩', title: '퍼즐 맞추기', sub: 'RANK', borderColor: Color(0xFF8B5CF6), bgColor: Color(0xFFF0EAFF)),
-    _GameInfo(id: 'catch',    emoji: '🎣', title: '낚시 대전',   sub: 'RANK', borderColor: Color(0xFF0EA5E9), bgColor: Color(0xFFE0F5FF)),
-    _GameInfo(id: 'quiz',     emoji: '❓', title: '경제 퀴즈',   sub: 'RANK', borderColor: Color(0xFFF59E0B), bgColor: Color(0xFFFFF6D8)),
-    _GameInfo(id: 'runner',   emoji: '🚀', title: '무한 러너',   sub: 'RANK', borderColor: Color(0xFF10B981), bgColor: Color(0xFFE8FBF2)),
-    _GameInfo(id: 'shooting', emoji: '🎯', title: '슈팅 게임',   sub: 'RANK', borderColor: Color(0xFFEF4444), bgColor: Color(0xFFFFEBEB)),
-    _GameInfo(id: 'card',     emoji: '🃏', title: '카드 배틀',   sub: 'RANK', borderColor: Color(0xFF6366F1), bgColor: Color(0xFFEFEFFF)),
+    _GameInfo(id: 'brick',  emoji: '🧱', title: '벽돌깨기',  maxReward: '+₩90', borderColor: Color(0xFFFF6B35), bgColor: Color(0xFFFFF0E8), webview: false),
+    _GameInfo(id: 'jump',   emoji: '🏃', title: '러너',      maxReward: '+₩70', borderColor: Color(0xFF2C7FFF), bgColor: Color(0xFFE8F0FF), webview: false),
+    _GameInfo(id: 'catch',  emoji: '🎯', title: '코인받기',  maxReward: '+₩80', borderColor: Color(0xFFF5A623), bgColor: Color(0xFFFFF6E8), webview: false),
+    _GameInfo(id: 'snake',  emoji: '🐍', title: '뱀 게임',   maxReward: '+₩32', borderColor: Color(0xFF27AE60), bgColor: Color(0xFFE8FBF0), webview: false),
+    _GameInfo(id: 'tap',    emoji: '⚡', title: '탭 배틀',   maxReward: '+₩50', borderColor: Color(0xFF2C7FFF), bgColor: Color(0xFFE8F0FF), webview: true),
+    _GameInfo(id: 'quiz',   emoji: '🃏', title: '퀴즈왕',    maxReward: '+₩50', borderColor: Color(0xFFFF9F43), bgColor: Color(0xFFFFF6D8), webview: true),
+    _GameInfo(id: 'memory', emoji: '🧩', title: '카드매칭',  maxReward: '+₩60', borderColor: Color(0xFF8E44AD), bgColor: Color(0xFFF5EAFF), webview: true),
+    _GameInfo(id: 'reflex', emoji: '🎯', title: '반응속도',  maxReward: '+₩40', borderColor: Color(0xFF00A8B5), bgColor: Color(0xFFE0F9FA), webview: true),
   ];
 
   @override
@@ -42,17 +45,21 @@ class GameSelectPage extends StatelessWidget {
                     onPressed: () => Navigator.pop(context),
                   ),
                   const SizedBox(width: 4),
-                  const Text('🎮 게임 선택', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.text)),
+                  const Text('🎮 게임 선택',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.text)),
                   const Spacer(),
                   TextButton.icon(
-                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GlobalRankPage())),
+                    onPressed: () => Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => const GlobalRankPage())),
                     icon: const Text('🏆', style: TextStyle(fontSize: 14)),
-                    label: const Text('랭킹', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary)),
+                    label: const Text('랭킹',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary)),
                   ),
                   TextButton.icon(
                     onPressed: () => Navigator.pushNamed(context, '/shop'),
                     icon: const Text('🎁', style: TextStyle(fontSize: 14)),
-                    label: const Text('보상', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary)),
+                    label: const Text('보상',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary)),
                   ),
                 ],
               ),
@@ -70,12 +77,18 @@ class GameSelectPage extends StatelessWidget {
               child: Row(children: [
                 const Text('🎖', style: TextStyle(fontSize: 20)),
                 const SizedBox(width: 10),
-                const Expanded(child: Text('모든 게임에서 랭킹에 도전하고\n리워드를 받으세요!',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary, height: 1.4))),
+                const Expanded(
+                  child: Text('모든 게임에서 랭킹에 도전하고\n리워드를 받으세요!',
+                      style: TextStyle(
+                          fontSize: 12, fontWeight: FontWeight.w700,
+                          color: AppColors.primary, height: 1.4)),
+                ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(10)),
-                  child: const Text('1위 ₩500', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.white)),
+                  decoration: BoxDecoration(
+                      color: AppColors.primary, borderRadius: BorderRadius.circular(10)),
+                  child: const Text('1위 ₩500',
+                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.white)),
                 ),
               ]),
             ),
@@ -106,13 +119,15 @@ class _GameInfo {
   final String id;
   final String emoji;
   final String title;
-  final String sub;
+  final String maxReward;
   final Color borderColor;
   final Color bgColor;
+  final bool webview;
 
   const _GameInfo({
     required this.id, required this.emoji, required this.title,
-    required this.sub, required this.borderColor, required this.bgColor,
+    required this.maxReward, required this.borderColor, required this.bgColor,
+    required this.webview,
   });
 }
 
@@ -121,38 +136,65 @@ class _GameCard extends StatelessWidget {
   final _GameInfo game;
   const _GameCard({super.key, required this.game});
 
+  void _onTap(BuildContext context) {
+    Widget? page;
+    switch (game.id) {
+      case 'brick':  page = const BrickGamePage(); break;
+      case 'jump':   page = const JumpGamePage();  break;
+      case 'catch':  page = const CatchGamePage(); break;
+      case 'snake':  page = const SnakeGamePage(); break;
+      case 'tap':
+        page = WebViewGamePage(
+          gameId: 'tap', emoji: '⚡', title: '탭 배틀',
+          assetPath: 'assets/games/tap_battle.html',
+        );
+        break;
+      case 'quiz':
+        page = WebViewGamePage(
+          gameId: 'quiz', emoji: '🃏', title: '퀴즈왕',
+          assetPath: 'assets/games/quiz_king.html',
+        );
+        break;
+      case 'memory':
+        page = WebViewGamePage(
+          gameId: 'memory', emoji: '🧩', title: '카드매칭',
+          assetPath: 'assets/games/memory_match.html',
+        );
+        break;
+      case 'reflex':
+        page = WebViewGamePage(
+          gameId: 'reflex', emoji: '🎯', title: '반응속도',
+          assetPath: 'assets/games/reflex_test.html',
+        );
+        break;
+    }
+    if (page != null) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => page!));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        final routes = <String, Widget>{
-          'brick':  const BrickGamePage(),
-          'jump':   const JumpGamePage(),
-          'catch':  const CatchGamePage(),
-          'runner': const SnakeGamePage(),
-        };
-        final page = routes[game.id];
-        if (page != null) {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => page));
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('${game.title} — 개발 예정 🚧'), duration: const Duration(seconds: 1)),
-          );
-        }
-      },
+      onTap: () => _onTap(context),
       child: Container(
         decoration: BoxDecoration(
           color: game.bgColor,
           border: Border.all(color: game.borderColor, width: 1.5),
           borderRadius: BorderRadius.circular(18),
-          boxShadow: [BoxShadow(color: game.borderColor.withOpacity(0.15), blurRadius: 8, offset: const Offset(0, 3))],
+          boxShadow: [
+            BoxShadow(
+                color: game.borderColor.withOpacity(0.15),
+                blurRadius: 8, offset: const Offset(0, 3))
+          ],
         ),
         child: Stack(
           children: [
             // 배경 데코
             Positioned(
               right: -10, bottom: -10,
-              child: Text(game.emoji, style: TextStyle(fontSize: 70, color: game.borderColor.withOpacity(0.08))),
+              child: Text(game.emoji,
+                  style: TextStyle(fontSize: 70, color: game.borderColor.withOpacity(0.08))),
             ),
             // 콘텐츠
             Padding(
@@ -160,21 +202,29 @@ class _GameCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // RANK 뱃지
+                  // 뱃지 (WebView는 WEB, Flame은 RANK)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: game.borderColor,
-                      borderRadius: BorderRadius.circular(7),
+                        color: game.borderColor, borderRadius: BorderRadius.circular(7)),
+                    child: Text(
+                      game.webview ? 'WEB' : 'RANK',
+                      style: const TextStyle(
+                          fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white),
                     ),
-                    child: Text('RANK', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white)),
                   ),
                   const Spacer(),
                   Text(game.emoji, style: const TextStyle(fontSize: 36)),
                   const SizedBox(height: 6),
-                  Text(game.title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: game.borderColor)),
+                  Text(game.title,
+                      style: TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.w900, color: game.borderColor)),
                   const SizedBox(height: 2),
-                  Text('랭킹 도전', style: TextStyle(fontSize: 11, color: game.borderColor.withOpacity(0.7), fontWeight: FontWeight.w500)),
+                  Text('최대 ${game.maxReward}',
+                      style: TextStyle(
+                          fontSize: 11,
+                          color: game.borderColor.withOpacity(0.7),
+                          fontWeight: FontWeight.w600)),
                 ],
               ),
             ),

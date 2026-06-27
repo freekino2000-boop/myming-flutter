@@ -3,16 +3,21 @@ const { body, query, validationResult } = require('express-validator');
 const db   = require('../config/db');
 const auth = require('../middleware/auth');
 
-const GAME_IDS   = ['brick', 'jump', 'catch', 'snake'];
-const MAX_REWARD = { brick: 200, jump: 150, catch: 100, snake: 150 };
+const GAME_IDS   = ['brick', 'jump', 'catch', 'snake', 'tap', 'quiz', 'memory', 'reflex'];
+const MAX_REWARD = { brick: 200, jump: 150, catch: 100, snake: 150, tap: 50, quiz: 50, memory: 60, reflex: 40 };
 
 function calcReward(gameId, score) {
   switch (gameId) {
-    case 'brick': return Math.min(Math.floor(score / 10), 200);
-    case 'jump':  return Math.min(score, 150);   // 클라이언트가 dist÷20+coins×5 계산 후 전달
-    case 'catch': return Math.min(Math.max(Math.floor(score / 15), 0), 100);
-    case 'snake': return Math.min(score * 3, 150);
-    default:      return 0;
+    case 'brick':  return Math.min(Math.floor(score / 10), 200);
+    case 'jump':   return Math.min(score, 150);
+    case 'catch':  return Math.min(Math.max(Math.floor(score / 15), 0), 100);
+    case 'snake':  return Math.min(score * 3, 150);
+    // WebView 게임: 클라이언트가 이미 earn 계산 후 전달
+    case 'tap':    return Math.min(score, 50);
+    case 'quiz':   return Math.min(score, 50);
+    case 'memory': return Math.min(score, 60);
+    case 'reflex': return Math.min(score, 40);
+    default:       return 0;
   }
 }
 
@@ -76,7 +81,7 @@ router.post('/score', auth, [
     );
 
     if (reward > 0) {
-      const gameNames = { brick: '벽돌깨기', jump: '무한점프', catch: '낚시대전', snake: '뱀게임' };
+      const gameNames = { brick: '벽돌깨기', jump: '러너', catch: '코인받기', snake: '뱀게임', tap: '탭배틀', quiz: '퀴즈왕', memory: '카드매칭', reflex: '반응속도' };
       await db.query(
         `INSERT INTO wallet_ledger (user_id, icon, name, amount, type)
          VALUES ($1, '🎮', $2, $3, 'earn')`,

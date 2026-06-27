@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>MEMORY MATCH</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+KR:wght@700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:#05091a;overflow:hidden;height:100vh;display:flex;flex-direction:column;}
+.scr{display:none;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;padding:20px;}
+.scr.on{display:flex;}
+.mem-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%;max-width:320px;margin:16px auto;}
+.mem-card{aspect-ratio:1;border-radius:10px;background:#0d1a2e;border:2px solid #1a3a5c;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:28px;transition:transform .2s,background .2s;user-select:none;-webkit-user-select:none;}
+.mem-card.flipped{background:#1a2a4a;border-color:#C56CF0;}
+.mem-card.matched{background:#1a1a3a;border-color:#C56CF0;opacity:.6;cursor:default;}
+.mc-back{display:block;font-size:20px;opacity:.5;}
+.mc-front{display:none;}
+.mem-card.flipped .mc-back,.mem-card.matched .mc-back{display:none;}
+.mem-card.flipped .mc-front,.mem-card.matched .mc-front{display:block;}
+.stat{font-size:12px;color:#5a8ab0;margin-bottom:6px;font-family:'Press Start 2P',monospace;}
+.earn{font-size:18px;color:#C56CF0;font-weight:900;margin:8px 0;font-family:'Noto Sans KR',sans-serif;}
+.rbtn{padding:12px 22px;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;margin:4px;font-family:'Noto Sans KR',sans-serif;}
+.rank-row{display:flex;gap:8px;font-size:12px;padding:4px 0;border-bottom:1px solid #1a3a5c;color:#888;font-family:'Noto Sans KR',sans-serif;}
+.rank-row.me{color:#C56CF0;}
+</style>
+</head>
+<body>
+<!-- 타이틀 -->
+<div class="scr on" id="scrTitle">
+  <div style="font-size:28px;margin-bottom:6px;">🧩</div>
+  <div style="font-size:20px;color:#C56CF0;font-weight:900;margin-bottom:6px;font-family:'Press Start 2P',monospace;">MEMORY!</div>
+  <div style="font-size:12px;color:#5a8ab0;text-align:center;line-height:1.8;margin-bottom:20px;font-family:'Noto Sans KR',sans-serif;">8쌍의 카드를 짝 맞추자!<br>실수가 적을수록 더 많이 적립!</div>
+  <div id="topRanks" style="width:100%;max-width:280px;margin-bottom:16px;"></div>
+  <button onclick="memStart()" style="background:#C56CF0;color:#fff;border:none;padding:13px 32px;border-radius:14px;font-size:15px;font-weight:900;cursor:pointer;box-shadow:0 4px 0 #7a2a9a;font-family:'Noto Sans KR',sans-serif;">▶ START</button>
+  <button class="rbtn" style="background:#1a3a5c;color:#5a8ab0;margin-top:12px;" onclick="goBack()">← MENU</button>
+</div>
+
+<!-- 게임 화면 -->
+<div class="scr" id="scrGame" style="justify-content:flex-start;padding-top:16px;">
+  <div style="display:flex;gap:20px;margin-bottom:8px;">
+    <div class="stat">⏱ <span id="timeEl">0</span>s</div>
+    <div class="stat">❌ <span id="missEl">0</span></div>
+    <div class="stat">✅ <span id="matchEl">0</span>/8</div>
+  </div>
+  <div class="mem-grid" id="grid"></div>
+</div>
+
+<!-- 결과 화면 -->
+<div class="scr" id="scrResult" style="gap:10px;">
+  <div style="font-size:24px;">🧩</div>
+  <div style="font-size:18px;color:#C56CF0;font-weight:900;font-family:'Press Start 2P',monospace;">CLEAR!</div>
+  <div id="resSub" style="font-size:13px;color:#888;text-align:center;line-height:1.8;font-family:'Noto Sans KR',sans-serif;"></div>
+  <div id="resEarn" class="earn"></div>
+  <div id="resRank" style="font-size:13px;color:#FFD700;font-weight:900;font-family:'Noto Sans KR',sans-serif;"></div>
+  <div id="rankList" style="width:100%;max-width:280px;"></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:6px;">
+    <button class="rbtn" style="background:#C56CF0;color:#fff;" onclick="memStart()">▶ RETRY</button>
+    <button class="rbtn" style="background:#1a3a5c;color:#5a8ab0;" onclick="goBack()">← MENU</button>
+  </div>
+</div>
+
+<script>
+const EMOJIS=['🏠','💰','🎮','🚀','🧩','⚡','🎯','🃏'];
+const DUMMY=[{name:'메모리왕',miss:0},{name:'기억력신',miss:1},{name:'퍼즐러',miss:2},{name:'집중력짱',miss:3},{name:'도전자',miss:5}];
+let cards=[],flipped=[],matched=0,misses=0,locked=false,startTime=0,tickTimer=null;
+
+function getRanks(){try{const s=JSON.parse(localStorage.getItem('mmMemRanks')||'null');if(s&&s.length)return s;}catch(e){}localStorage.setItem('mmMemRanks',JSON.stringify(DUMMY));return DUMMY.slice();}
+function saveRank(miss){const ranks=getRanks().filter(r=>r.name!=='YOU');ranks.push({name:'YOU',miss});ranks.sort((a,b)=>a.miss-b.miss);const top=ranks.slice(0,10);localStorage.setItem('mmMemRanks',JSON.stringify(top));return top.findIndex(r=>r.name==='YOU')+1;}
+function renderRanks(el){if(!el)return;const ranks=getRanks();const md=['🥇','🥈','🥉'];el.innerHTML='<div style="font-size:11px;color:#5a8ab0;margin-bottom:6px;font-weight:700;font-family:Noto Sans KR,sans-serif;">🏆 랭킹 (실수 적을수록 우위)</div>'+ranks.slice(0,5).map((r,i)=>`<div class="rank-row${r.name==='YOU'?' me':''}"><span style="width:22px;">${md[i]||i+1}</span><span style="flex:1;">${r.name}</span><span>실수 ${r.miss}회</span></div>`).join('');}
+function scr(id){document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));document.getElementById(id).classList.add('on');}
+
+function memStart(){
+  matched=0;misses=0;flipped=[];locked=false;startTime=Date.now();
+  if(tickTimer)clearInterval(tickTimer);
+  tickTimer=setInterval(()=>{document.getElementById('timeEl').textContent=Math.floor((Date.now()-startTime)/1000);},500);
+  const pairs=[...EMOJIS,...EMOJIS].sort(()=>Math.random()-.5);
+  cards=pairs.map((e,i)=>({id:i,emoji:e,matched:false,flipped:false}));
+  document.getElementById('matchEl').textContent='0';
+  document.getElementById('missEl').textContent='0';
+  document.getElementById('timeEl').textContent='0';
+  document.getElementById('grid').innerHTML=cards.map((c,i)=>
+    `<div class="mem-card" id="mc${i}" onclick="flip(${i})"><span class="mc-back">❓</span><span class="mc-front">${c.emoji}</span></div>`
+  ).join('');
+  scr('scrGame');
+}
+function flip(i){
+  const c=cards[i];
+  if(locked||c.matched||c.flipped)return;
+  c.flipped=true;
+  document.getElementById('mc'+i).classList.add('flipped');
+  flipped.push(i);
+  if(flipped.length===2){
+    locked=true;
+    const[a,b]=flipped;
+    if(cards[a].emoji===cards[b].emoji){
+      setTimeout(()=>{
+        [a,b].forEach(x=>{cards[x].matched=true;document.getElementById('mc'+x).classList.add('matched');});
+        matched++;document.getElementById('matchEl').textContent=matched;
+        flipped=[];locked=false;
+        if(matched===8)finish();
+      },400);
+    }else{
+      misses++;document.getElementById('missEl').textContent=misses;
+      setTimeout(()=>{
+        [a,b].forEach(x=>{cards[x].flipped=false;document.getElementById('mc'+x).classList.remove('flipped');});
+        flipped=[];locked=false;
+      },800);
+    }
+  }
+}
+function finish(){
+  if(tickTimer)clearInterval(tickTimer);
+  const secs=Math.floor((Date.now()-startTime)/1000);
+  const earn=Math.max(0,60-misses*5);
+  const rank=saveRank(misses);
+  document.getElementById('resSub').textContent='시간: '+secs+'초 · 실수: '+misses+'회';
+  document.getElementById('resEarn').textContent='+₩'+earn+' 적립!';
+  document.getElementById('resRank').textContent='🏆 '+rank+'위';
+  renderRanks(document.getElementById('rankList'));
+  scr('scrResult');
+  if(earn>0&&typeof GameChannel!=='undefined')GameChannel.postMessage(earn.toString());
+}
+function goBack(){if(tickTimer)clearInterval(tickTimer);if(typeof GameChannel!=='undefined')GameChannel.postMessage('back');}
+
+renderRanks(document.getElementById('topRanks'));
+</script>
+</body>
+</html>

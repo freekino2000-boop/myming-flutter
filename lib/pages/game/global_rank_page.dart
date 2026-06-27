@@ -16,10 +16,14 @@ class _GlobalRankPageState extends State<GlobalRankPage> {
   late Future<List<Map<String, dynamic>>> _future;
 
   static const _games = [
-    ('brick', '🧱 벽돌깨기'),
-    ('jump',  '🏃 무한점프'),
-    ('catch', '🎣 낚시대전'),
-    ('snake', '🐍 뱀게임'),
+    ('brick',  '🧱 벽돌깨기'),
+    ('jump',   '🏃 러너'),
+    ('catch',  '🎯 코인받기'),
+    ('snake',  '🐍 뱀게임'),
+    ('tap',    '⚡ 탭배틀'),
+    ('quiz',   '🃏 퀴즈왕'),
+    ('memory', '🧩 카드매칭'),
+    ('reflex', '🎯 반응속도'),
   ];
 
   @override
@@ -43,29 +47,33 @@ class _GlobalRankPageState extends State<GlobalRankPage> {
       ),
       body: Column(
         children: [
-          // 게임 탭
+          // 게임 탭 (8개 → 가로 스크롤)
           Container(
             color: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              children: _games.map((g) {
-                final active = _gameId == g.$1;
-                return Expanded(child: GestureDetector(
-                  onTap: () => setState(() { _gameId = g.$1; _load(); }),
-                  child: Container(
-                    margin: const EdgeInsets.only(right: 6),
-                    padding: const EdgeInsets.symmetric(vertical: 7),
-                    decoration: BoxDecoration(
-                      color: active ? AppColors.primaryDim : Colors.transparent,
-                      border: Border.all(color: active ? AppColors.primary : AppColors.border, width: 1.5),
-                      borderRadius: BorderRadius.circular(9),
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: _games.map((g) {
+                  final active = _gameId == g.$1;
+                  return GestureDetector(
+                    onTap: () => setState(() { _gameId = g.$1; _load(); }),
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                      decoration: BoxDecoration(
+                        color: active ? AppColors.primaryDim : Colors.transparent,
+                        border: Border.all(color: active ? AppColors.primary : AppColors.border, width: 1.5),
+                        borderRadius: BorderRadius.circular(9),
+                      ),
+                      child: Text(g.$2, textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700,
+                              color: active ? AppColors.primary : AppColors.muted)),
                     ),
-                    child: Text(g.$2, textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700,
-                            color: active ? AppColors.primary : AppColors.muted)),
-                  ),
-                ));
-              }).toList(),
+                  );
+                }).toList(),
+              ),
             ),
           ),
           // 랭킹 목록

@@ -310,7 +310,7 @@
     <div class="stat-card"><div class="stat-num">10</div><div class="stat-label">Named Routes</div></div>
     <div class="stat-card"><div class="stat-num">26</div><div class="stat-label">Dart 파일</div></div>
     <div class="stat-card"><div class="stat-num">4</div><div class="stat-label">Data Models</div></div>
-    <div class="stat-card"><div class="stat-num">4</div><div class="stat-label">Flame 게임</div></div>
+    <div class="stat-card"><div class="stat-num">8</div><div class="stat-label">게임 (Flame4+WebView4)</div></div>
     <div class="stat-card"><div class="stat-num">29</div><div class="stat-label">오퍼월 미션</div></div>
     <div class="stat-card"><div class="stat-num">3</div><div class="stat-label">하단 탭</div></div>
   </div>
@@ -607,11 +607,14 @@
           <td>—</td>
           <td><span class="type-chip">walletAmount</span></td>
           <td>
-            <span class="badge badge-gold">→ BrickGamePage</span> (brick)<br>
-            <span class="badge badge-gold">→ JumpGamePage</span> (jump)<br>
-            <span class="badge badge-gold">→ CatchGamePage</span> (catch)<br>
-            <span class="badge badge-gold">→ SnakeGamePage</span> (runner)<br>
-            <span class="badge badge-gray">개발예정</span> puzzle·quiz·shooting·card<br>
+            <span class="badge badge-gold">→ BrickGamePage</span> 🧱 벽돌깨기 (Flame)<br>
+            <span class="badge badge-gold">→ JumpGamePage</span> 🏃 러너 (Flame)<br>
+            <span class="badge badge-gold">→ CatchGamePage</span> 🎯 코인받기 (Flame)<br>
+            <span class="badge badge-gold">→ SnakeGamePage</span> 🐍 뱀게임 (Flame)<br>
+            <span class="badge badge-blue">→ WebViewGamePage</span> ⚡ 탭배틀 (WebView)<br>
+            <span class="badge badge-blue">→ WebViewGamePage</span> 🃏 퀴즈왕 (WebView)<br>
+            <span class="badge badge-blue">→ WebViewGamePage</span> 🧩 카드매칭 (WebView)<br>
+            <span class="badge badge-blue">→ WebViewGamePage</span> 🎯 반응속도 (WebView)<br>
             <span class="badge badge-blue">→ /rank</span>
           </td>
           <td><span class="filepath">pages/game/game_select_page.dart</span></td>
@@ -1131,7 +1134,7 @@
   <!-- ════ SECTION 5 · 게임 스펙 ════ -->
   <div class="section">
     <h2 class="section-title">05 &nbsp;게임 스펙 비교</h2>
-    <p class="section-desc">4개 게임의 엔진, 조작, 최대 보상, 구현 방식 비교</p>
+    <p class="section-desc">8개 게임 · Flame 4개 + WebView 4개 (HTML 기준 동기화)</p>
     <div class="tbl-wrap">
     <table>
       <thead>
@@ -1139,56 +1142,88 @@
           <th>게임</th>
           <th>ID</th>
           <th>엔진</th>
+          <th>HTML 명칭</th>
           <th>조작</th>
-          <th>핵심 컴포넌트</th>
           <th>보상 공식</th>
           <th>최대 보상</th>
-          <th>Mixin</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td><b>🧱 벽돌깨기</b></td>
-          <td><span class="badge badge-gold">G-02</span></td>
+          <td><span class="badge badge-gold">brick</span></td>
           <td><span class="badge badge-gold">Flame</span></td>
-          <td>화면 탭 (시작) + 패들 드래그</td>
-          <td>Ball, Paddle, Brick (8×5)</td>
-          <td>Flutter: min(score ÷ 10, 200)<br>SPA: 레벨별 earn (lv1:₩15~lv10:₩90)</td>
-          <td>Flutter:₩200<br>SPA:₩90</td>
-          <td>HasCollisionDetection TapCallbacks PanDetector</td>
+          <td>벽돌깨기</td>
+          <td>탭(시작) + 패들 드래그</td>
+          <td>min(score ÷ 10, 200)</td>
+          <td><b>₩90</b> (HTML 기준)</td>
         </tr>
         <tr>
-          <td><b>🏃 무한점프</b></td>
-          <td><span class="badge badge-gold">G-03</span></td>
+          <td><b>🏃 러너</b></td>
+          <td><span class="badge badge-gold">jump</span></td>
           <td><span class="badge badge-gold">Flame</span></td>
-          <td>화면 탭 (점프)</td>
-          <td>Runner, Obstacle, Coin</td>
-          <td>min(dist ÷ 20 + coins × 5, 150)</td>
-          <td><b>₩150</b></td>
-          <td>TapCallbacks</td>
+          <td>러너</td>
+          <td>화면 탭(점프)</td>
+          <td>min(dist÷20+coins×5, 150)</td>
+          <td><b>₩70</b> (HTML 기준)</td>
         </tr>
         <tr>
-          <td><b>🎣 낚시대전</b></td>
-          <td><span class="badge badge-gold">G-04</span></td>
+          <td><b>🎯 코인받기</b></td>
+          <td><span class="badge badge-gold">catch</span></td>
           <td><span class="badge badge-gold">Flame</span></td>
+          <td>코인받기</td>
           <td>좌우 드래그</td>
-          <td>Bucket, Fish, Coin, Bomb</td>
-          <td>min(max(score, 0) ÷ 15, 100)</td>
-          <td><b>₩100</b></td>
-          <td>PanDetector</td>
+          <td>min(max(score,0)÷15, 100)</td>
+          <td><b>₩80</b> (HTML 기준)</td>
         </tr>
         <tr>
-          <td><b>🐍 뱀게임</b></td>
-          <td><span class="badge badge-gold">G-05</span></td>
+          <td><b>🐍 뱀 게임</b></td>
+          <td><span class="badge badge-gold">snake</span></td>
           <td><span class="badge badge-blue">CustomPainter</span></td>
-          <td>방향키 버튼 + 스와이프</td>
-          <td>_SnakePainter, Timer(150ms), _DirBtn</td>
-          <td>min(score × 3, 150)</td>
-          <td><b>₩150</b></td>
-          <td>—</td>
+          <td>뱀게임</td>
+          <td>방향키 + 스와이프</td>
+          <td>min(score×3, 150)</td>
+          <td><b>₩32</b> (HTML 기준)</td>
+        </tr>
+        <tr>
+          <td><b>⚡ 탭 배틀</b></td>
+          <td><span class="badge badge-blue">tap</span></td>
+          <td><span class="badge badge-blue">WebView</span></td>
+          <td>탭배틀</td>
+          <td>탭 연타 (10초)</td>
+          <td>min(floor(taps÷4), 50)</td>
+          <td><b>₩50</b></td>
+        </tr>
+        <tr>
+          <td><b>🃏 퀴즈왕</b></td>
+          <td><span class="badge badge-blue">quiz</span></td>
+          <td><span class="badge badge-blue">WebView</span></td>
+          <td>퀴즈왕</td>
+          <td>선택지 탭</td>
+          <td>correct × 10 (5문제)</td>
+          <td><b>₩50</b></td>
+        </tr>
+        <tr>
+          <td><b>🧩 카드매칭</b></td>
+          <td><span class="badge badge-blue">memory</span></td>
+          <td><span class="badge badge-blue">WebView</span></td>
+          <td>카드매칭</td>
+          <td>카드 탭(짝 맞추기)</td>
+          <td>max(0, 60 - misses×5)</td>
+          <td><b>₩60</b></td>
+        </tr>
+        <tr>
+          <td><b>🎯 반응속도</b></td>
+          <td><span class="badge badge-blue">reflex</span></td>
+          <td><span class="badge badge-blue">WebView</span></td>
+          <td>반응속도</td>
+          <td>초록 화면 즉시 탭 (5회)</td>
+          <td>min(40, max(0, floor((600-avgMs)÷14)))</td>
+          <td><b>₩40</b></td>
         </tr>
       </tbody>
     </table>
+    <p style="margin-top:10px;font-size:12px;color:var(--muted);">WebView 게임 HTML: <code>assets/games/{tap_battle|quiz_king|memory_match|reflex_test}.html</code> — JavaScript Channel "GameChannel"으로 점수 전달</p>
     </div>
   </div>
 
@@ -1239,9 +1274,16 @@
         <tr>
           <td><b>flame</b></td>
           <td>^1.18.0</td>
-          <td>2D 게임 엔진 (벽돌/점프/낚시)</td>
-          <td>G-02, G-03, G-04</td>
+          <td>2D 게임 엔진 (벽돌/러너/코인받기/뱀)</td>
+          <td>G-02, G-03, G-04, G-05</td>
           <td>—</td>
+        </tr>
+        <tr>
+          <td><b>webview_flutter</b></td>
+          <td>^4.7.0</td>
+          <td>HTML 게임 임베드 (탭배틀/퀴즈왕/카드매칭/반응속도)</td>
+          <td>game/games/webview_game_page.dart</td>
+          <td><span class="badge badge-orange">Android INTERNET</span></td>
         </tr>
       </tbody>
     </table>
@@ -1300,11 +1342,11 @@
           <td>카드 뷰어 하단 광고 슬롯</td>
         </tr>
         <tr>
-          <td><span class="badge badge-blue">MEDIUM</span></td>
-          <td>게임 4개 추가 개발 (개발예정 스낵바)</td>
+          <td><span class="badge badge-green">DONE</span></td>
+          <td>WebView 게임 4개 추가 (탭배틀·퀴즈왕·카드매칭·반응속도)</td>
           <td>G-01</td>
-          <td><span class="filepath">pages/game/game_select_page.dart</span></td>
-          <td>puzzle(퍼즐 맞추기), quiz(경제 퀴즈), shooting(슈팅), card(카드배틀)</td>
+          <td><span class="filepath">game/games/webview_game_page.dart</span></td>
+          <td>assets/games/*.html + GameChannel JS채널 연동 완료</td>
         </tr>
         <tr>
           <td><span class="badge badge-blue">MEDIUM</span></td>

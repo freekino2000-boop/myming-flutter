@@ -111,7 +111,7 @@ class _Paddle extends PositionComponent with CollisionCallbacks {
   }
 }
 
-class _Ball extends PositionComponent with CollisionCallbacks {
+class _Ball extends PositionComponent with CollisionCallbacks, HasGameRef<BrickGame> {
   final int level;
   Vector2 _vel = Vector2.zero();
   bool _launched = false;
@@ -211,8 +211,8 @@ class _BrickGamePageState extends State<BrickGamePage> {
   void initState() {
     super.initState();
     _game = BrickGame()
-      ..onGameOver = (s, l) => setState(() { _score = s; _level = l; _gameOver = true; _earn(s); })
-      ..onClear = (l) => setState(() { _level = l; _cleared = true; _earn(_score); });
+      ..onGameOver = (s, l) { setState(() { _score = s; _level = l; _gameOver = true; _earn(s); }); }
+      ..onClear = (l) { setState(() { _level = l; _cleared = true; _earn(_score); }); };
   }
 
   void _earn(int score) {
@@ -255,7 +255,7 @@ class _BrickGamePageState extends State<BrickGamePage> {
               _ResultOverlay(
                 title: _cleared ? '🎉 클리어!' : '💀 게임오버',
                 score: _score,
-                onRetry: () { setState(() { _gameOver = false; _cleared = false; _score = 0; _level = 1; _game = BrickGame()..onGameOver = (s, l) => setState(() { _score = s; _level = l; _gameOver = true; _earn(s); })..onClear = (l) => setState(() { _level = l + 1; _cleared = true; _earn(_score); }); }); },
+                onRetry: () { setState(() { _gameOver = false; _cleared = false; _score = 0; _level = 1; _game = BrickGame()..onGameOver = (s, l) { setState(() { _score = s; _level = l; _gameOver = true; _earn(s); }); }..onClear = (l) { setState(() { _level = l + 1; _cleared = true; _earn(_score); }); }; }); },
                 onHome: () => Navigator.pop(context),
               ),
             // 시작 안내

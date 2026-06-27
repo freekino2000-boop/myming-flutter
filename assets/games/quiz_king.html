@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>QUIZ KING</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:#05091a;font-family:'Noto Sans KR',sans-serif;overflow:hidden;height:100vh;display:flex;flex-direction:column;}
+.scr{display:none;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;padding:20px;}
+.scr.on{display:flex;}
+.timer-bar{width:100%;max-width:340px;height:8px;background:#1a3a5c;border-radius:4px;overflow:hidden;margin-bottom:16px;}
+.timer-fill{height:100%;background:#FF9F43;border-radius:4px;transition:width .1s linear;}
+.qnum{font-size:11px;color:#FF9F43;font-weight:900;margin-bottom:8px;}
+.question{font-size:15px;color:#fff;font-weight:900;text-align:center;line-height:1.5;margin-bottom:20px;max-width:320px;}
+.opts{display:flex;flex-direction:column;gap:10px;width:100%;max-width:320px;}
+.opt{padding:14px 18px;background:#0d1a2e;border:1.5px solid #1a3a5c;border-radius:12px;font-size:13px;color:#fff;font-weight:700;cursor:pointer;text-align:left;transition:all .15s;}
+.opt:active{transform:scale(.97);}
+.opt.correct{background:#1a4a1a;border-color:#27AE60;color:#27AE60;}
+.opt.wrong{background:#4a1a1a;border-color:#E74C3C;color:#E74C3C;}
+.score-bar{display:flex;gap:6px;margin-bottom:14px;}
+.dot{width:14px;height:14px;border-radius:50%;background:#1a3a5c;}
+.dot.hit{background:#27AE60;}.dot.miss{background:#E74C3C;}
+.earn{font-size:18px;color:#FF9F43;font-weight:900;margin:8px 0;}
+.rbtn{padding:12px 22px;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;margin:4px;}
+.rank-row{display:flex;gap:8px;font-size:12px;padding:4px 0;border-bottom:1px solid #1a3a5c;color:#888;}
+.rank-row.me{color:#FF9F43;}
+</style>
+</head>
+<body>
+<!-- 타이틀 -->
+<div class="scr on" id="scrTitle">
+  <div style="font-size:28px;margin-bottom:8px;">🃏</div>
+  <div style="font-size:20px;color:#FF9F43;font-weight:900;margin-bottom:8px;">QUIZ KING!</div>
+  <div style="font-size:13px;color:#5a8ab0;text-align:center;line-height:1.8;margin-bottom:24px;">5문제 · 문제당 8초<br>정답 수×₩10 적립!</div>
+  <div id="topRanks" style="width:100%;max-width:300px;margin-bottom:18px;"></div>
+  <button onclick="quizStart()" style="background:#FF9F43;color:#000;border:none;padding:14px 36px;border-radius:14px;font-size:15px;font-weight:900;cursor:pointer;box-shadow:0 4px 0 #b36e2e;">▶ START</button>
+  <button class="rbtn" style="background:#1a3a5c;color:#5a8ab0;margin-top:12px;" onclick="goBack()">← MENU</button>
+</div>
+
+<!-- 게임 화면 -->
+<div class="scr" id="scrGame" style="justify-content:flex-start;padding-top:30px;">
+  <div class="score-bar" id="dots"></div>
+  <div class="timer-bar"><div class="timer-fill" id="timerFill" style="width:100%;"></div></div>
+  <div class="qnum" id="qnum">Q1 / 5</div>
+  <div class="question" id="question"></div>
+  <div class="opts" id="opts"></div>
+</div>
+
+<!-- 결과 화면 -->
+<div class="scr" id="scrResult" style="gap:10px;">
+  <div style="font-size:24px;">🃏</div>
+  <div style="font-size:18px;color:#FF9F43;font-weight:900;">RESULT!</div>
+  <div id="resSub" style="font-size:14px;color:#888;text-align:center;line-height:1.8;"></div>
+  <div id="resEarn" class="earn"></div>
+  <div id="resRank" style="font-size:13px;color:#FFD700;font-weight:900;"></div>
+  <div id="rankList" style="width:100%;max-width:300px;"></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:6px;">
+    <button class="rbtn" style="background:#FF9F43;color:#000;" onclick="quizStart()">▶ RETRY</button>
+    <button class="rbtn" style="background:#1a3a5c;color:#5a8ab0;" onclick="goBack()">← MENU</button>
+  </div>
+</div>
+
+<script>
+const POOL=[
+  {q:'월세 외에 고정비가 아닌 것은?',opts:['관리비','인터넷 요금','외식비','보험료'],a:2},
+  {q:'하루 만보기 목표 달성 시 적립액은?',opts:['₩30','₩100','₩300','₩1,000'],a:0},
+  {q:'가계부를 쓰면 가장 좋은 점은?',opts:['소비 패턴 파악','기억력 향상','운동 효과','인맥 관리'],a:0},
+  {q:'카드뉴스 일일 미션 완료 보너스는?',opts:['₩30','₩50','₩100','₩10'],a:0},
+  {q:'만보 부스트 아이템의 효과는?',opts:['1.5배 적립 속도','2배 걷기 목표','무료 교환','광고 차단'],a:0},
+  {q:'연간 고정비 절감에 가장 좋은 것은?',opts:['통신비 다운','외식 줄이기','편의점 방문','OTT 추가'],a:0},
+  {q:'마이밍 만보기 일일 목표 걸음수는?',opts:['10,000보','5,000보','20,000보','1,000보'],a:0},
+  {q:'한국 직장인 평균 점심 지출은?',opts:['약 10,000원','약 50,000원','약 100,000원','약 3,000원'],a:0},
+  {q:'리워드 앱의 주요 수익 모델은?',opts:['광고 수익','구독료','전기요금','임대료'],a:0},
+  {q:'절감포인트를 지갑으로 옮기는 버튼은?',opts:['월세 차감하기','포인트 충전','돈 벌기','은행 이동'],a:0},
+];
+const DUMMY=[{name:'퀴즈마스터',score:50},{name:'경제왕',score:45},{name:'절약박사',score:40},{name:'지식인',score:35},{name:'도전자A',score:30}];
+let questions=[],idx=0,totalScore=0,qTimer=null,answered=false;
+
+function getRanks(){try{const s=JSON.parse(localStorage.getItem('mmQuizRanks')||'null');if(s&&s.length)return s;}catch(e){}localStorage.setItem('mmQuizRanks',JSON.stringify(DUMMY));return DUMMY.slice();}
+function saveRank(score){const ranks=getRanks().filter(r=>r.name!=='YOU');ranks.push({name:'YOU',score});ranks.sort((a,b)=>b.score-a.score);const top=ranks.slice(0,10);localStorage.setItem('mmQuizRanks',JSON.stringify(top));return top.findIndex(r=>r.name==='YOU')+1;}
+function renderRanks(el){if(!el)return;const ranks=getRanks();const md=['🥇','🥈','🥉'];el.innerHTML='<div style="font-size:11px;color:#5a8ab0;margin-bottom:6px;font-weight:700;">🏆 랭킹</div>'+ranks.slice(0,5).map((r,i)=>`<div class="rank-row${r.name==='YOU'?' me':''}"><span style="width:22px;">${md[i]||i+1}</span><span style="flex:1;">${r.name}</span><span>${r.score}점</span></div>`).join('');}
+function scr(id){document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));document.getElementById(id).classList.add('on');}
+
+function quizStart(){
+  questions=POOL.slice().sort(()=>Math.random()-.5).slice(0,5);
+  idx=0;totalScore=0;
+  document.getElementById('dots').innerHTML=Array(5).fill('<div class="dot"></div>').join('');
+  scr('scrGame');
+  showQ();
+}
+function showQ(){
+  if(idx>=5){finish();return;}
+  const q=questions[idx];
+  answered=false;
+  document.getElementById('qnum').textContent='Q'+(idx+1)+' / 5';
+  document.getElementById('question').textContent=q.q;
+  document.getElementById('opts').innerHTML=q.opts.map((o,i)=>`<div class="opt" onclick="answer(${i})">${o}</div>`).join('');
+  let t=8;
+  const fill=document.getElementById('timerFill');
+  fill.style.width='100%';
+  if(qTimer)clearInterval(qTimer);
+  qTimer=setInterval(()=>{t-=0.1;fill.style.width=Math.max(0,(t/8)*100)+'%';if(t<=0){clearInterval(qTimer);if(!answered)answer(-1);}},100);
+}
+function answer(i){
+  if(answered)return;
+  answered=true;
+  clearInterval(qTimer);
+  const q=questions[idx];
+  const opts=document.querySelectorAll('.opt');
+  const dots=document.querySelectorAll('.dot');
+  if(i===q.a){totalScore+=10;if(opts[i])opts[i].classList.add('correct');if(dots[idx])dots[idx].classList.add('hit');}
+  else{if(i>=0&&opts[i])opts[i].classList.add('wrong');if(opts[q.a])opts[q.a].classList.add('correct');if(dots[idx])dots[idx].classList.add('miss');}
+  setTimeout(()=>{idx++;showQ();},900);
+}
+function finish(){
+  const correct=totalScore/10;
+  const rank=saveRank(totalScore);
+  document.getElementById('resSub').textContent=correct+'문제 정답 · '+totalScore+'점';
+  document.getElementById('resEarn').textContent='+₩'+totalScore+' 적립!';
+  document.getElementById('resRank').textContent='🏆 '+rank+'위';
+  renderRanks(document.getElementById('rankList'));
+  scr('scrResult');
+  if(totalScore>0&&typeof GameChannel!=='undefined')GameChannel.postMessage(totalScore.toString());
+}
+function goBack(){if(typeof GameChannel!=='undefined')GameChannel.postMessage('back');}
+
+renderRanks(document.getElementById('topRanks'));
+</script>
+</body>
+</html>
