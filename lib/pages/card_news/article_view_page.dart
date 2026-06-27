@@ -27,7 +27,7 @@ class ArticleViewPage extends StatelessWidget {
         title: Text(news.category.label, style: const TextStyle(fontSize: 14, color: AppColors.muted, fontWeight: FontWeight.w700)),
         actions: [
           IconButton(
-            icon: Text(news.isBookmarked ? '🔖' : '🔖', style: TextStyle(fontSize: 20, color: news.isBookmarked ? AppColors.primary : AppColors.muted)),
+            icon: Icon(news.isBookmarked ? Icons.bookmark : Icons.bookmark_border, color: news.isBookmarked ? AppColors.primary : AppColors.muted),
             onPressed: () {},
           ),
         ],

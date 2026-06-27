@@ -2,6 +2,7 @@
 // home_page.dart — 홈 화면
 // 만보기 카드 / 빠른 액션 / 절감머니내역
 // ════════════════════════════════════════════════════════
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pedometer/pedometer.dart';
@@ -20,7 +21,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late Stream<StepCount> _stepCountStream;
+  StreamSubscription<StepCount>? _stepSub;
   int _initialSteps = 0;
   bool _pedometerStarted = false;
 
@@ -30,23 +31,30 @@ class _HomePageState extends State<HomePage> {
     _initPedometer();
   }
 
+  @override
+  void dispose() {
+    _stepSub?.cancel();
+    super.dispose();
+  }
+
   void _initPedometer() {
     // pedometer 패키지: 실기기에서만 동작
     // Info.plist (iOS): NSMotionUsageDescription 필요
     // AndroidManifest (Android): ACTIVITY_RECOGNITION 권한 필요
-    _stepCountStream = Pedometer.stepCountStream;
-    _stepCountStream.listen((StepCount event) {
-      final state = context.read<AppState>();
-      if (!_pedometerStarted) {
-        _initialSteps = event.steps;
-        _pedometerStarted = true;
-      }
-      final todaySteps = event.steps - _initialSteps;
-      state.steps = todaySteps;
-      state.notifyListeners();
-    }).onError((error) {
-      debugPrint('Pedometer error: $error');
-    });
+    _stepSub = Pedometer.stepCountStream.listen(
+      (StepCount event) {
+        if (!mounted) return;
+        final state = context.read<AppState>();
+        if (!_pedometerStarted) {
+          _initialSteps = event.steps;
+          _pedometerStarted = true;
+        }
+        final todaySteps = event.steps - _initialSteps;
+        state.steps = todaySteps;
+        state.notifyListeners();
+      },
+      onError: (error) => debugPrint('Pedometer error: $error'),
+    );
   }
 
   @override
