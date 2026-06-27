@@ -2669,6 +2669,24 @@
   </div>
 </div>
 
+<!-- 광고 시청 모달 -->
+<div class="modal-overlay" id="adModal">
+  <div class="modal">
+    <div class="modal-title" id="adTitle">📺 광고 시청</div>
+    <div class="modal-sub" id="adSub">잠시 후 보상이 지급됩니다</div>
+    <div class="ad-circle">
+      <svg viewBox="0 0 120 120" width="120" height="120">
+        <circle class="ad-circle-track" cx="60" cy="60" r="54"/>
+        <circle class="ad-circle-fill" id="adCircle" cx="60" cy="60" r="54"
+                stroke-dasharray="339.3" stroke-dashoffset="339.3"/>
+      </svg>
+      <span class="ad-count" id="adCount">5</span>
+    </div>
+    <div class="ad-label">광고 시청이 완료되면 버튼이 활성화됩니다</div>
+    <button class="ad-confirm-btn" id="adConfirm" onclick="confirmAd()">광고 시청 중...</button>
+  </div>
+</div>
+
 <!-- 고정비 차감·적립 내역 (Stitch 디자인) -->
 <div id="billHistoryPage" style="display:none;position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:#F5F6F8;overflow-y:auto;z-index:350;font-family:'Noto Sans KR',sans-serif;color:#1A1A1A;">
   <div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #EAEDF0;padding:16px 20px;display:flex;align-items:center;gap:12px;z-index:2">
@@ -8437,28 +8455,10 @@ function exchangeCoupon(id, price) {
   renderCoupons();
 }
 
-// ── 9:16 풀스크린 광고 영상 (5초 자동재생 → 콜백 실행) ──────────
+// ── 풀스크린 광고 (openAd 모달 재사용) ──────────────────────────
 let adFsTimer = null;
 function playFullscreenAd(onComplete) {
-  STATE.adRunning = true;
-  const overlay = document.getElementById('adFullscreenOverlay');
-  const countEl = document.getElementById('adFsCount');
-  let count = 5;
-  countEl.textContent = count;
-  overlay.style.display = 'flex';
-
-  clearInterval(adFsTimer);
-  adFsTimer = setInterval(() => {
-    count--;
-    if (count <= 0) {
-      clearInterval(adFsTimer);
-      overlay.style.display = 'none';
-      STATE.adRunning = false;
-      onComplete();
-    } else {
-      countEl.textContent = count;
-    }
-  }, 1000);
+  openAd('📺 광고 시청', '광고를 보면 보상이 즉시 지급됩니다', onComplete);
 }
 
 // ── 출석체크: 광고 시청 → 달력에 오늘 도장 ──────────────────────
