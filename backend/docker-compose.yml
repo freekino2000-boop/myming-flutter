@@ -1,0 +1,23 @@
+version: '3.9'
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: myming_db
+    environment:
+      POSTGRES_DB: myming_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: myming1234
+    ports:
+      - "5432:5432"
+    volumes:
+      - myming_pgdata:/var/lib/postgresql/data
+      - ./src/db/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+      - ./src/db/seed.sql:/docker-entrypoint-initdb.d/02_seed.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  myming_pgdata:
