@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>마이밍 Flutter — IA 문서</title>
+<style>
+  :root {
+    --primary:    #2C7FFF;
+    --primary-dim:#E8F0FF;
+    --surface:    #F0F5FF;
+    --border:     #C8DCFF;
+    --text:       #1A1A1A;
+    --muted:      #8B95A1;
+    --economy:    #2C7FFF;
+    --realty:     #E06C00;
+    --issue:      #D03030;
+    --tenancy:    #00875A;
+    --game:       #7C3AED;
+    --auth:       #0F172A;
+    --white:      #ffffff;
+    --radius:     12px;
+    --shadow:     0 2px 12px rgba(44,127,255,.08);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  /* ── HEADER ── */
+  .doc-header {
+    background: linear-gradient(135deg, #0D1A3E 0%, #1A3A7A 50%, var(--primary) 100%);
+    color: white;
+    padding: 48px 40px 36px;
+  }
+  .doc-header h1 {
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+  .doc-header .subtitle {
+    opacity: 0.75;
+    font-size: 13px;
+    margin-bottom: 24px;
+  }
+  .meta-row {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .meta-pill {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  /* ── LAYOUT ── */
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 32px 24px 80px;
+  }
+
+  /* ── SECTION ── */
+  .section {
+    margin-bottom: 48px;
+  }
+  .section-title {
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--text);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 2px;
+    background: var(--border);
+    border-radius: 1px;
+  }
+  .section-desc {
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 16px;
+  }
+
+  /* ── TABLE ── */
+  .tbl-wrap {
+    overflow-x: auto;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+  }
+  thead tr {
+    background: linear-gradient(90deg, #0D1A3E, #1A3A7A);
+    color: white;
+  }
+  thead th {
+    padding: 11px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+  tbody tr {
+    border-bottom: 1px solid #F0F4FF;
+    transition: background .15s;
+  }
+  tbody tr:hover { background: var(--primary-dim); }
+  tbody tr:last-child { border-bottom: none; }
+  td {
+    padding: 11px 14px;
+    vertical-align: top;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  /* ── GROUP ROW ── */
+  .group-row td {
+    background: var(--primary-dim);
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--primary);
+    letter-spacing: 0.5px;
+    padding: 7px 14px;
+    text-transform: uppercase;
+  }
+
+  /* ── BADGES ── */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.6;
+    white-space: nowrap;
+  }
+  .badge-blue   { background:#E8F0FF; color:var(--primary); border:1px solid #C8DCFF; }
+  .badge-orange { background:#FFF3E0; color:#E06C00; border:1px solid #FFD699; }
+  .badge-green  { background:#E8F7EF; color:#00875A; border:1px solid #9FE0BF; }
+  .badge-red    { background:#FFF0F0; color:#D03030; border:1px solid #FFBBBB; }
+  .badge-purple { background:#F3EEFF; color:#7C3AED; border:1px solid #D4B9FF; }
+  .badge-dark   { background:#1E293B; color:#94A3B8; border:1px solid #334155; }
+  .badge-gray   { background:#F1F5F9; color:#64748B; border:1px solid #CBD5E1; }
+  .badge-gold   { background:#FFFBE6; color:#B45309; border:1px solid #FDE68A; }
+
+  /* ── ROUTE CHIP ── */
+  .route {
+    display: inline-block;
+    background: #1E293B;
+    color: #7DD3FC;
+    font-family: 'SF Mono', 'Fira Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-weight: 700;
+  }
+
+  /* ── FILE PATH ── */
+  .filepath {
+    font-family: 'SF Mono', 'Fira Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    background: #F8FAFC;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid #E2E8F0;
+    display: inline-block;
+    line-height: 1.8;
+  }
+
+  /* ── TAG LIST ── */
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+  }
+  .tag {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    color: #475569;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+
+  /* ── TREE VIEW ── */
+  .tree {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    box-shadow: var(--shadow);
+    font-size: 12px;
+    line-height: 2;
+  }
+  .tree-app { font-size: 16px; font-weight: 900; color: var(--primary); }
+  .tree-l1 { margin-left: 20px; color: #374151; font-weight: 700; }
+  .tree-l2 { margin-left: 44px; color: #6B7280; font-weight: 600; }
+  .tree-l3 { margin-left: 68px; color: #9CA3AF; }
+  .tree-route { font-family: monospace; color: var(--primary); font-size: 10px; margin-left: 6px; }
+  .tree-conn { color: #CBD5E1; }
+
+  /* ── STATE TABLE special ── */
+  .type-chip {
+    font-family: monospace;
+    font-size: 10px;
+    color: #0D9488;
+    background: #F0FDFA;
+    border: 1px solid #99F6E4;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+  .stat-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 22px;
+    flex: 1;
+    min-width: 120px;
+    box-shadow: var(--shadow);
+  }
+  .stat-num {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--primary);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+    font-weight: 600;
+  }
+
+  /* ── LEGEND ── */
+  .legend {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* ── PRINT ── */
+  @media print {
+    body { background: white; }
+    .doc-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    thead tr { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .group-row td { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════ HEADER -->
+<header class="doc-header">
+  <h1>🏠 마이밍 Flutter — IA 문서</h1>
+  <p class="subtitle">Information Architecture · 화면 구조 · 상태 설계 · 네비게이션 흐름</p>
+  <div class="meta-row">
+    <span class="meta-pill">Flutter 3.x · Dart 3.0+</span>
+    <span class="meta-pill">26개 Dart 파일</span>
+    <span class="meta-pill">5,059 LOC</span>
+    <span class="meta-pill">Provider + ChangeNotifier</span>
+    <span class="meta-pill">Flame 1.18</span>
+    <span class="meta-pill">2026-06-27</span>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- ════ STATS ════ -->
+  <div class="stats-bar">
+    <div class="stat-card"><div class="stat-num">10</div><div class="stat-label">Named Routes</div></div>
+    <div class="stat-card"><div class="stat-num">26</div><div class="stat-label">Dart 파일</div></div>
+    <div class="stat-card"><div class="stat-num">4</div><div class="stat-label">Data Models</div></div>
+    <div class="stat-card"><div class="stat-num">4</div><div class="stat-label">Flame 게임</div></div>
+    <div class="stat-card"><div class="stat-num">29</div><div class="stat-label">오퍼월 미션</div></div>
+    <div class="stat-card"><div class="stat-num">3</div><div class="stat-label">하단 탭</div></div>
+  </div>
+
+  <!-- ════ SECTION 1 · 네비게이션 트리 ════ -->
+  <div class="section">
+    <h2 class="section-title">01 &nbsp;네비게이션 트리</h2>
+    <p class="section-desc">앱 진입부터 각 화면까지의 계층 구조와 라우트 경로</p>
+    <div class="tree">
+      <div class="tree-app">📱 MyMingApp</div>
+      <div class="tree-l1">├── 🔐 LoginPage <span class="tree-route">/login</span> <span style="color:#9CA3AF;font-size:10px">(초기 라우트)</span></div>
+      <div class="tree-l2">└── <span class="tree-conn">→</span> 로그인 성공 시 <span class="tree-route">/</span> (MainShell) 진입</div>
+
+      <div class="tree-l1" style="margin-top:8px">├── 🏠 MainShell <span class="tree-route">/</span> <span style="color:#9CA3AF;font-size:10px">(IndexedStack — 3탭)</span></div>
+      <div class="tree-l2">├── Tab 0 · HomePage <span class="tree-route">index=0</span></div>
+      <div class="tree-l3">├── → ProfilePage <span class="tree-route">/profile</span></div>
+      <div class="tree-l3">├── → ShopPage <span class="tree-route">/shop</span></div>
+      <div class="tree-l3">├── → OfferwallPage <span class="tree-route">/offerwall</span></div>
+      <div class="tree-l3">├── → BillPage <span class="tree-route">/bill</span></div>
+      <div class="tree-l3">├── → FortunePage <span class="tree-route">/fortune</span></div>
+      <div class="tree-l3">└── → CouponPage <span class="tree-route">/coupon</span></div>
+
+      <div class="tree-l2">├── Tab 1 · CardNewsPage <span class="tree-route">index=1</span></div>
+      <div class="tree-l3">├── → ArticleViewPage <span style="color:#9CA3AF;font-size:10px">(push, 라우트 없음)</span></div>
+      <div class="tree-l3">└── → ShopPage <span class="tree-route">/shop</span></div>
+
+      <div class="tree-l2">└── Tab 2 · GameTab → GameSelectPage <span class="tree-route">/game-select</span></div>
+      <div class="tree-l3">├── → BrickGamePage <span style="color:#9CA3AF;font-size:10px">(push)</span></div>
+      <div class="tree-l3">├── → JumpGamePage <span style="color:#9CA3AF;font-size:10px">(push)</span></div>
+      <div class="tree-l3">├── → CatchGamePage <span style="color:#9CA3AF;font-size:10px">(push)</span></div>
+      <div class="tree-l3">├── → SnakeGamePage <span style="color:#9CA3AF;font-size:10px">(push)</span></div>
+      <div class="tree-l3">└── → GlobalRankPage <span class="tree-route">/rank</span></div>
+    </div>
+  </div>
+
+  <!-- ════ SECTION 2 · 화면 IA 전체표 ════ -->
+  <div class="section">
+    <h2 class="section-title">02 &nbsp;화면 IA 전체표</h2>
+    <p class="section-desc">앱 내 모든 화면의 구조, 진입 경로, 주요 컴포넌트, 상태 접근, 아웃고잉 네비게이션 정의</p>
+
+    <div class="legend">
+      <div class="legend-item"><span class="badge badge-blue">push</span> pushNamed</div>
+      <div class="legend-item"><span class="badge badge-orange">replace</span> pushReplacementNamed</div>
+      <div class="legend-item"><span class="badge badge-green">tab</span> IndexedStack 탭 전환</div>
+      <div class="legend-item"><span class="badge badge-purple">modal</span> BottomSheet / Dialog</div>
+      <div class="legend-item"><span class="badge badge-gold">game</span> Flame 게임 엔진</div>
+    </div>
+
+    <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>화면명</th>
+          <th>라우트</th>
+          <th>진입 경로</th>
+          <th>탭 위치</th>
+          <th>주요 위젯 / 컴포넌트</th>
+          <th>사용 모델</th>
+          <th>AppState 필드</th>
+          <th>아웃고잉 네비게이션</th>
+          <th>파일</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <!-- ── AUTH ── -->
+        <tr class="group-row"><td colspan="10">🔐 인증 (Auth)</td></tr>
+        <tr>
+          <td><b>A-01</b></td>
+          <td><b>LoginPage</b><br><span style="color:var(--muted);font-size:10px">로그인 화면</span></td>
+          <td><span class="route">/login</span></td>
+          <td><span class="badge badge-dark">initialRoute</span></td>
+          <td>—</td>
+          <td>
+            <div class="tag-list">
+              <span class="tag">소셜로그인 버튼 ×4</span>
+              <span class="tag">_SocialBtn</span>
+              <span class="tag">로고 영역</span>
+              <span class="tag">약관 텍스트</span>
+            </div>
+          </td>
+          <td>—</td>
+          <td>—</td>
+          <td>
+            <span class="badge badge-orange">→ /</span> 로그인 성공
+          </td>
+          <td><span class="filepath">pages/auth/login_page.dart</span></td>
+        </tr>
+
+        <!-- ── SHELL ── -->
+        <tr class="group-row"><td colspan="10">🏠 메인 셸 (IndexedStack)</td></tr>
+        <tr>
+          <td><b>S-01</b></td>
+          <td><b>MainShell</b><br><span style="color:var(--muted);font-size:10px">하단 탭 컨테이너</span></td>
+          <td><span class="route">/</span></td>
+          <td><span class="badge badge-orange">replace</span> 로그인 후</td>
+          <td>Root</td>
+          <td>
+            <div class="tag-list">
+              <span class="tag">IndexedStack</span>
+              <span class="tag">BottomNavigationBar</span>
+              <span class="tag">_NavItem ×3</span>
+            </div>
+          </td>
+          <td>—</td>
+          <td>—</td>
+          <td>
+            <span class="badge badge-green">Tab 0</span> HomePage<br>
+            <span class="badge badge-green">Tab 1</span> CardNewsPage<br>
+            <span class="badge badge-green">Tab 2</span> GameSelectPage
+          </td>
+          <td><span class="filepath">pages/main_shell.dart</span></td>
+        </tr>
+
+        <!-- ── HOME ── -->
+        <tr class="group-row"><td colspan="10">🏠 홈 탭 (Tab 0)</td></tr>
+        <tr>
+          <td><b>H-01</b></td>
+          <td><b>HomePage</b><br><span style="color:var(--muted);font-size:10px">만보기 메인 허브</span></td>
+          <td><span class="route">/ (tab 0)</span></td>
+          <td><span class="badge badge-green">tab</span> MainShell Tab 0</td>
+          <td>Tab 0</td>
+          <td>
+            <div class="tag-list">
+              <span class="tag">SliverAppBar</span>
+              <span class="tag">PedometerCard</span>
+              <span class="tag">BillHistoryEntry</span>
+              <span class="tag">QuickActionSection</span>
+              <span class="tag">_MissionSummaryCard</span>
+              <span class="tag">_QuickMenuGrid (4칸)</span>
+            </div>
+          </td>
+          <td>—</td>
+          <td>
+            <span class="type-chip">steps</span>
+            <span class="type-chip">walletAmount</span>
+            <span class="type-chip">canAttendToday</span>
+            <span class="type-chip">cnMissionDone</span>
+          </td>
+          <td>
+            <span class="badge badge-blue">→ /profile</span><br>
+            <span class="badge badge-blue">→ /shop</span><br>
+            <span class="badge badge-blue">→ /offerwall</span><br>
+            <span class="badge badge-blue">→ /bill</span><br>
+            <span class="badge badge-blue">→ /fortune</span><br>
+            <span class="badge badge-blue">→ /coupon</span>
+          </td>
+          <td><span class="filepath">pages/home/home_page.dart</span></td>
+        </tr>
+        <tr>
+          <td><b>H-02</b></td>
+          <td><b>PedometerCard</b><br><span style="color:var(--muted);font-size:10px">만보기 위젯</span></td>
+          <td>—</td>
+          <td>H-01 내 위젯</td>
+          <td>—</td>
+          <td>
+            <div class="tag-list">
+              <span class="tag">진행바 (LinearProgressIndicator)</span>
+              <span class="tag">걸음 수 표시</span>
+              <span class="tag">적립금 표시</span>
+            </div>
+          </td>
+          <td>—</td>
+          <td><span class="type-chip">steps</span> <span class="type-chip">walletAmount</span></td>
+          <td>—</td>
+          <td><span class="filepath">home/widgets/pedometer_card.dart</span></td>
+        </tr>
+        <tr>
+          <td><b>H-03</b></td>
+          <td><b>QuickActionSection</b><br><span style="color:var(--muted);font-size:10px">출석·광고·행운</span></td>
+          <td>—</td>
+          <td>H-01 내 위젯</td>
+          <td>—</td>
+          <td>
+            <div class="tag-list">
+              <span class="tag">출석체크 버튼</span>
+              <span class="tag">광고 보너스</span>
+              <span class="tag">행운 뽑기</span>
+            </div>
+          </td>
+          <td>—</td>
+          <td><span class="type-chip">canAttendToday</span> <span class="type-chip">earn()</span></td>
+          <td>—</td>
+          <td><span class="filepath">home/widgets/quick_action_card.dart</span></td>
+        </tr>
+        <tr>
+          <td><b>H-04</b></td>
+          <td><b>BillHistoryEntry</b><br><span style="color:var(--muted);font-size:10px">절감머니 내역 진입</span></td>
+          <td>—</td>
+          <td>H-01 내 위젯</td>
+          <td>—</td>
+          <td>
+            <div class="tag-list">
+              <span class="tag">절감 금액 표시</span>
+              <span class="tag">→ /bill 진입 버튼</span>
+            </div>
+          </td>
+          <td>—</td>
+          <td><span class="type-chip">walletAmount</span></td>
+          <td><span class="badge badge-blue">→ /bill</span></td>
+          <td><span class="filepath">home/widgets/bill_history_entry.dart</span></td>
+        </tr>
+
+        <!-- ── CARD NEWS ── -->
+        <tr class="group-row"><td colspan="10">📰 카드뉴스 탭 (Tab 1)</td></tr>
+        <tr>
+          <td><b>N-01</b></td>
+          <td><b>CardNewsPage</b><br><span style="color:var(--muted);font-size:10px">카드뉴스 목록</span></td>
+          <td><span class="route">/ (tab 1)</span></td>
+          <td><span class="badge badge-green">tab</span> MainShell Tab 1</td>
+          <td>Tab 1</td>
+          <td>
+            <div class="tag-list">
+              <span class="tag">_CatChip ×5 (카테고리 필터)</span>
+              <span class="tag">_SectionHeader</span>
+              <span class="tag">_Top3Card (일간 TOP3)</span>
+              <span class="tag">_WeeklyCard (주간)</span>
+              <span class="tag">_ReactBtn (반응 버튼)</span>
+            </div>
+          </td>
+          <td><span class="badge badge-blue">CardNews</span> <span class="badge badge-blue">NewsCategory</span></td>
+          <td>
+            <span class="type-chip">cnReadCount</span>
+            <span class="type-chip">cnMissionDone</span>
+            <span class="type-chip">readCNArticle()</span>
+          </td>
+          <td>
+            <span class="badge badge-blue">→ ArticleViewPage</span> (push)<br>
+            <span class="badge badge-blue">→ /shop</span>
+          </td>
+          <td><span class="filepath">pages/card_news/card_news_page.dart</span></td>
+        </tr>
+        <tr>
+          <td><b>N-02</b></td>
+          <td><b>ArticleViewPage</b><br><span style="color:var(--muted);font-size:10px">기사 상세</span></td>
+          <td>—</td>
+          <td><span class="badge badge-blue">push</span> N-01 카드 탭</td>
+          <td>—</td>
+          <td>
+            <div class="tag-list">
+              <span class="tag">카드 슬라이드 뷰어</span>
+              <span class="tag">카테고리 배지</span>
+              <span class="tag">반응 버튼</span>
+              <span class="tag">광고 배너 (TODO)</span>
+            </div>
+          </td>
+          <td><span class="badge badge-blue">CardNews</span></td>
+          <td><span class="type-chip">readCNArticle()</span> <span class="type-chip">earn()</span></td>
+          <td><span class="badge badge-gray">← pop</span></td>
+          <td><span class="filepath">pages/card_news/article_view_page.dart</span></td>
+        </tr>
+
+        <!-- ── GAME ── -->
+        <tr class="group-row"><td colspan="10">🎮 게임 탭 (Tab 2)</td></tr>
+        <tr>
+          <td><b>G-01</b></td>
+          <td><b>GameSelectPage</b><br><span style="color:var(--muted);font-size:10px">게임 선택 2×4 그리드</span></td>
+          <td><span class="route">/game-select</span></td>
+          <td><span class="badge badge-green">tab</span> MainShell Tab 2</td>
+          <td>Tab 2</td>
+          <td>
+            <div class="tag-list">
+              <span class="tag">2×4 GridView</span>
+              <span class="tag">게임 카드 ×8</span>
+              <span class="tag">RANK 뱃지</span>
+              <span class="tag">개발예정 스낵바</span>
+            </div>
+          </td>
+          <td>—</td>
+          <td><span class="type-chip">walletAmount</span></td>
+          <td>
+            <span class="badge badge-gold">→ BrickGamePage</span> (brick)<br>
+            <span class="badge badge-gold">→ JumpGamePage</span> (jump)<br>
+            <span class="badge badge-gold">→ CatchGamePage</span> (catch)<br>
+            <span class="badge badge-gold">→ SnakeGamePage</span> (runner)<br>
+            <span class="badge badge-gray">개발예정</span> puzzle·quiz·shooting·card<br>
+            <span class="badge badge-blue">→ /rank</span>
+          </td>
+          <td><span class="filepath">pages/game/game_select_page.dart</span></td>
+        </tr>
+        <tr>
+          <td><b>G-02</b></td>
+          <td><b>BrickGamePage</b><br><span style="color:var(--muted);font-size:10px">벽돌깨기 (Flame)</span></td>
+          <td>—</td>
+          <td><span class="badge badge-gold">push</span> G-01</td>
+          <td>—</td>
+          <td>
+            <div class="tag-list">
+              <span class="tag">GameWidget&lt;BrickGame&gt;</span>
+              <span class="tag">_ResultOverlay</span>
+              <span class="tag">HUD (점수·레벨)</span>
+              <span class="tag">패들 드래그</span>
+            </div>
+          </td>
+          <td>—</td>
+          <td><span class="type-chip">earn()</span></td>
+          <td>
+            <span class="badge badge-gray">← pop</span><br>
+            <span style="font-size:10px;color:var(--muted)">보상: min(score÷10, 200)</span>
+          </td>
+          <td><span class="filepath">game/games/brick_game_page.dart</span></td>
+        </tr>
+        <tr>
+          <td><b>G-03</b></td>
+          <td><b>JumpGamePage</b><br><span style="color:var(--muted);font-size:10px">무한점프 (Flame)</span></td>
+          <td>—</td>
+          <td><span class="badge badge-gold">push</span> G-01</td>
+          <td>—</td>
+          <td>
+            <div class="tag-list">
+              <span class="tag">GameWidget&lt;JumpGame&gt;</span>
+              <span class="tag">TapCallbacks</span>
+              <span class="tag">장애물 스폰</span>
+              <span class="tag">코인 수집</span>
+            </div>
+          </td>
+          <td>—</td>
+          <td><span class="type-chip">earn()</span></td>
+          <td>
+            <span class="badge badge-gray">← pop</span><br>
+            <span style="font-size:10px;color:var(--muted)">보상: min(dist÷20+coins×5, 150)</span>
+          </td>
+          <td><span class="filepath">game/games/jump_game_page.dart</span></td>
+        </tr>
+        <tr>
+          <td><b>G-04</b></td>
+          <td><b>CatchGamePage</b><br><span style="color:var(--muted);font-size:10px">낚시대전 (Flame)</span></td>
+          <td>—</td>
+          <td><span class="badge badge-gold">push</span> G-01</td>
+          <td>—</td>
+          <td>
+            <div class="tag-list">
+              <span class="tag">GameWidget&lt;CatchGame&gt;</span>
+              <span class="tag">드래그 조작</span>
+              <span class="tag">🐟+10 🪙+15 💣-10</span>
+            </div>
+          </td>
+          <td>—</td>
+          <td><span class="type-chip">earn()</span></td>
+          <td>
+            <span class="badge badge-gray">← pop</span><br>
+            <span style="font-size:10px;color:var(--muted)">보상: min(score÷15, 100)</span>
+          </td>
+          <td><span class="filepath">game/games/catch_game_page.dart</span></td>
+        </tr>
+        <tr>
+          <td><b>G-05</b></td>
+          <td><b>SnakeGamePage</b><br><span style="color:var(--muted);font-size:10px">뱀게임 (CustomPainter)</span></td>
+          <td>—</td>
+          <td><span class="badge badge-gold">push</span> G-01</td>
+          <td>—</td>
+          <td>
+            <div class="tag-list">
+              <span class="tag">Stack → Column + Positioned.fill</span>
+              <span class="tag">CustomPaint (_SnakePainter)</span>
+              <span class="tag">방향키 패드 (_DirBtn×4)</span>
+              <span class="tag">스와이프 GestureDetector</span>
+            </div>
+          </td>
+          <td>—</td>
+          <td><span class="type-chip">earn()</span></td>
+          <td>
+            <span class="badge badge-gray">← pop</span><br>
+            <span style="font-size:10px;color:var(--muted)">보상: min(score×3, 150)</span>
+          </td>
+          <td><span class="filepath">game/games/snake_game_page.dart</span></td>
+        </tr>
+        <tr>
+          <td><b>G-06</b></td>
+          <td><b>GlobalRankPage</b><br><span style="color:var(--muted);font-size:10px">전체 랭킹</span></td>
+          <td><span class="route">/rank</span></td>
+          <td><span class="badge badge-blue">push</span> G-01</td>
+          <td>—</td>
+          <td>
+            <div class="tag-list">
+              <span class="tag">ListView (_RankEntry ×10)</span>
+              <span class="tag">TOP3 강조 (👑🥈🥉)</span>
+            </div>
+          </td>
+          <td>—</td>
+          <td>—</td>
+          <td><span class="badge badge-gray">← pop</span></td>
+          <td><span class="filepath">pages/game/global_rank_page.dart</span></td>
+        </tr>
+
+        <!-- ── SHOP ── -->
+        <tr class="group-row"><td colspan="10">🎁 교환소 (Shop)</td></tr>
+        <tr>
+          <td><b>SP-01</b></td>
+          <td><b>ShopPage</b><br><span style="color:var(--muted);font-size:10px">적립금 교환소</span></td>
+          <td><span class="route">/shop</span></td>
+          <td><span class="badge badge-blue">push</span> H-01 / N-01</td>
+          <td>—</td>
+          <td>
+            <div class="tag-list">
+              <span class="tag">TabBar ×8 (부스터/이용권/상품권/주거/식음료/뷰티/디지털/기타)</span>
+              <span class="tag">_ShopItemList</span>
+              <span class="tag">_ShopItemCard ×19 (탭별 1~4개)</span>
+              <span class="tag">잔액 표시 배너</span>
+            </div>
+          </td>
+          <td>—</td>
+          <td>
+            <span class="type-chip">walletAmount</span>
+            <span class="type-chip">spend()</span>
+            <span class="type-chip">hasManhwaBoost</span>
+          </td>
+          <td><span class="badge badge-gray">← pop</span></td>
+          <td><span class="filepath">pages/shop/shop_page.dart</span></td>
+        </tr>
+
+        <!-- ── OFFERWALL ── -->
+        <tr class="group-row"><td colspan="10">🎯 고정비 절감 미션 (Offerwall)</td></tr>
+        <tr>
+          <td><b>OW-01</b></td>
+          <td><b>OfferwallPage</b><br><span style="color:var(--muted);font-size:10px">29개 절감 미션</span></td>
+          <td><span class="route">/offerwall</span></td>
+          <td><span class="badge badge-blue">push</span> H-01 / H-04</td>
+          <td>—</td>
+          <td>
+            <div class="tag-list">
+              <span class="tag">_CatChip ×9 (카테고리)</span>
+              <span class="tag">_TypeTab ×4 (전체/추천/간단/고보상)</span>
+              <span class="tag">_OfferCard</span>
+              <span class="tag">_OfferModal (3단계)</span>
+              <span class="tag">배너 그라디언트</span>
+            </div>
+          </td>
+          <td><span class="badge badge-blue">Offer</span> <span class="badge badge-blue">OfferCategory</span> <span class="badge badge-blue">OfferType</span></td>
+          <td>
+            <span class="type-chip">walletAmount</span>
+            <span class="type-chip">earn()</span>
+          </td>
+          <td>
+            <span class="badge badge-purple">BottomSheet</span> _OfferModal<br>
+            <span class="badge badge-gray">← pop</span>
+          </td>
+          <td><span class="filepath">pages/offerwall/offerwall_page.dart</span></td>
+        </tr>
+
+        <!-- ── BILL ── -->
+        <tr class="group-row"><td colspan="10">📋 고정비 관리 (Bill)</td></tr>
+        <tr>
+          <td><b>B-01</b></td>
+          <td><b>BillPage</b><br><span style="color:var(--muted);font-size:10px">청구서 목록</span></td>
+          <td><span class="route">/bill</span></td>
+          <td><span class="badge badge-blue">push</span> H-01 / H-04</td>
+          <td>—</td>
+          <td>
+            <div class="tag-list">
+              <span class="tag">월간 합계 헤더</span>
+              <span class="tag">절감 진행바</span>
+              <span class="tag">탭 ×3 (전체 청구서 / 이번 달 납부 / 납부 내역)</span>
+              <span class="tag">_BillCard ×n (납부 버튼 포함)</span>
+              <span class="tag">FAB (추가)</span>
+              <span class="tag">_LedgerTab (탭index==2 시 전환)</span>
+            </div>
+          </td>
+          <td><span class="badge badge-blue">Bill</span> <span class="badge badge-blue">BillType</span></td>
+          <td>
+            <span class="type-chip">walletAmount</span>
+            <span class="type-chip">spend()</span>
+            <span class="type-chip">ledger</span>
+          </td>
+          <td>
+            <span class="badge badge-purple">BottomSheet</span> _BillFormSheet (추가/수정)<br>
+            <span class="badge badge-gray">탭 전환</span> _LedgerTab (내부)<br>
+            <span class="badge badge-gray">← pop</span>
+          </td>
+          <td><span class="filepath">pages/bill/bill_page.dart</span></td>
+        </tr>
+
+        <!-- ── FORTUNE ── -->
+        <tr class="group-row"><td colspan="10">🔮 오늘의 운세 (Fortune)</td></tr>
+        <tr>
+          <td><b>F-01</b></td>
+          <td><b>FortunePage</b><br><span style="color:var(--muted);font-size:10px">운세 조회</span></td>
+          <td><span class="route">/fortune</span></td>
+          <td><span class="badge badge-blue">push</span> H-01</td>
+          <td>—</td>
+          <td>
+            <div class="tag-list">
+              <span class="tag">_FormView (생년월일·성별·시)</span>
+              <span class="tag">_ResultView</span>
+              <span class="tag">AnimationController (카드 뒤집기)</span>
+              <span class="tag">_FortuneStat ×4</span>
+            </div>
+          </td>
+          <td>—</td>
+          <td><span class="type-chip">earn()</span> <span style="font-size:10px;color:var(--muted)">+₩5</span></td>
+          <td><span class="badge badge-gray">← pop</span></td>
+          <td><span class="filepath">pages/fortune/fortune_page.dart</span></td>
+        </tr>
+
+        <!-- ── COUPON ── -->
+        <tr class="group-row"><td colspan="10">🎟 쿠폰함 (Coupon)</td></tr>
+        <tr>
+          <td><b>C-01</b></td>
+          <td><b>CouponPage</b><br><span style="color:var(--muted);font-size:10px">보유 쿠폰 목록</span></td>
+          <td><span class="route">/coupon</span></td>
+          <td><span class="badge badge-blue">push</span> H-01</td>
+          <td>—</td>
+          <td>
+            <div class="tag-list">
+              <span class="tag">쿠폰 카드 목록</span>
+              <span class="tag">D-Day 뱃지</span>
+              <span class="tag">코드 복사 버튼</span>
+              <span class="tag">Clipboard.setData()</span>
+            </div>
+          </td>
+          <td>—</td>
+          <td>—</td>
+          <td><span class="badge badge-gray">← pop</span></td>
+          <td><span class="filepath">pages/coupon/coupon_page.dart</span></td>
+        </tr>
+
+        <!-- ── PROFILE ── -->
+        <tr class="group-row"><td colspan="10">👤 내 정보 (Profile)</td></tr>
+        <tr>
+          <td><b>P-01</b></td>
+          <td><b>ProfilePage</b><br><span style="color:var(--muted);font-size:10px">사용자 정보 · 내역</span></td>
+          <td><span class="route">/profile</span></td>
+          <td><span class="badge badge-blue">push</span> H-01 앱바</td>
+          <td>—</td>
+          <td>
+            <div class="tag-list">
+              <span class="tag">프로필 편집 영역</span>
+              <span class="tag">_StatTile ×2 (적립금/절감)</span>
+              <span class="tag">최근 내역 5건 (earn/spend 구분)</span>
+              <span class="tag">_SettingItem 목록</span>
+            </div>
+          </td>
+          <td>—</td>
+          <td>
+            <span class="type-chip">walletAmount</span>
+            <span class="type-chip">ledger</span>
+            <span class="type-chip">steps</span>
+          </td>
+          <td>
+            <span class="badge badge-blue">→ /shop</span><br>
+            <span class="badge badge-gray">← pop</span>
+          </td>
+          <td><span class="filepath">pages/profile/profile_page.dart</span></td>
+        </tr>
+
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- ════ SECTION 3 · 데이터 모델 ════ -->
+  <div class="section">
+    <h2 class="section-title">03 &nbsp;데이터 모델</h2>
+    <p class="section-desc">앱에서 사용하는 4개 모델 클래스 및 enum 정의</p>
+    <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>모델</th>
+          <th>파일</th>
+          <th>주요 필드</th>
+          <th>Enum 정의</th>
+          <th>목(Mock) 데이터</th>
+          <th>사용 화면</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>AppState</b><br><span class="badge badge-blue">ChangeNotifier</span></td>
+          <td><span class="filepath">models/app_state.dart</span></td>
+          <td>
+            <div class="tag-list">
+              <span class="tag">int steps</span>
+              <span class="tag">double walletAmount</span>
+              <span class="tag">bool hasManhwaBoost</span>
+              <span class="tag">int cnReadCount</span>
+              <span class="tag">bool cnMissionDone</span>
+              <span class="tag">List&lt;LedgerEntry&gt; ledger</span>
+              <span class="tag">String? lastAttendanceDate</span>
+            </div>
+          </td>
+          <td>—</td>
+          <td>—</td>
+          <td>전체 화면 (Provider)</td>
+        </tr>
+        <tr>
+          <td><b>CardNews</b><br><span class="badge badge-gray">immutable</span></td>
+          <td><span class="filepath">models/card_news_model.dart</span></td>
+          <td>
+            <div class="tag-list">
+              <span class="tag">String id, title, summary</span>
+              <span class="tag">NewsCategory category</span>
+              <span class="tag">NewsTier tier</span>
+              <span class="tag">List&lt;String&gt; pages</span>
+              <span class="tag">int reward</span>
+            </div>
+          </td>
+          <td>
+            <div class="tag-list">
+              <span class="tag">NewsCategory (economy/realty/issue/tenancy)</span>
+              <span class="tag">NewsTier (top3/weekly/tenancy)</span>
+            </div>
+          </td>
+          <td>kCardNewsList (14편)</td>
+          <td>N-01, N-02</td>
+        </tr>
+        <tr>
+          <td><b>Bill</b><br><span class="badge badge-orange">mutable</span></td>
+          <td><span class="filepath">models/bill_model.dart</span></td>
+          <td>
+            <div class="tag-list">
+              <span class="tag">final String id</span>
+              <span class="tag">BillType type</span>
+              <span class="tag">String name</span>
+              <span class="tag">int amount</span>
+              <span class="tag">int dayOfMonth</span>
+              <span class="tag">bool autopay</span>
+            </div>
+          </td>
+          <td>
+            <div class="tag-list">
+              <span class="tag">BillType (rent/manage/electric/gas/internet/mobile/water/insurance/other)</span>
+            </div>
+          </td>
+          <td>kMockBills (6건)</td>
+          <td>B-01</td>
+        </tr>
+        <tr>
+          <td><b>Offer</b><br><span class="badge badge-orange">clicked 가변</span></td>
+          <td><span class="filepath">models/offer_model.dart</span></td>
+          <td>
+            <div class="tag-list">
+              <span class="tag">String id, icon, name, desc</span>
+              <span class="tag">OfferCategory category</span>
+              <span class="tag">OfferType type</span>
+              <span class="tag">int reward</span>
+              <span class="tag">bool clicked</span>
+            </div>
+          </td>
+          <td>
+            <div class="tag-list">
+              <span class="tag">OfferCategory (rent/telecom/utility/subscribe/manage/insurance/transit/news)</span>
+              <span class="tag">OfferType (simple/recom/high)</span>
+            </div>
+          </td>
+          <td>kOffers (28개)</td>
+          <td>OW-01</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- ════ SECTION 4 · AppState 메서드 ════ -->
+  <div class="section">
+    <h2 class="section-title">04 &nbsp;AppState 메서드 · 상태 흐름</h2>
+    <p class="section-desc">전역 상태 AppState의 공개 메서드 목록 및 호출 화면</p>
+    <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>메서드</th>
+          <th>시그니처</th>
+          <th>동작</th>
+          <th>호출 화면</th>
+          <th>영속화</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>earn()</b></td>
+          <td><span class="type-chip">void earn(String icon, String name, int amount)</span></td>
+          <td>walletAmount += amount, ledger 추가, notifyListeners</td>
+          <td>H-03, N-01, N-02, G-02~G-05, F-01, OW-01</td>
+          <td><span class="badge badge-green">saveToPrefs()</span></td>
+        </tr>
+        <tr>
+          <td><b>spend()</b></td>
+          <td><span class="type-chip">void spend(int amount)</span></td>
+          <td>walletAmount -= amount (잔액 부족 시 무시), ledger 추가</td>
+          <td>SP-01, B-01</td>
+          <td><span class="badge badge-green">saveToPrefs()</span></td>
+        </tr>
+        <tr>
+          <td><b>addLedger()</b></td>
+          <td><span class="type-chip">void addLedger(icon, name, amount, type)</span></td>
+          <td>LedgerEntry 생성 후 ledger.insert(0, …)</td>
+          <td>earn() / spend() 내부 호출</td>
+          <td>간접 (earn/spend 통해)</td>
+        </tr>
+        <tr>
+          <td><b>readCNArticle()</b></td>
+          <td><span class="type-chip">void readCNArticle()</span></td>
+          <td>cnReadCount++, 3회 시 cnMissionDone=true, earn +30</td>
+          <td>N-02</td>
+          <td><span class="badge badge-green">saveToPrefs()</span></td>
+        </tr>
+        <tr>
+          <td><b>doAttendance()</b></td>
+          <td><span class="type-chip">void doAttendance()</span></td>
+          <td>lastAttendanceDate=오늘, earn +10</td>
+          <td>H-03</td>
+          <td><span class="badge badge-green">saveToPrefs()</span></td>
+        </tr>
+        <tr>
+          <td><b>canAttendToday</b></td>
+          <td><span class="type-chip">bool get canAttendToday</span></td>
+          <td>lastAttendanceDate != today</td>
+          <td>H-03</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><b>loadFromPrefs()</b></td>
+          <td><span class="type-chip">Future&lt;void&gt; loadFromPrefs()</span></td>
+          <td>shared_preferences에서 초기 로드</td>
+          <td>main.dart (앱 시작)</td>
+          <td>읽기 전용</td>
+        </tr>
+        <tr>
+          <td><b>saveToPrefs()</b></td>
+          <td><span class="type-chip">void saveToPrefs()</span></td>
+          <td>walletAmount, steps, 미션 상태 저장</td>
+          <td>earn/spend/readCN/doAttendance 후 자동 호출</td>
+          <td>쓰기</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- ════ SECTION 5 · 게임 스펙 ════ -->
+  <div class="section">
+    <h2 class="section-title">05 &nbsp;게임 스펙 비교</h2>
+    <p class="section-desc">4개 게임의 엔진, 조작, 최대 보상, 구현 방식 비교</p>
+    <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>게임</th>
+          <th>ID</th>
+          <th>엔진</th>
+          <th>조작</th>
+          <th>핵심 컴포넌트</th>
+          <th>보상 공식</th>
+          <th>최대 보상</th>
+          <th>Mixin</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>🧱 벽돌깨기</b></td>
+          <td><span class="badge badge-gold">G-02</span></td>
+          <td><span class="badge badge-gold">Flame</span></td>
+          <td>화면 탭 (시작) + 패들 드래그</td>
+          <td>Ball, Paddle, Brick (8×5)</td>
+          <td>min(score ÷ 10, 200)</td>
+          <td><b>₩200</b></td>
+          <td>HasCollisionDetection TapCallbacks PanDetector</td>
+        </tr>
+        <tr>
+          <td><b>🏃 무한점프</b></td>
+          <td><span class="badge badge-gold">G-03</span></td>
+          <td><span class="badge badge-gold">Flame</span></td>
+          <td>화면 탭 (점프)</td>
+          <td>Runner, Obstacle, Coin</td>
+          <td>min(dist ÷ 20 + coins × 5, 150)</td>
+          <td><b>₩150</b></td>
+          <td>TapCallbacks</td>
+        </tr>
+        <tr>
+          <td><b>🎣 낚시대전</b></td>
+          <td><span class="badge badge-gold">G-04</span></td>
+          <td><span class="badge badge-gold">Flame</span></td>
+          <td>좌우 드래그</td>
+          <td>Bucket, Fish, Coin, Bomb</td>
+          <td>min(max(score, 0) ÷ 15, 100)</td>
+          <td><b>₩100</b></td>
+          <td>PanDetector</td>
+        </tr>
+        <tr>
+          <td><b>🐍 뱀게임</b></td>
+          <td><span class="badge badge-gold">G-05</span></td>
+          <td><span class="badge badge-blue">CustomPainter</span></td>
+          <td>방향키 버튼 + 스와이프</td>
+          <td>_SnakePainter, Timer(150ms), _DirBtn</td>
+          <td>min(score × 3, 150)</td>
+          <td><b>₩150</b></td>
+          <td>—</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- ════ SECTION 6 · 패키지 의존성 ════ -->
+  <div class="section">
+    <h2 class="section-title">06 &nbsp;패키지 의존성</h2>
+    <p class="section-desc">pubspec.yaml 기준 런타임 의존성</p>
+    <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>패키지</th>
+          <th>버전</th>
+          <th>용도</th>
+          <th>사용 화면</th>
+          <th>플랫폼 제약</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>provider</b></td>
+          <td>^6.1.1</td>
+          <td>전역 상태 관리 (ChangeNotifier)</td>
+          <td>전체</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><b>pedometer</b></td>
+          <td>^4.0.2</td>
+          <td>실기기 걸음 수 감지</td>
+          <td>H-01, H-02</td>
+          <td><span class="badge badge-red">iOS NSMotionUsageDescription</span> <span class="badge badge-orange">Android ACTIVITY_RECOGNITION</span></td>
+        </tr>
+        <tr>
+          <td><b>google_fonts</b></td>
+          <td>^6.1.0</td>
+          <td>Noto Sans KR 폰트</td>
+          <td>전체 (AppTheme)</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><b>shared_preferences</b></td>
+          <td>^2.2.2</td>
+          <td>지갑·걸음수·미션 영속화</td>
+          <td>AppState</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><b>flame</b></td>
+          <td>^1.18.0</td>
+          <td>2D 게임 엔진 (벽돌/점프/낚시)</td>
+          <td>G-02, G-03, G-04</td>
+          <td>—</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- ════ SECTION 7 · 미완성 항목 ════ -->
+  <div class="section">
+    <h2 class="section-title">07 &nbsp;미완성 / TODO 항목</h2>
+    <p class="section-desc">현재 코드에 TODO로 표기된 항목 및 추후 개발 필요 사항</p>
+    <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>우선순위</th>
+          <th>항목</th>
+          <th>관련 화면</th>
+          <th>파일</th>
+          <th>비고</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge badge-red">MUST</span></td>
+          <td>iOS Info.plist — NSMotionUsageDescription 추가</td>
+          <td>H-01 (pedometer)</td>
+          <td><span class="filepath">ios/Runner/Info.plist</span></td>
+          <td>없으면 앱스토어 심사 거절</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-red">MUST</span></td>
+          <td>Android AndroidManifest — ACTIVITY_RECOGNITION 권한</td>
+          <td>H-01 (pedometer)</td>
+          <td><span class="filepath">android/app/src/main/AndroidManifest.xml</span></td>
+          <td>Android 10+ 필수</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-orange">HIGH</span></td>
+          <td>소셜 OAuth SDK 실제 연동 (카카오/네이버/구글/애플)</td>
+          <td>A-01</td>
+          <td><span class="filepath">pages/auth/login_page.dart</span></td>
+          <td>현재 0.8초 딜레이 후 자동 진입</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-orange">HIGH</span></td>
+          <td>광고 SDK 연동 (광고 보너스 버튼)</td>
+          <td>H-03</td>
+          <td><span class="filepath">home/widgets/quick_action_card.dart</span></td>
+          <td>AdMob 또는 자체 광고</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-orange">HIGH</span></td>
+          <td>기사 상세 광고 배너</td>
+          <td>N-02</td>
+          <td><span class="filepath">pages/card_news/article_view_page.dart</span></td>
+          <td>카드 뷰어 하단 광고 슬롯</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-blue">MEDIUM</span></td>
+          <td>게임 4개 추가 개발 (개발예정 스낵바)</td>
+          <td>G-01</td>
+          <td><span class="filepath">pages/game/game_select_page.dart</span></td>
+          <td>puzzle(퍼즐 맞추기), quiz(경제 퀴즈), shooting(슈팅), card(카드배틀)</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-blue">MEDIUM</span></td>
+          <td>랭킹 실서버 연동 (현재 목데이터 10건)</td>
+          <td>G-06</td>
+          <td><span class="filepath">pages/game/global_rank_page.dart</span></td>
+          <td>Firebase/REST API</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-blue">MEDIUM</span></td>
+          <td>미션 요약 카드 실시간 연동 (현재 하드코딩)</td>
+          <td>H-01</td>
+          <td><span class="filepath">pages/home/home_page.dart</span></td>
+          <td>AppState 기반으로 done 여부 반영</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-gray">LOW</span></td>
+          <td>쿠폰 실제 발급 로직</td>
+          <td>C-01</td>
+          <td><span class="filepath">pages/coupon/coupon_page.dart</span></td>
+          <td>현재 목데이터만 표시</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-gray">LOW</span></td>
+          <td>프로필 편집 기능</td>
+          <td>P-01</td>
+          <td><span class="filepath">pages/profile/profile_page.dart</span></td>
+          <td>닉네임·아바타 변경</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div style="text-align:center;color:var(--muted);font-size:11px;padding-top:16px;border-top:1px solid var(--border);">
+    마이밍 Flutter IA Document &nbsp;·&nbsp; Generated 2026-06-27 &nbsp;·&nbsp; freekino2000@gmail.com
+  </div>
+
+</div>
+</body>
+</html>
