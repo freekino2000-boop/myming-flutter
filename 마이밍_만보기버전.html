@@ -2391,14 +2391,25 @@
     </div>
   </div>
 
-<!-- 광고 보너스: 영상광고 리스트 페이지 -->
+<!-- 광고 보고 기사 읽기 페이지 -->
 <div id="adVideoListPage" style="display:none;position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:#F5F6F8;overflow-y:auto;z-index:300;font-family:'Noto Sans KR',sans-serif;color:#1A1A1A;">
   <div class="sh-hd">
     <div class="sh-back" onclick="closeAdVideoList()">←</div>
-    <div style="font-size:17px;font-weight:900;">🎥 광고영상 보너스</div>
+    <div>
+      <div style="font-size:17px;font-weight:900;">📺 광고 보고 기사 읽기</div>
+      <div style="font-size:11px;color:#8B95A1;margin-top:2px;">광고 시청 후 기사를 읽으면 +₩10 적립</div>
+    </div>
   </div>
-  <div style="padding:16px 16px 4px;font-size:12px;color:#8B95A1;font-weight:700;">영상을 시청하고 추가 적립을 받아보세요!</div>
-  <div class="mcn-grid" id="adVideoListGrid"></div>
+  <!-- 미션 진행 배너 -->
+  <div id="adCnMissionBanner" style="margin:0 16px 4px;padding:12px 16px;background:#EEF4FF;border:1px solid #C8DCFF;border-radius:14px;display:flex;align-items:center;justify-content:space-between;">
+    <div>
+      <div style="font-size:12px;font-weight:800;color:#1A1A1A;">📰 오늘의 카드뉴스 미션</div>
+      <div id="adCnMissionTxt" style="font-size:11px;color:#2C7FFF;margin-top:2px;font-weight:700;">기사 3건 읽기 · +₩30 보너스</div>
+    </div>
+    <div id="adCnMissionBadge" style="font-family:'Roboto Mono',monospace;font-size:20px;font-weight:900;color:#2C7FFF;">0/3</div>
+  </div>
+  <div style="padding:10px 16px 4px;font-size:11px;color:#8B95A1;font-weight:700;letter-spacing:.3px;">전체 기사 · <span id="adCnReadCount" style="color:#2C7FFF;">0</span>/14 읽음</div>
+  <div id="adVideoListGrid" style="display:flex;flex-direction:column;gap:10px;padding:4px 16px 80px;"></div>
 </div>
 
 
@@ -8512,15 +8523,10 @@ function renderAttendanceCalendar() {
   document.getElementById('attendanceSub').textContent = `${year}년 ${month + 1}월 · 총 ${checkedDays.size}일 출석`;
 }
 
-// ── 광고 보너스: 광고 시청 → 영상광고 리스트 페이지 ──────────────
-const AD_VIDEO_LIST = [
-  { id: 'adv1', title: '신상 가전 특가 광고', desc: '최신 가전제품 할인 정보를 확인하세요', emoji: '📺', reward: 10 },
-  { id: 'adv2', title: '모바일 신작 게임 광고', desc: '인기 신작 게임을 미리 만나보세요', emoji: '🎮', reward: 10 },
-  { id: 'adv3', title: '배달 앱 첫 주문 할인', desc: '첫 주문 시 최대 50% 할인 혜택', emoji: '🍔', reward: 15 },
-  { id: 'adv4', title: '여행 패키지 특가 광고', desc: '국내 인기 여행지 패키지 상품 안내', emoji: '✈️', reward: 15 },
-  { id: 'adv5', title: '뷰티 신제품 체험단 모집', desc: '신제품 체험 후기 영상을 확인하세요', emoji: '💄', reward: 10 },
-  { id: 'adv6', title: '핀테크 적금 이벤트', desc: '고금리 특별 적금 상품 소개', emoji: '💰', reward: 20 },
-];
+// ── 광고 보고 기사 읽기 ────────────────────────────────────
+const _CN_CAT_COLOR = { economy:'#EEF4FF', realty:'#FFF5EA', issue:'#F0FFF4', tenancy:'#F5F0FF' };
+const _CN_CAT_TEXT  = { economy:'#2C7FFF', realty:'#E06C00', issue:'#00875A', tenancy:'#7C3AED' };
+const _CN_CAT_LBL   = { economy:'💰 경제', realty:'🏠 부동산', issue:'📢 이슈', tenancy:'🏘 임차' };
 
 function playAdBonus() {
   playFullscreenAd(() => {
@@ -8528,7 +8534,7 @@ function playAdBonus() {
     addLedger('🎥', '광고 시청 적립', 10, 'earn');
     updateUI();
     openAdVideoList();
-    showPopup("광고 보너스 완료! 10원이 적립되었습니다.");
+    showPopup('광고 시청 완료! +₩10 적립되었습니다.');
   });
 }
 
@@ -8545,33 +8551,85 @@ function closeAdVideoList() {
 
 function renderAdVideoList() {
   if (!STATE.watchedAdVideos) STATE.watchedAdVideos = [];
+  const readCount  = CARD_NEWS.filter(c => c.reads > 0).length;
+  const missionDone = _cnMissionDone;
+
+  // 상단 카운터·배너 갱신
+  const cntEl    = document.getElementById('adCnReadCount');
+  const badgeEl  = document.getElementById('adCnMissionBadge');
+  const txtEl    = document.getElementById('adCnMissionTxt');
+  const bannerEl = document.getElementById('adCnMissionBanner');
+  if (cntEl)    cntEl.textContent    = readCount;
+  if (badgeEl)  badgeEl.textContent  = missionDone ? '완료🎉' : `${Math.min(_cnReadCount, 3)}/3`;
+  if (txtEl)    txtEl.textContent    = missionDone ? '미션 완료! +₩30 보너스 받음 🎉' : '기사 3건 읽기 · +₩30 보너스';
+  if (bannerEl) {
+    bannerEl.style.background   = missionDone ? '#E8F7EF' : '#EEF4FF';
+    bannerEl.style.borderColor  = missionDone ? '#9FE0BF' : '#C8DCFF';
+  }
+
+  // 기사 카드 렌더링
   let html = '';
-  AD_VIDEO_LIST.forEach(v => {
-    const watched = STATE.watchedAdVideos.includes(v.id);
+  CARD_NEWS.forEach(c => {
+    const isRead = c.reads > 0;
+    const catBg  = _CN_CAT_COLOR[c.cat] || '#F5F6F8';
+    const catTxt = _CN_CAT_TEXT[c.cat]  || '#8B95A1';
+    const catLbl = _CN_CAT_LBL[c.cat]   || c.cat;
     html += `
-      <div class="mcn-card" style="${watched ? 'opacity:.5;' : ''}" onclick="${watched ? '' : `watchAdVideoListItem('${v.id}')`}">
-        <div class="mcn-thumb" style="background:#E6FAF5;">${v.emoji}</div>
-        <div class="mcn-info">
-          <div class="mcn-name">${v.title}</div>
-          <div class="mcn-status" style="color:${watched ? '#8B95A1' : '#2C7FFF'};">${watched ? '✅ 시청완료' : `🎬 광고 시청 · +₩${v.reward}`}</div>
-          <div class="mcn-desc">${v.desc}</div>
+      <div onclick="${isRead ? `openCNArticle('${c.id}')` : `watchAdAndOpenArticle('${c.id}')`}"
+           style="background:#FFFFFF;border:1px solid ${isRead ? '#D1FAE5' : '#EAEDF0'};
+                  border-radius:16px;padding:14px;display:flex;align-items:center;gap:12px;
+                  cursor:pointer;position:relative;">
+        <div style="width:56px;height:56px;border-radius:12px;background:${catBg};
+                    display:flex;align-items:center;justify-content:center;
+                    font-size:28px;flex-shrink:0;border:1px solid #EAEDF0;">${c.emoji}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:10px;font-weight:700;color:${catTxt};margin-bottom:3px;">${catLbl}</div>
+          <div style="font-size:13px;font-weight:700;color:#1A1A1A;line-height:1.35;
+                      display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">
+            ${c.headline}
+          </div>
+          <div style="font-size:11px;margin-top:4px;color:${isRead ? '#00875A' : '#2C7FFF'};font-weight:700;">
+            ${isRead ? '✅ 읽기 완료 · 다시 보기' : '📺 광고 보고 읽기 · +₩10'}
+          </div>
         </div>
-      </div>
-    `;
+        <div style="flex-shrink:0;padding:7px 11px;border-radius:10px;font-size:11px;font-weight:700;
+                    background:${isRead ? '#E8F7EF' : '#EEF4FF'};
+                    color:${isRead ? '#00875A' : '#2C7FFF'};
+                    border:1px solid ${isRead ? '#9FE0BF' : '#C8DCFF'};">
+          ${isRead ? '보기' : '▶ 광고'}
+        </div>
+      </div>`;
   });
   document.getElementById('adVideoListGrid').innerHTML = html;
 }
 
-function watchAdVideoListItem(id) {
-  const v = AD_VIDEO_LIST.find(x => x.id === id);
-  if (!v || STATE.watchedAdVideos.includes(id)) return;
+// 광고 시청 후 기사 오픈
+function watchAdAndOpenArticle(id) {
+  const card = CARD_NEWS.find(c => c.id === id);
+  if (!card) return;
+  if (card.reads > 0) { openCNArticle(id); return; }
   playFullscreenAd(() => {
-    STATE.watchedAdVideos.push(id);
-    STATE.walletAmount += v.reward;
-    addLedger('🎥', `${v.title} 시청 적립`, v.reward, 'earn');
+    card.reads++;
+    STATE.walletAmount += 10;
+    _cnReadCount++;
+    showParticle('+₩10');
     updateUI();
+    renderCardNews();
+    if (!STATE.watchedAdVideos) STATE.watchedAdVideos = [];
+    if (!STATE.watchedAdVideos.includes(id)) STATE.watchedAdVideos.push(id);
+    updateCNMission();
+    if (!_cnMissionDone && _cnReadCount >= 3) {
+      _cnMissionDone = true;
+      setTimeout(() => {
+        STATE.walletAmount += 30;
+        showParticle('+₩30');
+        showPopup('🎯 일일 미션 완료! +₩30 보너스 적립!');
+        updateUI();
+        updateCNMission();
+      }, 600);
+    }
     renderAdVideoList();
-    showPopup(`${v.title} 시청 완료! ${v.reward}원이 적립되었습니다.`);
+    openCNArticle(id);
   });
 }
 
