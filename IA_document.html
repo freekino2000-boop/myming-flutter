@@ -487,14 +487,14 @@
           <td>—</td>
           <td>
             <div class="tag-list">
-              <span class="tag">출석체크 버튼</span>
-              <span class="tag">광고 보너스</span>
-              <span class="tag">행운 뽑기</span>
+              <span class="tag">출석체크 버튼 (달력 팝업 포함)</span>
+              <span class="tag">광고 보너스 (→ 카드뉴스 탭 이동)</span>
+              <span class="tag">행운 뽑기 (10~100원 랜덤)</span>
             </div>
           </td>
           <td>—</td>
-          <td><span class="type-chip">canAttendToday</span> <span class="type-chip">earn()</span></td>
-          <td>—</td>
+          <td><span class="type-chip">canAttendToday</span> <span class="type-chip">attendanceDates</span> <span class="type-chip">earn()</span> <span class="type-chip">switchToCardNewsTab()</span></td>
+          <td><span class="badge badge-blue">→ CardNewsPage (탭 전환)</span></td>
           <td><span class="filepath">home/widgets/quick_action_card.dart</span></td>
         </tr>
         <tr>
@@ -528,7 +528,7 @@
               <span class="tag">_CatChip ×5 (카테고리 필터)</span>
               <span class="tag">_SectionHeader</span>
               <span class="tag">_Top3Card (일간 TOP3)</span>
-              <span class="tag">_WeeklyCard (주간)</span>
+              <span class="tag">_WeeklyCard (주간, 카드 전체 클릭 가능)</span>
               <span class="tag">_ReactBtn (반응 버튼)</span>
             </div>
           </td>
@@ -895,6 +895,8 @@
               <span class="tag">bool cnMissionDone</span>
               <span class="tag">List&lt;LedgerEntry&gt; ledger</span>
               <span class="tag">String? lastAttendanceDate</span>
+              <span class="tag">List&lt;String&gt; attendanceDates</span>
+              <span class="tag">int cardNewsTabTrigger</span>
             </div>
           </td>
           <td>—</td>
@@ -1016,7 +1018,7 @@
         <tr>
           <td><b>doAttendance()</b></td>
           <td><span class="type-chip">void doAttendance()</span></td>
-          <td>lastAttendanceDate=오늘, earn +10</td>
+          <td>lastAttendanceDate=오늘, attendanceDates에 날짜 추가, earn +10</td>
           <td>H-03</td>
           <td><span class="badge badge-green">saveToPrefs()</span></td>
         </tr>
@@ -1075,9 +1077,16 @@
           <td>—</td>
         </tr>
         <tr>
+          <td><b>switchToCardNewsTab()</b></td>
+          <td><span class="type-chip">void switchToCardNewsTab()</span></td>
+          <td>cardNewsTabTrigger++ → notifyListeners()<br>MainShell이 감지해 카드뉴스 탭(index 1)으로 자동 전환</td>
+          <td>H-03 (광고 보너스)</td>
+          <td>—</td>
+        </tr>
+        <tr>
           <td><b>loadFromPrefs()</b></td>
           <td><span class="type-chip">Future&lt;void&gt; loadFromPrefs()</span></td>
-          <td>shared_preferences에서 초기 로드.<br>
+          <td>shared_preferences에서 초기 로드.<br>attendanceDates (getStringList) 로드.<br>
             <b>totalSecondsInApp은 로드하지 않음</b> (앱 시작마다 0으로 초기화)</td>
           <td>main.dart (앱 시작)</td>
           <td>읽기 전용</td>
@@ -1085,7 +1094,7 @@
         <tr>
           <td><b>saveToPrefs()</b></td>
           <td><span class="type-chip">void saveToPrefs()</span></td>
-          <td>walletAmount, steps, 미션 상태, firstAccessDate 저장.<br>
+          <td>walletAmount, steps, 미션 상태, firstAccessDate, attendanceDates 저장.<br>
             <b>totalSecondsInApp은 저장하지 않음</b></td>
           <td>earn/spend/buyBooster/addSteps/startSession 후 자동 호출</td>
           <td>쓰기</td>
