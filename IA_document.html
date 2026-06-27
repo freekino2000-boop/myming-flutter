@@ -707,17 +707,21 @@
           <td>—</td>
           <td>
             <div class="tag-list">
+              <span class="tag">_DwellTimeCard (체류 시간 카드)</span>
+              <span class="tag">잔액 표시 배너</span>
               <span class="tag">TabBar ×8 (부스터/이용권/상품권/주거/식음료/뷰티/디지털/기타)</span>
               <span class="tag">_ShopItemList</span>
               <span class="tag">_ShopItemCard ×19 (탭별 1~4개)</span>
-              <span class="tag">잔액 표시 배너</span>
             </div>
           </td>
           <td>—</td>
           <td>
             <span class="type-chip">walletAmount</span>
             <span class="type-chip">spend()</span>
+            <span class="type-chip">buyBooster()</span>
             <span class="type-chip">hasManhwaBoost</span>
+            <span class="type-chip">firstAccessDate</span>
+            <span class="type-chip">totalSecondsWithCurrent</span>
           </td>
           <td><span class="badge badge-gray">← pop</span></td>
           <td><span class="filepath">pages/shop/shop_page.dart</span></td>
@@ -1024,17 +1028,66 @@
           <td>—</td>
         </tr>
         <tr>
+          <td><b>addSteps()</b></td>
+          <td><span class="type-chip">void addSteps(int count)</span></td>
+          <td>steps += count, rate = hasManhwaBoost ? 0.015 : 0.01<br>walletAmount += count × rate, ledger 추가</td>
+          <td>H-01 (pedometer 스트림)</td>
+          <td><span class="badge badge-green">saveToPrefs()</span></td>
+        </tr>
+        <tr>
+          <td><b>buyBooster()</b></td>
+          <td><span class="type-chip">void buyBooster(String effect, String name, int price)</span></td>
+          <td>walletAmount -= price, effect 에 따라 부스터 플래그 true</td>
+          <td>SP-01 (부스터 탭)</td>
+          <td><span class="badge badge-green">saveToPrefs()</span></td>
+        </tr>
+        <tr>
+          <td><b>startSession()</b></td>
+          <td><span class="type-chip">void startSession()</span></td>
+          <td>최초 호출 시 firstAccessDate 저장, _sessionStart 기록.<br>
+            앱 포그라운드 진입마다 호출 (이미 세션 중이면 무시 ??=).<br>
+            <b style="color:#E06C00">⚠ totalSecondsInApp은 저장하지 않음 → 앱 종료 시 초기화</b></td>
+          <td>main.dart (initState + AppLifecycleState.resumed)</td>
+          <td><span class="badge badge-green">firstAccessDate만 저장</span></td>
+        </tr>
+        <tr>
+          <td><b>pauseSession()</b></td>
+          <td><span class="type-chip">void pauseSession()</span></td>
+          <td>_sessionStart 기준 경과 초를 totalSecondsInApp에 누적 후 _sessionStart = null.<br>
+            백그라운드 전환 시 호출 (AppLifecycleState.paused).<br>
+            <b>앱 완전 종료(kill) 후 재시작 → totalSecondsInApp = 0으로 초기화</b></td>
+          <td>main.dart (AppLifecycleState.paused / dispose)</td>
+          <td><span class="badge badge-orange">저장 안 함 (세션 한정)</span></td>
+        </tr>
+        <tr>
+          <td><b>currentSessionSeconds</b></td>
+          <td><span class="type-chip">int get currentSessionSeconds</span></td>
+          <td>DateTime.now().difference(_sessionStart).inSeconds.<br>_sessionStart == null 이면 0</td>
+          <td>SP-01 _DwellTimeCard</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><b>totalSecondsWithCurrent</b></td>
+          <td><span class="type-chip">int get totalSecondsWithCurrent</span></td>
+          <td>totalSecondsInApp + currentSessionSeconds.<br>
+            앱 재시작 후엔 totalSecondsInApp = 0 이므로 = currentSessionSeconds</td>
+          <td>SP-01 _DwellTimeCard</td>
+          <td>—</td>
+        </tr>
+        <tr>
           <td><b>loadFromPrefs()</b></td>
           <td><span class="type-chip">Future&lt;void&gt; loadFromPrefs()</span></td>
-          <td>shared_preferences에서 초기 로드</td>
+          <td>shared_preferences에서 초기 로드.<br>
+            <b>totalSecondsInApp은 로드하지 않음</b> (앱 시작마다 0으로 초기화)</td>
           <td>main.dart (앱 시작)</td>
           <td>읽기 전용</td>
         </tr>
         <tr>
           <td><b>saveToPrefs()</b></td>
           <td><span class="type-chip">void saveToPrefs()</span></td>
-          <td>walletAmount, steps, 미션 상태 저장</td>
-          <td>earn/spend/readCN/doAttendance 후 자동 호출</td>
+          <td>walletAmount, steps, 미션 상태, firstAccessDate 저장.<br>
+            <b>totalSecondsInApp은 저장하지 않음</b></td>
+          <td>earn/spend/buyBooster/addSteps/startSession 후 자동 호출</td>
           <td>쓰기</td>
         </tr>
       </tbody>

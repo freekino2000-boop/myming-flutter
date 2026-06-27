@@ -167,7 +167,7 @@ class AppState extends ChangeNotifier {
     cnMissionDone      = prefs.getBool('cnMission') ?? false;
     lastAttendanceDate = prefs.getString('attendance');
     firstAccessDate    = prefs.getString('firstAccess');
-    totalSecondsInApp  = prefs.getInt('totalSeconds') ?? 0;
+    // totalSecondsInApp은 로드하지 않음 — 앱 재시작마다 0으로 초기화
     notifyListeners();
   }
 
@@ -182,7 +182,7 @@ class AppState extends ChangeNotifier {
     await prefs.setInt('cnRead', cnReadCount);
     await prefs.setBool('cnMission', cnMissionDone);
     if (lastAttendanceDate != null) await prefs.setString('attendance', lastAttendanceDate!);
-    if (firstAccessDate    != null) await prefs.setString('firstAccess', firstAccessDate!);
-    await prefs.setInt('totalSeconds', totalSecondsInApp);
+    if (firstAccessDate != null) await prefs.setString('firstAccess', firstAccessDate!);
+    // totalSecondsInApp은 저장하지 않음 — 세션 한정, 앱 종료 시 초기화
   }
 }

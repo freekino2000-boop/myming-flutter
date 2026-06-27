@@ -391,37 +391,17 @@ class _DwellTimeCardState extends State<_DwellTimeCard> {
 
           const SizedBox(height: 10),
 
-          // 누적 시간 크게 + 현재 세션
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                _fmtDuration(total),
-                style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
-                    color: AppColors.primary,
-                    fontFamily: 'RobotoMono'),
-              ),
-              const Spacer(),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  const Text('현재 세션',
-                      style: TextStyle(fontSize: 9, color: AppColors.muted)),
-                  const SizedBox(height: 1),
-                  Text(
-                    _fmtDuration(session),
-                    style: const TextStyle(
-                        fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.text),
-                  ),
-                ],
-              ),
-            ],
+          // 이번 실행 체류 시간 (앱 재시작 시 0으로 초기화)
+          Text(
+            _fmtDuration(total),
+            style: const TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.w900,
+                color: AppColors.primary,
+                fontFamily: 'RobotoMono'),
           ),
-
-          const SizedBox(height: 3),
-          const Text('총 누적 체류',
+          const SizedBox(height: 2),
+          const Text('이번 실행 체류 (앱 종료 시 초기화)',
               style: TextStyle(fontSize: 10, color: AppColors.muted)),
 
           const SizedBox(height: 10),
