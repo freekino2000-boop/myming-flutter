@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+button,.opt{touch-action:manipulation;-webkit-touch-callout:none;}
 body{background:#05091a;font-family:'Noto Sans KR',sans-serif;overflow:hidden;height:100vh;display:flex;flex-direction:column;}
 .scr{display:none;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;padding:20px;}
 .scr.on{display:flex;}
@@ -35,8 +36,8 @@ body{background:#05091a;font-family:'Noto Sans KR',sans-serif;overflow:hidden;he
   <div style="font-size:20px;color:#FF9F43;font-weight:900;margin-bottom:8px;">QUIZ KING!</div>
   <div style="font-size:13px;color:#5a8ab0;text-align:center;line-height:1.8;margin-bottom:24px;">5문제 · 문제당 8초<br>정답 수×₩10 적립!</div>
   <div id="topRanks" style="width:100%;max-width:300px;margin-bottom:18px;"></div>
-  <button onclick="quizStart()" style="background:#FF9F43;color:#000;border:none;padding:14px 36px;border-radius:14px;font-size:15px;font-weight:900;cursor:pointer;box-shadow:0 4px 0 #b36e2e;">▶ START</button>
-  <button class="rbtn" style="background:#1a3a5c;color:#5a8ab0;margin-top:12px;" onclick="goBack()">← MENU</button>
+  <button ontouchend="event.preventDefault();quizStart()" onclick="quizStart()" style="background:#FF9F43;color:#000;border:none;padding:14px 36px;border-radius:14px;font-size:15px;font-weight:900;cursor:pointer;box-shadow:0 4px 0 #b36e2e;">▶ START</button>
+  <button class="rbtn" style="background:#1a3a5c;color:#5a8ab0;margin-top:12px;" ontouchend="event.preventDefault();goBack()" onclick="goBack()">← MENU</button>
 </div>
 
 <!-- 게임 화면 -->
@@ -57,8 +58,8 @@ body{background:#05091a;font-family:'Noto Sans KR',sans-serif;overflow:hidden;he
   <div id="resRank" style="font-size:13px;color:#FFD700;font-weight:900;"></div>
   <div id="rankList" style="width:100%;max-width:300px;"></div>
   <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:6px;">
-    <button class="rbtn" style="background:#FF9F43;color:#000;" onclick="quizStart()">▶ RETRY</button>
-    <button class="rbtn" style="background:#1a3a5c;color:#5a8ab0;" onclick="goBack()">← MENU</button>
+    <button class="rbtn" style="background:#FF9F43;color:#000;" ontouchend="event.preventDefault();quizStart()" onclick="quizStart()">▶ RETRY</button>
+    <button class="rbtn" style="background:#1a3a5c;color:#5a8ab0;" ontouchend="event.preventDefault();goBack()" onclick="goBack()">← MENU</button>
   </div>
 </div>
 
@@ -96,7 +97,7 @@ function showQ(){
   answered=false;
   document.getElementById('qnum').textContent='Q'+(idx+1)+' / 5';
   document.getElementById('question').textContent=q.q;
-  document.getElementById('opts').innerHTML=q.opts.map((o,i)=>`<div class="opt" onclick="answer(${i})">${o}</div>`).join('');
+  document.getElementById('opts').innerHTML=q.opts.map((o,i)=>`<div class="opt" ontouchend="event.preventDefault();answer(${i})" onclick="answer(${i})">${o}</div>`).join('');
   let t=8;
   const fill=document.getElementById('timerFill');
   fill.style.width='100%';

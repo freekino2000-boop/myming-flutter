@@ -93,7 +93,7 @@ class _GlobalRankPageState extends State<GlobalRankPage> {
                   itemCount: list.length,
                   itemBuilder: (_, i) {
                     final e = list[i];
-                    final rank  = (e['rank'] as num).toInt();
+                    final rank  = int.tryParse(e['rank'].toString()) ?? (i + 1);
                     final isTop = rank <= 3;
                     final badges = ['👑', '🥈', '🥉'];
                     return Container(
@@ -126,7 +126,7 @@ class _GlobalRankPageState extends State<GlobalRankPage> {
                           Text('최고 점수', style: AppTheme.caption),
                         ])),
                         Text(
-                          '${_fmt((e['score'] as num).toInt())}점',
+                          '${_fmt(int.tryParse(e['score'].toString()) ?? 0)}점',
                           style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15,
                               color: isTop ? AppColors.primary : AppColors.text),
                         ),

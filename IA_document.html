@@ -1349,11 +1349,18 @@
           <td>assets/games/*.html + GameChannel JS채널 연동 완료</td>
         </tr>
         <tr>
-          <td><span class="badge badge-blue">MEDIUM</span></td>
-          <td>랭킹 실서버 연동 (현재 목데이터 10건)</td>
+          <td><span class="badge badge-green">DONE</span></td>
+          <td>DB 샘플 데이터 삽입 + 랭킹 API bigint→int 수정</td>
           <td>G-06</td>
-          <td><span class="filepath">pages/game/global_rank_page.dart</span></td>
-          <td>Firebase/REST API</td>
+          <td><span class="filepath">backend/src/routes/games.js · global_rank_page.dart</span></td>
+          <td>8개 게임 × 6~8명 샘플 점수 삽입; RANK() bigint String 파싱 오류 수정</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-green">DONE</span></td>
+          <td>WebView 버튼 터치 이벤트 고정 (ontouchend + touch-action:manipulation)</td>
+          <td>G-02~G-05</td>
+          <td><span class="filepath">assets/games/*.html</span></td>
+          <td>Android 16 WebView에서 ontouchend+preventDefault로 버튼 응답성 확보</td>
         </tr>
         <tr>
           <td><span class="badge badge-blue">MEDIUM</span></td>
@@ -1383,7 +1390,7 @@
 
   <!-- FOOTER -->
   <div style="text-align:center;color:var(--muted);font-size:11px;padding-top:16px;border-top:1px solid var(--border);">
-    마이밍 Flutter IA Document &nbsp;·&nbsp; Generated 2026-06-27 &nbsp;·&nbsp; freekino2000@gmail.com
+    마이밍 Flutter IA Document &nbsp;·&nbsp; Generated 2026-06-27 (rev2) &nbsp;·&nbsp; freekino2000@gmail.com
   </div>
 
 </div>

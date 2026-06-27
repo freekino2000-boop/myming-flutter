@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+KR:wght@700;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+button,.mem-card{touch-action:manipulation;-webkit-touch-callout:none;}
 body{background:#05091a;overflow:hidden;height:100vh;display:flex;flex-direction:column;}
 .scr{display:none;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;padding:20px;}
 .scr.on{display:flex;}
@@ -32,8 +33,8 @@ body{background:#05091a;overflow:hidden;height:100vh;display:flex;flex-direction
   <div style="font-size:20px;color:#C56CF0;font-weight:900;margin-bottom:6px;font-family:'Press Start 2P',monospace;">MEMORY!</div>
   <div style="font-size:12px;color:#5a8ab0;text-align:center;line-height:1.8;margin-bottom:20px;font-family:'Noto Sans KR',sans-serif;">8쌍의 카드를 짝 맞추자!<br>실수가 적을수록 더 많이 적립!</div>
   <div id="topRanks" style="width:100%;max-width:280px;margin-bottom:16px;"></div>
-  <button onclick="memStart()" style="background:#C56CF0;color:#fff;border:none;padding:13px 32px;border-radius:14px;font-size:15px;font-weight:900;cursor:pointer;box-shadow:0 4px 0 #7a2a9a;font-family:'Noto Sans KR',sans-serif;">▶ START</button>
-  <button class="rbtn" style="background:#1a3a5c;color:#5a8ab0;margin-top:12px;" onclick="goBack()">← MENU</button>
+  <button ontouchend="event.preventDefault();memStart()" onclick="memStart()" style="background:#C56CF0;color:#fff;border:none;padding:13px 32px;border-radius:14px;font-size:15px;font-weight:900;cursor:pointer;box-shadow:0 4px 0 #7a2a9a;font-family:'Noto Sans KR',sans-serif;">▶ START</button>
+  <button class="rbtn" style="background:#1a3a5c;color:#5a8ab0;margin-top:12px;" ontouchend="event.preventDefault();goBack()" onclick="goBack()">← MENU</button>
 </div>
 
 <!-- 게임 화면 -->
@@ -55,8 +56,8 @@ body{background:#05091a;overflow:hidden;height:100vh;display:flex;flex-direction
   <div id="resRank" style="font-size:13px;color:#FFD700;font-weight:900;font-family:'Noto Sans KR',sans-serif;"></div>
   <div id="rankList" style="width:100%;max-width:280px;"></div>
   <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:6px;">
-    <button class="rbtn" style="background:#C56CF0;color:#fff;" onclick="memStart()">▶ RETRY</button>
-    <button class="rbtn" style="background:#1a3a5c;color:#5a8ab0;" onclick="goBack()">← MENU</button>
+    <button class="rbtn" style="background:#C56CF0;color:#fff;" ontouchend="event.preventDefault();memStart()" onclick="memStart()">▶ RETRY</button>
+    <button class="rbtn" style="background:#1a3a5c;color:#5a8ab0;" ontouchend="event.preventDefault();goBack()" onclick="goBack()">← MENU</button>
   </div>
 </div>
 
@@ -80,7 +81,7 @@ function memStart(){
   document.getElementById('missEl').textContent='0';
   document.getElementById('timeEl').textContent='0';
   document.getElementById('grid').innerHTML=cards.map((c,i)=>
-    `<div class="mem-card" id="mc${i}" onclick="flip(${i})"><span class="mc-back">❓</span><span class="mc-front">${c.emoji}</span></div>`
+    `<div class="mem-card" id="mc${i}" ontouchend="event.preventDefault();flip(${i})" onclick="flip(${i})"><span class="mc-back">❓</span><span class="mc-front">${c.emoji}</span></div>`
   ).join('');
   scr('scrGame');
 }

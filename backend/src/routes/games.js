@@ -56,8 +56,13 @@ router.get('/ranking/:gameId', auth, [
     );
 
     res.json({
-      ranking:  rows,
-      my_rank:  myRank.rows[0]?.rank ?? null,
+      ranking:  rows.map(r => ({
+        ...r,
+        rank:   parseInt(r.rank),
+        score:  parseInt(r.score),
+        reward: parseInt(r.reward),
+      })),
+      my_rank:  myRank.rows[0]?.rank ? parseInt(myRank.rows[0].rank) : null,
     });
   } catch (err) { next(err); }
 });
