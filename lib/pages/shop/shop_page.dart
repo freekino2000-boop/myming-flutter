@@ -201,10 +201,10 @@ class _ShopItemList extends StatelessWidget {
   static final List<List<_ShopItem>> _itemsByTab = [
     // 0: 부스터
     [
-      _ShopItem(emoji: '🚀', name: '만보 부스트',     desc: '걸음당 리워드 2배 (24시간)', price: 200),
-      _ShopItem(emoji: '⚡', name: '속도 부스터 2x',  desc: '카드뉴스 리워드 2배',         price: 150),
-      _ShopItem(emoji: '🌟', name: '속도 부스터 5x',  desc: '카드뉴스 리워드 5배 (1시간)', price: 500),
-      _ShopItem(emoji: '🤖', name: '자동 수집기',     desc: '미션 자동 완료 (3건)',         price: 300),
+      _ShopItem(emoji: '🚀', name: '만보 부스트',     desc: '걸음당 리워드 2배 (24시간)', price: 200,  boosterEffect: 'manhwaBoost'),
+      _ShopItem(emoji: '⚡', name: '속도 부스터 2x',  desc: '카드뉴스 리워드 2배',         price: 150,  boosterEffect: 'speed2x'),
+      _ShopItem(emoji: '🌟', name: '속도 부스터 5x',  desc: '카드뉴스 리워드 5배 (1시간)', price: 500,  boosterEffect: 'speed5x'),
+      _ShopItem(emoji: '🤖', name: '자동 수집기',     desc: '미션 자동 완료 (3건)',         price: 300,  boosterEffect: 'autoCollect'),
     ],
     // 1: 이용권
     [
@@ -272,7 +272,12 @@ class _ShopItemList extends StatelessWidget {
               ),
               ElevatedButton(
                 onPressed: canBuy ? () {
-                  context.read<AppState>().spend(item.price);
+                  final state = context.read<AppState>();
+                  if (item.boosterEffect != null) {
+                    state.buyBooster(item.boosterEffect!, item.name, item.price);
+                  } else {
+                    state.spend(item.price);
+                  }
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('${item.name} 구매 완료! 🎉'), duration: const Duration(seconds: 2)),
                   );
@@ -307,5 +312,6 @@ class _ShopItem {
   final String name;
   final String desc;
   final int price;
-  const _ShopItem({required this.emoji, required this.name, required this.desc, required this.price});
+  final String? boosterEffect; // 'manhwaBoost' | 'speed2x' | 'speed5x' | 'autoCollect'
+  const _ShopItem({required this.emoji, required this.name, required this.desc, required this.price, this.boosterEffect});
 }

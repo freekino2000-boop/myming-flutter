@@ -51,10 +51,11 @@ class AppState extends ChangeNotifier {
   // ── 걸음수 추가 (만보 부스트 적용) ────────────────────────
   void addSteps(int count) {
     steps += count;
-    final rate = hasManhwaBoost ? 0.015 : 0.01; // 10,000보 = ₩100 기본
+    final rate = hasManhwaBoost ? 0.015 : 0.01;
     walletAmount += count * rate;
     addLedger('👟', '걷기 적립', (count * rate).ceil(), 'earn');
     notifyListeners();
+    saveToPrefs();
   }
 
   // ── 원장 추가 ────────────────────────────────────────────
@@ -72,20 +73,22 @@ class AppState extends ChangeNotifier {
     walletAmount += amount;
     addLedger(icon, name, amount, 'earn');
     notifyListeners();
+    saveToPrefs();
   }
 
   // ── 카드뉴스 기사 읽기 ────────────────────────────────────
   void readCNArticle() {
     if (cnMissionDone) return;
     cnReadCount++;
-    earn('📰', '기사 읽기 보상', 10);
+    walletAmount += 10;
+    addLedger('📰', '기사 읽기 보상', 10, 'earn');
     if (cnReadCount >= 3) {
-      // 미션 완료 보너스
       walletAmount += 30;
       addLedger('🎯', '카드뉴스 미션 완료', 30, 'earn');
       cnMissionDone = true;
     }
     notifyListeners();
+    saveToPrefs();
   }
 
   // ── 지출 (교환소 상품 구매) ──────────────────────────────
@@ -94,15 +97,22 @@ class AppState extends ChangeNotifier {
     walletAmount -= amount;
     addLedger('🛍', '교환소 구매', amount, 'spend');
     notifyListeners();
+    saveToPrefs();
   }
 
-  // ── 만보 부스트 구매 ─────────────────────────────────────
-  void buyManhwaBoost() {
-    if (walletAmount < 1990) return;
-    walletAmount -= 1990;
-    hasManhwaBoost = true;
-    addLedger('🚀', '만보 부스트 구매', 1990, 'spend');
+  // ── 부스터 아이템 구매 ───────────────────────────────────
+  void buyBooster(String effect, String name, int price) {
+    if (walletAmount < price) return;
+    walletAmount -= price;
+    switch (effect) {
+      case 'manhwaBoost': hasManhwaBoost = true; break;
+      case 'speed2x':     hasSpeed2x     = true; break;
+      case 'speed5x':     hasSpeed5x     = true; break;
+      case 'autoCollect': hasAutoCollect = true; break;
+    }
+    addLedger('🛍', '$name 구매', price, 'spend');
     notifyListeners();
+    saveToPrefs();
   }
 
   // ── 출석 체크 ────────────────────────────────────────────
