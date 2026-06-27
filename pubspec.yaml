@@ -1,0 +1,33 @@
+name: myming_pedometer
+description: 마이밍 만보기 리워드 앱 - 걸을수록 월세가 내려가는 서비스
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # 상태관리
+  provider: ^6.1.1
+
+  # 만보기 (실기기 전용)
+  pedometer: ^4.0.2
+
+  # 구글 폰트 (Noto Sans KR)
+  google_fonts: ^6.1.0
+
+  # 로컬 저장소 (랭킹, 미션 기록)
+  shared_preferences: ^2.2.2
+
+  # 게임 엔진 (벽돌깨기, 무한점프, 낚시대전)
+  flame: ^1.18.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true

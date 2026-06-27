@@ -1,0 +1,116 @@
+// ════════════════════════════════════════════════════════
+// main_shell.dart — 하단 탭 네비게이션 쉘
+// 홈 / 카드뉴스 / 게임 3탭 구조
+// ════════════════════════════════════════════════════════
+import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
+import 'home/home_page.dart';
+import 'card_news/card_news_page.dart';
+import 'game/game_select_page.dart';
+
+class MainShell extends StatefulWidget {
+  const MainShell({super.key});
+
+  @override
+  State<MainShell> createState() => _MainShellState();
+}
+
+class _MainShellState extends State<MainShell> {
+  int _currentIndex = 0;
+
+  // 탭별 페이지 (IndexedStack으로 상태 유지)
+  final List<Widget> _pages = const [
+    HomePage(),
+    CardNewsPage(),
+    GameSelectPage(),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _pages,
+      ),
+      bottomNavigationBar: _BottomNav(
+        currentIndex: _currentIndex,
+        onTap: (i) => setState(() => _currentIndex = i),
+      ),
+    );
+  }
+}
+
+// ── 하단 네비게이션 바 ────────────────────────────────────
+class _BottomNav extends StatelessWidget {
+  final int currentIndex;
+  final ValueChanged<int> onTap;
+
+  const _BottomNav({required this.currentIndex, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(top: BorderSide(color: AppColors.border)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 10, offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: SizedBox(
+          height: 60,
+          child: Row(
+            children: [
+              _NavItem(icon: '🏠', label: '홈',      index: 0, current: currentIndex, onTap: onTap),
+              _NavItem(icon: '📰', label: '카드뉴스', index: 1, current: currentIndex, onTap: onTap),
+              _NavItem(icon: '🎮', label: '게임',     index: 2, current: currentIndex, onTap: onTap),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NavItem extends StatelessWidget {
+  final String icon;
+  final String label;
+  final int index;
+  final int current;
+  final ValueChanged<int> onTap;
+
+  const _NavItem({
+    required this.icon, required this.label,
+    required this.index, required this.current, required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final active = index == current;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => onTap(index),
+        behavior: HitTestBehavior.opaque,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(icon, style: const TextStyle(fontSize: 22)),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: active ? AppColors.primary : AppColors.muted,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
