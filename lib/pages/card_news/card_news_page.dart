@@ -363,7 +363,9 @@ class _WeeklyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return GestureDetector(
+      onTap: onRead,
+      child: Column(
       children: [
         Padding(
           padding: const EdgeInsets.all(12),
@@ -415,6 +417,7 @@ class _WeeklyCard extends StatelessWidget {
         ),
         if (!isLast) const Divider(height: 1, thickness: 1, color: AppColors.border),
       ],
+      ),
     );
   }
 

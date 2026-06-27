@@ -42,11 +42,16 @@ class AppState extends ChangeNotifier {
   int  cnReadCount    = 0;
   bool cnMissionDone  = false;
 
+  // 탭 전환 트리거 (MainShell이 감지해 카드뉴스 탭으로 이동)
+  int cardNewsTabTrigger = 0;
+  void switchToCardNewsTab() { cardNewsTabTrigger++; notifyListeners(); }
+
   // 원장 내역
   List<LedgerEntry> ledger = [];
 
-  // 출석 체크 (오늘 완료 여부)
+  // 출석 체크
   String? lastAttendanceDate;
+  List<String> attendanceDates = []; // 전체 출석일 목록 (달력용)
 
   // ── 앱 체류 시간 추적 ─────────────────────────────────────
   String?   firstAccessDate;       // 최초 접속일 (YYYY-MM-DD)
@@ -151,7 +156,9 @@ class AppState extends ChangeNotifier {
     if (!canAttendToday) return;
     final today = DateTime.now().toIso8601String().substring(0, 10);
     lastAttendanceDate = today;
+    if (!attendanceDates.contains(today)) attendanceDates.add(today);
     earn('📅', '출석 체크', 10);
+    saveToPrefs();
   }
 
   // ── SharedPreferences 영속화 ─────────────────────────────
@@ -166,6 +173,7 @@ class AppState extends ChangeNotifier {
     cnReadCount        = prefs.getInt('cnRead') ?? 0;
     cnMissionDone      = prefs.getBool('cnMission') ?? false;
     lastAttendanceDate = prefs.getString('attendance');
+    attendanceDates = prefs.getStringList('attendanceDates') ?? [];
     firstAccessDate    = prefs.getString('firstAccess');
     // totalSecondsInApp은 로드하지 않음 — 앱 재시작마다 0으로 초기화
     notifyListeners();
@@ -182,6 +190,7 @@ class AppState extends ChangeNotifier {
     await prefs.setInt('cnRead', cnReadCount);
     await prefs.setBool('cnMission', cnMissionDone);
     if (lastAttendanceDate != null) await prefs.setString('attendance', lastAttendanceDate!);
+    await prefs.setStringList('attendanceDates', attendanceDates);
     if (firstAccessDate != null) await prefs.setString('firstAccess', firstAccessDate!);
     // totalSecondsInApp은 저장하지 않음 — 세션 한정, 앱 종료 시 초기화
   }

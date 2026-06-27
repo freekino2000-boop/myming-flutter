@@ -3,6 +3,8 @@
 // 홈 / 카드뉴스 / 게임 3탭 구조
 // ════════════════════════════════════════════════════════
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../models/app_state.dart';
 import '../theme/app_theme.dart';
 import 'home/home_page.dart';
 import 'card_news/card_news_page.dart';
@@ -17,6 +19,7 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
+  int _prevTabTrigger = 0;
 
   // 탭별 페이지 (IndexedStack으로 상태 유지)
   final List<Widget> _pages = const [
@@ -27,6 +30,13 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
+    final trigger = context.watch<AppState>().cardNewsTabTrigger;
+    if (trigger != _prevTabTrigger) {
+      _prevTabTrigger = trigger;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() => _currentIndex = 1);
+      });
+    }
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
