@@ -7008,7 +7008,7 @@ function _cnWeekCardHTML(c) {
   const kwTags = (c.keywords||[]).slice(0,3).map(k => `<span class="cn-week-kw">#${k}</span>`).join(' ');
   const readDone = c.reads > 0;
   return `
-  <div class="cn-week-card" id="cnCard_${c.id}">
+  <div class="cn-week-card" id="cnCard_${c.id}" onclick="earnCN('${c.id}')">
     <div class="cn-week-tile" style="background:${c.iconBg||'#EEF4FF'}">${c.emoji}</div>
     <div class="cn-week-body">
       <div class="cn-week-meta">
@@ -7019,9 +7019,9 @@ function _cnWeekCardHTML(c) {
       <div class="cn-week-headline">${c.headline}</div>
       ${c.stat ? `<div class="cn-week-stat">📊 ${c.stat}</div>` : ''}
     </div>
-    <button class="cn-week-read${readDone?' done':''}" onclick="earnCN('${c.id}')">
-      ${readDone ? '다시보기' : '+₩10'}
-    </button>
+    <div class="cn-week-read${readDone?' done':''}">
+      ${readDone ? '📖 보기' : '📺 +₩10'}
+    </div>
   </div>`;
 }
 
