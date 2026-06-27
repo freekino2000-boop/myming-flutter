@@ -1453,8 +1453,8 @@
     font-family: 'Roboto Mono', monospace;
     font-size: 15px;
     font-weight: 900;
-    color: var(--green);
-    background: rgba(49,130,246,0.10);
+    color: #2C7FFF;
+    background: rgba(44,127,255,0.10);
     padding: 5px 10px;
     border-radius: 8px;
     flex-shrink: 0;
@@ -7301,7 +7301,7 @@ function getRecommendedOffers() {
 
 // AI 추천 카드 (강조 스타일)
 function _buildRecoCard(o, cnt) {
-  const rewardColor = o.reward >= 1000 ? '#E84040' : o.reward >= 100 ? '#2C7FFF' : 'var(--green)';
+  const rewardColor = o.reward >= 1000 ? '#E84040' : '#2C7FFF';
   const cntBadge = cnt > 0
     ? `<span style="font-size:11px;color:#2C7FFF;font-weight:700;background:#E6FAF5;border-radius:6px;padding:2px 7px;margin-left:5px;">${cnt}회</span>`
     : '';
@@ -7344,7 +7344,7 @@ function _buildOwCard(o, cnt) {
   const cntBadge = cnt > 0
     ? `<span style="font-size:10px;color:#2C7FFF;font-weight:700;margin-left:5px;background:#E6FAF5;border-radius:6px;padding:1px 6px;">${cnt}회</span>`
     : '';
-  const rewardColor = o.reward >= 1000 ? '#E84040' : o.reward >= 100 ? '#2C7FFF' : 'var(--green)';
+  const rewardColor = o.reward >= 1000 ? '#E84040' : '#2C7FFF';
   return `<div class="ow-card" onclick="trackOwClick('${o.id}'); owOpenModal('${o.id}')" style="margin:0 16px 8px;">
     <div class="ow-icon">${o.icon}</div>
     <div class="ow-info">
@@ -7373,7 +7373,7 @@ function owBuildGrid(type) {
   
   let filtered = OW_OFFERS;
   if (type === 'recom') {
-    filtered = OW_OFFERS.filter(x => x.recom === true);
+    filtered = OW_OFFERS.filter(x => x.type === 'recom');
   } else if (type === 'simple') {
     filtered = OW_OFFERS.filter(x => x.type === 'simple');
   } else if (type === 'high') {
