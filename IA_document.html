@@ -564,6 +564,30 @@
           <td><span class="filepath">pages/card_news/article_view_page.dart</span></td>
         </tr>
 
+        <tr>
+          <td><b>N-03</b></td>
+          <td><b>adVideoListPage</b><br><span style="color:var(--muted);font-size:10px">광고보고 기사읽기 (SPA 전용)</span></td>
+          <td><span class="route">/adVideoList</span></td>
+          <td><span class="badge badge-blue">push</span> H-03 (광고 보너스 영역)</td>
+          <td>—</td>
+          <td>
+            <div class="tag-list">
+              <span class="tag">미션 배너 (읽은 기사 카운터)</span>
+              <span class="tag">CARD_NEWS 기반 기사 그리드</span>
+              <span class="tag">watchAdAndOpenArticle(id)</span>
+              <span class="tag">earnCN(id) — 광고 후 기사 열기</span>
+            </div>
+          </td>
+          <td><span class="badge badge-blue">CARD_NEWS</span></td>
+          <td>
+            <span class="type-chip">STATE.reads</span>
+            <span class="type-chip">playFullscreenAd()</span>
+            <span class="type-chip">openCNArticle()</span>
+          </td>
+          <td><span class="badge badge-gold">SPA only</span> Flutter 미구현</td>
+          <td><span class="filepath">마이밍_만보기버전.html (adVideoListPage)</span></td>
+        </tr>
+
         <!-- ── GAME ── -->
         <tr class="group-row"><td colspan="10">🎮 게임 탭 (Tab 2)</td></tr>
         <tr>
@@ -1129,8 +1153,8 @@
           <td><span class="badge badge-gold">Flame</span></td>
           <td>화면 탭 (시작) + 패들 드래그</td>
           <td>Ball, Paddle, Brick (8×5)</td>
-          <td>min(score ÷ 10, 200)</td>
-          <td><b>₩200</b></td>
+          <td>Flutter: min(score ÷ 10, 200)<br>SPA: 레벨별 earn (lv1:₩15~lv10:₩90)</td>
+          <td>Flutter:₩200<br>SPA:₩90</td>
           <td>HasCollisionDetection TapCallbacks PanDetector</td>
         </tr>
         <tr>
