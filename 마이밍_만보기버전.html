@@ -2516,7 +2516,7 @@
           <div style="font-size:64px;margin-bottom:12px;" id="ftResultEmoji">🌟</div>
           <div class="title" id="ftResultTitle">황금의 기운</div>
           <div style="font-size:12px;color:#fff;opacity:0.85;margin-bottom:12px;" id="ftSajuMatchingText">1995-12-05 (子시) 매칭</div>
-          <div class="score" style="margin:5px 0; color:#4CAF50;">₩30</div>
+          <div class="score" style="margin:5px 0; color:#2C7FFF;">₩30</div>
           <div class="detail" id="ftResultDetail">금전운이 최고조에 달한 날입니다. 오늘 앱을 계속 이용하시면 예상치 못한 큰 혜택을 거둘 수 있습니다.</div>
         </div>
       </div>
@@ -2684,6 +2684,16 @@
     </div>
     <div class="ad-label">광고 시청이 완료되면 버튼이 활성화됩니다</div>
     <button class="ad-confirm-btn" id="adConfirm" onclick="confirmAd()">광고 시청 중...</button>
+  </div>
+</div>
+
+<!-- 출석체크 달력 모달 -->
+<div class="modal-overlay" id="attendanceModal" onclick="closeAttendanceModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title">📅 출석 체크</div>
+    <div class="modal-sub" id="attendanceSub">이번 달 출석 현황</div>
+    <div id="attendanceCalendar" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:16px 0 20px;"></div>
+    <button class="ad-confirm-btn ready" onclick="closeAttendanceModal()">확인</button>
   </div>
 </div>
 
@@ -8533,7 +8543,8 @@ function playAdBonus() {
     STATE.walletAmount += 10;
     addLedger('🎥', '광고 시청 적립', 10, 'earn');
     updateUI();
-    openAdVideoList();
+    switchSection('cardnews');
+    filterCardNews('all', document.querySelector('.cn-cat-btn'));
     showPopup('광고 시청 완료! +₩10 적립되었습니다.');
   });
 }
