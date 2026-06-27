@@ -2,6 +2,7 @@
 // shop_page.dart — 교환소
 // 지갑(적립금/걸음수/월세절감) + 8개 카테고리 스크롤 탭 + 상품 목록
 // ════════════════════════════════════════════════════════
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_state.dart';
@@ -59,9 +60,12 @@ class _ShopPageState extends State<ShopPage> {
               ),
             ),
 
+            // 앱 체류 시간 카드
+            const _DwellTimeCard(),
+
             // 지갑 박스
             Container(
-              margin: const EdgeInsets.all(16),
+              margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
               padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(colors: [Color(0xFF1A3A6B), Color(0xFF2C7FFF)]),
@@ -297,6 +301,159 @@ class _ShopItemList extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+// ── 앱 체류 시간 카드 ─────────────────────────────────────
+class _DwellTimeCard extends StatefulWidget {
+  const _DwellTimeCard();
+  @override
+  State<_DwellTimeCard> createState() => _DwellTimeCardState();
+}
+
+class _DwellTimeCardState extends State<_DwellTimeCard> {
+  Timer? _ticker;
+
+  @override
+  void initState() {
+    super.initState();
+    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    super.dispose();
+  }
+
+  String _fmtDuration(int totalSecs) {
+    final h = totalSecs ~/ 3600;
+    final m = (totalSecs % 3600) ~/ 60;
+    final s = totalSecs % 60;
+    if (h > 0) {
+      return '$h시간 ${m.toString().padLeft(2, '0')}분 ${s.toString().padLeft(2, '0')}초';
+    }
+    return '${m.toString().padLeft(2, '0')}분 ${s.toString().padLeft(2, '0')}초';
+  }
+
+  String _daysSince(String dateStr) {
+    final first = DateTime.tryParse(dateStr);
+    if (first == null) return '';
+    return 'D+${DateTime.now().difference(first).inDays}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = context.watch<AppState>();
+    final total   = state.totalSecondsWithCurrent;
+    final session = state.currentSessionSeconds;
+    final first   = state.firstAccessDate;
+    // 오늘 목표: 현재 세션 30분
+    final progress = (session / 1800).clamp(0.0, 1.0);
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+      decoration: BoxDecoration(
+        color: AppColors.card,
+        border: Border.all(color: AppColors.border),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 헤더 행
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('⏱ 앱 체류 시간',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.text)),
+              if (first != null)
+                Row(children: [
+                  Text(first,
+                      style: const TextStyle(fontSize: 10, color: AppColors.muted)),
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                    decoration: BoxDecoration(
+                        color: AppColors.primaryDim,
+                        borderRadius: BorderRadius.circular(6)),
+                    child: Text(_daysSince(first),
+                        style: const TextStyle(
+                            fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primary)),
+                  ),
+                ]),
+            ],
+          ),
+
+          const SizedBox(height: 10),
+
+          // 누적 시간 크게 + 현재 세션
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                _fmtDuration(total),
+                style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.primary,
+                    fontFamily: 'RobotoMono'),
+              ),
+              const Spacer(),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  const Text('현재 세션',
+                      style: TextStyle(fontSize: 9, color: AppColors.muted)),
+                  const SizedBox(height: 1),
+                  Text(
+                    _fmtDuration(session),
+                    style: const TextStyle(
+                        fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.text),
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 3),
+          const Text('총 누적 체류',
+              style: TextStyle(fontSize: 10, color: AppColors.muted)),
+
+          const SizedBox(height: 10),
+
+          // 오늘 목표 진행바
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('오늘 목표 30분',
+                  style: TextStyle(fontSize: 10, color: AppColors.muted)),
+              Text(
+                session >= 1800 ? '달성 완료 🎉' : '${session ~/ 60}분 / 30분',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: session >= 1800 ? AppColors.primary : AppColors.muted,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 5,
+              backgroundColor: AppColors.border,
+              valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

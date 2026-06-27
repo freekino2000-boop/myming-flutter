@@ -33,8 +33,38 @@ void main() async {
   );
 }
 
-class MyMingApp extends StatelessWidget {
+class MyMingApp extends StatefulWidget {
   const MyMingApp({super.key});
+  @override
+  State<MyMingApp> createState() => _MyMingAppState();
+}
+
+class _MyMingAppState extends State<MyMingApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AppState>().startSession();
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    context.read<AppState>().pauseSession();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final s = context.read<AppState>();
+    if (state == AppLifecycleState.resumed) {
+      s.startSession();
+    } else if (state == AppLifecycleState.paused) {
+      s.pauseSession();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
