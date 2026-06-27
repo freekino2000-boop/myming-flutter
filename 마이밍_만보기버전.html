@@ -8647,7 +8647,7 @@ function watchAdAndOpenArticle(id) {
 // ── 행운상자: 광고 시청 → 오퍼월 이동 ───────────────────────────
 function openLuckyBox() {
   playFullscreenAd(() => {
-    const luck = Math.floor(Math.random() * 90) + 10; // 10~100원 무작위
+    const luck = Math.floor(Math.random() * 91) + 10; // 10~100원 무작위
     STATE.walletAmount += luck;
     addLedger('🎁', '행운상자 오픈', luck, 'earn');
     updateUI();

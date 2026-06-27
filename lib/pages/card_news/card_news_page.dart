@@ -18,6 +18,7 @@ class CardNewsPage extends StatefulWidget {
 
 class _CardNewsPageState extends State<CardNewsPage> {
   NewsCategory? _filter;   // null = 전체
+  int _prevTabTrigger = 0; // 광고보너스로 탭 전환 시 필터 초기화용
 
   List<CardNews> get _top3 {
     final list = _filter == null ? kCardNewsList : kCardNewsList.where((n) => n.category == _filter).toList();
@@ -32,6 +33,13 @@ class _CardNewsPageState extends State<CardNewsPage> {
   @override
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
+    final trigger = state.cardNewsTabTrigger;
+    if (trigger != _prevTabTrigger) {
+      _prevTabTrigger = trigger;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() => _filter = null);
+      });
+    }
 
     return Scaffold(
       backgroundColor: AppColors.surface,
