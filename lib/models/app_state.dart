@@ -1,9 +1,13 @@
 // ════════════════════════════════════════════════════════
 // app_state.dart — 전역 앱 상태 (ChangeNotifier)
-// 만보기 걸음수, 지갑 잔액, 보유 아이템, 미션 진행 상태
+// 로컬 낙관적 업데이트 → 백그라운드 API 동기화
 // ════════════════════════════════════════════════════════
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/wallet_service.dart';
+import '../services/steps_service.dart';
+import '../services/attendance_service.dart';
+import '../services/cardnews_service.dart';
 
 // ── 원장(Ledger) 항목 모델 ────────────────────────────────
 class LedgerEntry {
@@ -26,6 +30,10 @@ class LedgerEntry {
 
 // ── 전역 상태 ─────────────────────────────────────────────
 class AppState extends ChangeNotifier {
+  // API 모드 (로그인 완료 후 true)
+  bool _apiEnabled = false;
+  bool get apiEnabled => _apiEnabled;
+
   // 만보기
   int steps = 0;
 
@@ -33,16 +41,16 @@ class AppState extends ChangeNotifier {
   double walletAmount = 0;
 
   // 아이템 보유 여부
-  bool hasManhwaBoost = false;   // 만보 부스트 (1.5배)
-  bool hasSpeed2x     = false;   // 속도 2배
-  bool hasSpeed5x     = false;   // 속도 5배
-  bool hasAutoCollect = false;   // 자동 수집
+  bool hasManhwaBoost = false;
+  bool hasSpeed2x     = false;
+  bool hasSpeed5x     = false;
+  bool hasAutoCollect = false;
 
   // 카드뉴스 미션
-  int  cnReadCount    = 0;
-  bool cnMissionDone  = false;
+  int  cnReadCount   = 0;
+  bool cnMissionDone = false;
 
-  // 탭 전환 트리거 (MainShell이 감지해 카드뉴스 탭으로 이동)
+  // 탭 전환 트리거
   int cardNewsTabTrigger = 0;
   void switchToCardNewsTab() { cardNewsTabTrigger++; notifyListeners(); }
 
@@ -50,22 +58,71 @@ class AppState extends ChangeNotifier {
   List<LedgerEntry> ledger = [];
 
   // 출석 체크
-  String? lastAttendanceDate;
-  List<String> attendanceDates = []; // 전체 출석일 목록 (달력용)
+  String?       lastAttendanceDate;
+  List<String>  attendanceDates = [];
 
-  // ── 앱 체류 시간 추적 ─────────────────────────────────────
-  String?   firstAccessDate;       // 최초 접속일 (YYYY-MM-DD)
-  int       totalSecondsInApp = 0; // 누적 체류 초 (SharedPrefs 저장)
-  DateTime? _sessionStart;         // 현재 세션 시작 (런타임만)
+  // 앱 체류 시간
+  String?   firstAccessDate;
+  int       totalSecondsInApp = 0;
+  DateTime? _sessionStart;
 
-  // ── 걸음수 추가 (만보 부스트 적용) ────────────────────────
+  // ── API 모드 활성화 (로그인 성공 시 호출) ─────────────────
+  Future<void> enableApi() async {
+    _apiEnabled = true;
+    await _syncFromApi();
+  }
+
+  // API에서 최신 상태 풀링 (잔액·출석·카드뉴스 미션)
+  Future<void> _syncFromApi() async {
+    await Future.wait([
+      _syncBalance(),
+      _syncAttendance(),
+      _syncCNMission(),
+    ]);
+    notifyListeners();
+  }
+
+  Future<void> _syncBalance() async {
+    try {
+      walletAmount = await WalletService.instance.getBalance();
+    } catch (_) {}
+  }
+
+  Future<void> _syncAttendance() async {
+    try {
+      final res = await AttendanceService.instance.getMonth();
+      attendanceDates = res.dates;
+      if (res.dates.isNotEmpty) lastAttendanceDate = res.dates.last;
+    } catch (_) {}
+  }
+
+  Future<void> _syncCNMission() async {
+    try {
+      final res = await CardNewsService.instance.getMissionStatus();
+      cnReadCount   = res.readCount;
+      cnMissionDone = res.missionDone;
+    } catch (_) {}
+  }
+
+  // ── 걸음수 (만보 부스트 + API 동기화) ─────────────────────
   void addSteps(int count) {
     steps += count;
-    final rate = hasManhwaBoost ? 0.015 : 0.01;
-    walletAmount += count * rate;
-    addLedger('👟', '걷기 적립', (count * rate).ceil(), 'earn');
+    if (!_apiEnabled) {
+      final rate = hasManhwaBoost ? 0.015 : 0.01;
+      walletAmount += count * rate;
+      addLedger('👟', '걷기 적립', (count * rate).ceil(), 'earn');
+    }
     notifyListeners();
     saveToPrefs();
+    if (_apiEnabled) _syncSteps();
+  }
+
+  Future<void> _syncSteps() async {
+    try {
+      final res = await StepsService.instance.sync(steps);
+      walletAmount = res.balance;
+      notifyListeners();
+    } catch (_) {}
   }
 
   // ── 원장 추가 ────────────────────────────────────────────
@@ -78,16 +135,22 @@ class AppState extends ChangeNotifier {
     if (ledger.length > 100) ledger.removeLast();
   }
 
-  // ── 보상 적립 ────────────────────────────────────────────
+  // ── 보상 적립 (낙관적 업데이트 → API 백그라운드) ───────────
   void earn(String icon, String name, int amount) {
     walletAmount += amount;
     addLedger(icon, name, amount, 'earn');
     notifyListeners();
     saveToPrefs();
+    if (_apiEnabled) {
+      WalletService.instance.earn(icon, name, amount).then((balance) {
+        walletAmount = balance;
+        notifyListeners();
+      }).catchError((_) {});
+    }
   }
 
   // ── 카드뉴스 기사 읽기 ────────────────────────────────────
-  void readCNArticle() {
+  void readCNArticle([String? newsId]) {
     if (cnMissionDone) return;
     cnReadCount++;
     walletAmount += 10;
@@ -99,18 +162,32 @@ class AppState extends ChangeNotifier {
     }
     notifyListeners();
     saveToPrefs();
+    if (_apiEnabled && newsId != null) {
+      CardNewsService.instance.read(newsId).then((res) {
+        walletAmount   = res.balance;
+        cnReadCount    = res.readCount;
+        cnMissionDone  = res.readCount >= 3;
+        notifyListeners();
+      }).catchError((_) {});
+    }
   }
 
-  // ── 지출 (교환소 상품 구매) ──────────────────────────────
+  // ── 지출 ─────────────────────────────────────────────────
   void spend(int amount) {
     if (walletAmount < amount) return;
     walletAmount -= amount;
     addLedger('🛍', '교환소 구매', amount, 'spend');
     notifyListeners();
     saveToPrefs();
+    if (_apiEnabled) {
+      WalletService.instance.spend('교환소 구매', amount).then((balance) {
+        walletAmount = balance;
+        notifyListeners();
+      }).catchError((_) {});
+    }
   }
 
-  // ── 부스터 아이템 구매 ───────────────────────────────────
+  // ── 부스터 구매 ──────────────────────────────────────────
   void buyBooster(String effect, String name, int price) {
     if (walletAmount < price) return;
     walletAmount -= price;
@@ -123,16 +200,21 @@ class AppState extends ChangeNotifier {
     addLedger('🛍', '$name 구매', price, 'spend');
     notifyListeners();
     saveToPrefs();
+    if (_apiEnabled) {
+      WalletService.instance.spend(name, price).then((balance) {
+        walletAmount = balance;
+        notifyListeners();
+      }).catchError((_) {});
+    }
   }
 
-  // ── 세션 시작 (앱 포그라운드 진입 시) ─────────────────────
+  // ── 세션 ────────────────────────────────────────────────
   void startSession() {
     firstAccessDate ??= DateTime.now().toIso8601String().substring(0, 10);
     _sessionStart   ??= DateTime.now();
     saveToPrefs();
   }
 
-  // ── 세션 일시 중단 (백그라운드 전환 시) ────────────────────
   void pauseSession() {
     if (_sessionStart != null) {
       totalSecondsInApp += DateTime.now().difference(_sessionStart!).inSeconds;
@@ -146,7 +228,7 @@ class AppState extends ChangeNotifier {
 
   int get totalSecondsWithCurrent => totalSecondsInApp + currentSessionSeconds;
 
-  // ── 출석 체크 ────────────────────────────────────────────
+  // ── 출석 체크 (낙관적 업데이트 → API) ─────────────────────
   bool get canAttendToday {
     final today = DateTime.now().toIso8601String().substring(0, 10);
     return lastAttendanceDate != today;
@@ -159,6 +241,12 @@ class AppState extends ChangeNotifier {
     if (!attendanceDates.contains(today)) attendanceDates.add(today);
     earn('📅', '출석 체크', 10);
     saveToPrefs();
+    if (_apiEnabled) {
+      AttendanceService.instance.check().then((res) {
+        walletAmount = res.balance;
+        notifyListeners();
+      }).catchError((_) {});
+    }
   }
 
   // ── SharedPreferences 영속화 ─────────────────────────────
@@ -173,9 +261,8 @@ class AppState extends ChangeNotifier {
     cnReadCount        = prefs.getInt('cnRead') ?? 0;
     cnMissionDone      = prefs.getBool('cnMission') ?? false;
     lastAttendanceDate = prefs.getString('attendance');
-    attendanceDates = prefs.getStringList('attendanceDates') ?? [];
+    attendanceDates    = prefs.getStringList('attendanceDates') ?? [];
     firstAccessDate    = prefs.getString('firstAccess');
-    // totalSecondsInApp은 로드하지 않음 — 앱 재시작마다 0으로 초기화
     notifyListeners();
   }
 
@@ -192,6 +279,5 @@ class AppState extends ChangeNotifier {
     if (lastAttendanceDate != null) await prefs.setString('attendance', lastAttendanceDate!);
     await prefs.setStringList('attendanceDates', attendanceDates);
     if (firstAccessDate != null) await prefs.setString('firstAccess', firstAccessDate!);
-    // totalSecondsInApp은 저장하지 않음 — 세션 한정, 앱 종료 시 초기화
   }
 }

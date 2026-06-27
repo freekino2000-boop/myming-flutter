@@ -7,6 +7,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../models/app_state.dart';
+import '../../../services/game_service.dart';
 import '../../../theme/app_theme.dart';
 
 const _cols = 20;
@@ -58,7 +59,18 @@ class _SnakeGamePageState extends State<SnakeGamePage> {
         _over = true;
         _timer?.cancel();
         final reward = min(_score * 3, 150);
-        if (reward > 0) context.read<AppState>().earn('🐍', '뱀게임 랭킹 보상', reward);
+        if (reward > 0) {
+          final state = context.read<AppState>();
+          if (state.apiEnabled) {
+            GameService.instance.submitScore('snake', _score).then((res) {
+              state.walletAmount = res.balance;
+              state.addLedger('🐍', '뱀게임 보상', res.reward, 'earn');
+              state.notifyListeners();
+            }).catchError((_) => state.earn('🐍', '뱀게임 보상', reward));
+          } else {
+            context.read<AppState>().earn('🐍', '뱀게임 보상', reward);
+          }
+        }
         return;
       }
       _snake = [head, ..._snake];

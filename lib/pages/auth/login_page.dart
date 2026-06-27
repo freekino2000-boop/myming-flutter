@@ -3,6 +3,9 @@
 // 카카오 / 네이버 / 구글 / 애플
 // ════════════════════════════════════════════════════════
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../models/app_state.dart';
+import '../../services/auth_service.dart';
 import '../../theme/app_theme.dart';
 
 class LoginPage extends StatefulWidget {
@@ -16,10 +19,25 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _login(String type) async {
     setState(() => _loading = true);
-    // TODO: 실제 OAuth SDK 연동 (kakao_flutter_sdk, google_sign_in 등)
-    await Future.delayed(const Duration(milliseconds: 800));
+    try {
+      // TODO: 실제 OAuth SDK로 socialId/nickname 취득
+      // 임시: 데모용 소셜 로그인 (서버에 demo 계정 생성)
+      await AuthService.instance.socialLogin(
+        provider: type,
+        socialId: 'demo_${type}_001',
+        nickname: '마이밍유저',
+      );
+      if (!mounted) return;
+      await context.read<AppState>().enableApi();
+    } catch (_) {
+      // API 연결 불가 시 게스트 모드로 진입
+    }
     if (!mounted) return;
-    // 로그인 성공 후 홈으로
+    Navigator.pushReplacementNamed(context, '/');
+  }
+
+  Future<void> _guestLogin() async {
+    // 게스트: API 비활성화 상태로 진입
     Navigator.pushReplacementNamed(context, '/');
   }
 
@@ -99,7 +117,7 @@ class _LoginPageState extends State<LoginPage> {
 
               // 게스트 체험
               TextButton(
-                onPressed: () => Navigator.pushReplacementNamed(context, '/'),
+                onPressed: _guestLogin,
                 child: const Text('로그인 없이 체험하기 ›', style: TextStyle(color: AppColors.muted, fontSize: 13)),
               ),
 

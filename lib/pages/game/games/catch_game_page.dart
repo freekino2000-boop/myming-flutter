@@ -9,6 +9,7 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:provider/provider.dart';
 import '../../../models/app_state.dart';
+import '../../../services/game_service.dart';
 import '../../../theme/app_theme.dart';
 
 class CatchGame extends FlameGame with PanDetector, TapCallbacks {
@@ -140,7 +141,18 @@ class _CatchGamePageState extends State<CatchGamePage> {
   void _initGame() {
     _game = CatchGame()..onGameOver = (s) {
       final reward = min(max(s, 0) ~/ 15, 100);
-      if (reward > 0) context.read<AppState>().earn('🎣', '낚시대전 랭킹 보상', reward);
+      if (reward > 0) {
+        final state = context.read<AppState>();
+        if (state.apiEnabled) {
+          GameService.instance.submitScore('catch', _score).then((res) {
+            state.walletAmount = res.balance;
+            state.addLedger('🎣', '낚시대전 보상', res.reward, 'earn');
+            state.notifyListeners();
+          }).catchError((_) => state.earn('🎣', '낚시대전 보상', reward));
+        } else {
+          context.read<AppState>().earn('🎣', '낚시대전 보상', reward);
+        }
+      }
       setState(() { _over = true; _score = s; });
     };
   }

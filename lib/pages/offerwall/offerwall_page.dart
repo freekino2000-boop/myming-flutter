@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_state.dart';
 import '../../models/offer_model.dart';
+import '../../services/offerwall_service.dart';
 import '../../theme/app_theme.dart';
 
 class OfferwallPage extends StatefulWidget {
@@ -130,12 +131,25 @@ class _OfferwallPageState extends State<OfferwallPage> {
       context: context, isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-      builder: (_) => _OfferModal(offer: offer, onComplete: () {
+      builder: (_) => _OfferModal(offer: offer, onComplete: () async {
         setState(() => offer.clicked = true);
-        context.read<AppState>().earn(offer.icon, offer.name, offer.reward);
+        Navigator.pop(context);
+        final state = context.read<AppState>();
+        if (state.apiEnabled) {
+          try {
+            final res = await OfferwallService.instance.complete(offer.id);
+            state.walletAmount = res.balance;
+            state.addLedger(offer.icon, offer.name, res.reward, 'earn');
+            state.notifyListeners();
+          } catch (_) {
+            state.earn(offer.icon, offer.name, offer.reward);
+          }
+        } else {
+          state.earn(offer.icon, offer.name, offer.reward);
+        }
+        if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${offer.name} 완료! ₩${_fmt(offer.reward)} 적립 🎉')));
-        Navigator.pop(context);
       }),
     );
   }

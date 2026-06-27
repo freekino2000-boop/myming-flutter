@@ -9,6 +9,7 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:provider/provider.dart';
 import '../../../models/app_state.dart';
+import '../../../services/game_service.dart';
 import '../../../theme/app_theme.dart';
 
 class JumpGame extends FlameGame with TapCallbacks {
@@ -207,7 +208,19 @@ class _JumpGamePageState extends State<JumpGamePage> {
   void _initGame() {
     _game = JumpGame()..onGameOver = (d, c) {
       final reward = min(d ~/ 20 + c * 5, 150);
-      if (reward > 0) context.read<AppState>().earn('🏃', '무한점프 랭킹 보상', reward);
+      if (reward > 0) {
+        final state = context.read<AppState>();
+        if (state.apiEnabled) {
+          final score = d ~/ 20 + _coins * 5;
+          GameService.instance.submitScore('jump', score).then((res) {
+            state.walletAmount = res.balance;
+            state.addLedger('🏃', '무한점프 보상', res.reward, 'earn');
+            state.notifyListeners();
+          }).catchError((_) => state.earn('🏃', '무한점프 보상', reward));
+        } else {
+          context.read<AppState>().earn('🏃', '무한점프 보상', reward);
+        }
+      }
       setState(() { _over = true; _dist = d; _coins = c; });
     };
   }

@@ -10,6 +10,7 @@ import 'package:flame/events.dart';
 import 'package:flame/collisions.dart';
 import 'package:provider/provider.dart';
 import '../../../models/app_state.dart';
+import '../../../services/game_service.dart';
 import '../../../theme/app_theme.dart';
 
 // ── Flame 게임 클래스 ──────────────────────────────────────
@@ -216,8 +217,16 @@ class _BrickGamePageState extends State<BrickGamePage> {
 
   void _earn(int score) {
     final reward = min(score ~/ 10, 200);
-    if (reward > 0) {
-      context.read<AppState>().earn('🧱', '벽돌깨기 랭킹 보상', reward);
+    if (reward <= 0) return;
+    final state = context.read<AppState>();
+    if (state.apiEnabled) {
+      GameService.instance.submitScore('brick', score).then((res) {
+        state.walletAmount = res.balance;
+        state.addLedger('🧱', '벽돌깨기 보상', res.reward, 'earn');
+        state.notifyListeners();
+      }).catchError((_) => state.earn('🧱', '벽돌깨기 보상', reward));
+    } else {
+      state.earn('🧱', '벽돌깨기 보상', reward);
     }
   }
 
