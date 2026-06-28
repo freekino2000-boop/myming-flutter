@@ -204,12 +204,9 @@ class _CardNewsPageState extends State<CardNewsPage> {
     );
   }
 
-  void _onRead(BuildContext context, CardNews news) {
-    if (!news.isRead) {
-      context.read<AppState>().readCNArticle();
-      setState(() => news.isRead = true);
-    }
-    Navigator.push(context, MaterialPageRoute(builder: (_) => ArticleViewPage(news: news)));
+  void _onRead(BuildContext context, CardNews news) async {
+    await Navigator.push(context, MaterialPageRoute(builder: (_) => ArticleViewPage(news: news)));
+    if (mounted) setState(() {});
   }
 }
 

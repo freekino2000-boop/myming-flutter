@@ -7,13 +7,66 @@ import '../../models/app_state.dart';
 import '../../models/card_news_model.dart';
 import '../../theme/app_theme.dart';
 
-class ArticleViewPage extends StatelessWidget {
+class ArticleViewPage extends StatefulWidget {
   final CardNews news;
   const ArticleViewPage({super.key, required this.news});
 
   @override
+  State<ArticleViewPage> createState() => _ArticleViewPageState();
+}
+
+class _ArticleViewPageState extends State<ArticleViewPage> {
+  final _scrollController = ScrollController();
+  bool _earned = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!widget.news.isRead) {
+      _scrollController.addListener(_onScroll);
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_earned || widget.news.isRead) return;
+    final pos = _scrollController.position;
+    if (pos.pixels >= pos.maxScrollExtent * 0.9) {
+      _markRead();
+    }
+  }
+
+  void _markRead() {
+    if (_earned || widget.news.isRead) return;
+    setState(() {
+      _earned = true;
+      widget.news.isRead = true;
+    });
+    final state = context.read<AppState>();
+    state.readCNArticle();
+    state.earn('📰', '기사 읽기 적립', 10);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('₩10 적립! 기사를 다 읽었어요 🎉'), duration: Duration(seconds: 2)),
+    );
+  }
+
+  Color _catColor(NewsCategory cat) {
+    switch (cat) {
+      case NewsCategory.economy:  return AppColors.economy;
+      case NewsCategory.realty:   return AppColors.realty;
+      case NewsCategory.issue:    return AppColors.issue;
+      case NewsCategory.tenancy:  return AppColors.tenancy;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final state = context.watch<AppState>();
+    final isRead = widget.news.isRead;
 
     return Scaffold(
       backgroundColor: AppColors.surface,
@@ -24,15 +77,16 @@ class ArticleViewPage extends StatelessWidget {
           icon: const Icon(Icons.arrow_back, color: AppColors.text),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(news.category.label, style: const TextStyle(fontSize: 14, color: AppColors.muted, fontWeight: FontWeight.w700)),
+        title: Text(widget.news.category.label, style: const TextStyle(fontSize: 14, color: AppColors.muted, fontWeight: FontWeight.w700)),
         actions: [
           IconButton(
-            icon: Icon(news.isBookmarked ? Icons.bookmark : Icons.bookmark_border, color: news.isBookmarked ? AppColors.primary : AppColors.muted),
+            icon: Icon(widget.news.isBookmarked ? Icons.bookmark : Icons.bookmark_border, color: widget.news.isBookmarked ? AppColors.primary : AppColors.muted),
             onPressed: () {},
           ),
         ],
       ),
       body: SingleChildScrollView(
+        controller: _scrollController,
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -42,12 +96,12 @@ class ArticleViewPage extends StatelessWidget {
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                  decoration: BoxDecoration(color: _catColor(news.category).withOpacity(0.12), borderRadius: BorderRadius.circular(8)),
-                  child: Text(news.category.label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: _catColor(news.category))),
+                  decoration: BoxDecoration(color: _catColor(widget.news.category).withOpacity(0.12), borderRadius: BorderRadius.circular(8)),
+                  child: Text(widget.news.category.label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: _catColor(widget.news.category))),
                 ),
                 const SizedBox(width: 8),
-                Text(news.time, style: AppTheme.caption),
-                if (news.isNew) ...[
+                Text(widget.news.time, style: AppTheme.caption),
+                if (widget.news.isNew) ...[
                   const SizedBox(width: 6),
                   Container(padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2), decoration: BoxDecoration(color: const Color(0x1AFF4B4B), borderRadius: BorderRadius.circular(5)), child: const Text('NEW', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Color(0xFFFF4B4B)))),
                 ],
@@ -59,7 +113,7 @@ class ArticleViewPage extends StatelessWidget {
             // 키워드
             Wrap(
               spacing: 6, runSpacing: 4,
-              children: news.keywords.map((k) => Container(
+              children: widget.news.keywords.map((k) => Container(
                 padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
                 decoration: BoxDecoration(color: AppColors.primaryDim, borderRadius: BorderRadius.circular(7)),
                 child: Text('#$k', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primary)),
@@ -69,12 +123,12 @@ class ArticleViewPage extends StatelessWidget {
             const SizedBox(height: 16),
 
             // 헤드라인
-            Text(news.headline, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppColors.text, height: 1.4)),
+            Text(widget.news.headline, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppColors.text, height: 1.4)),
 
             const SizedBox(height: 16),
 
             // 수치 박스
-            if (news.stat.isNotEmpty)
+            if (widget.news.stat.isNotEmpty)
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(14),
@@ -87,7 +141,7 @@ class ArticleViewPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text('주요 수치', style: TextStyle(fontSize: 10, color: AppColors.muted, fontWeight: FontWeight.w700)),
-                        Text(news.stat, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.primary)),
+                        Text(widget.news.stat, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.primary)),
                       ],
                     ),
                   ],
@@ -107,7 +161,7 @@ class ArticleViewPage extends StatelessWidget {
                 children: [
                   const Text('💡 요약', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: AppColors.primary)),
                   const SizedBox(height: 8),
-                  Text(news.summary, style: AppTheme.body.copyWith(height: 1.6)),
+                  Text(widget.news.summary, style: AppTheme.body.copyWith(height: 1.6)),
                 ],
               ),
             ),
@@ -115,7 +169,7 @@ class ArticleViewPage extends StatelessWidget {
             const SizedBox(height: 20),
 
             // 본문
-            Text(news.content, style: AppTheme.body.copyWith(height: 1.8, fontSize: 14)),
+            Text(widget.news.content, style: AppTheme.body.copyWith(height: 1.8, fontSize: 14)),
 
             const SizedBox(height: 24),
             const Divider(color: AppColors.border),
@@ -124,9 +178,9 @@ class ArticleViewPage extends StatelessWidget {
             // 반응 + 공유
             Row(
               children: [
-                _ReactButton(icon: '❤️', count: '${news.likesCount}', onTap: () {}),
+                _ReactButton(icon: '❤️', count: '${widget.news.likesCount}', onTap: () {}),
                 const SizedBox(width: 12),
-                _ReactButton(icon: '🔖', count: '${news.bookmarksCount}', onTap: () {}),
+                _ReactButton(icon: '🔖', count: '${widget.news.bookmarksCount}', onTap: () {}),
                 const Spacer(),
                 TextButton.icon(
                   onPressed: () {},
@@ -141,18 +195,9 @@ class ArticleViewPage extends StatelessWidget {
         ),
       ),
 
-      // 하단 적립 바
-      bottomNavigationBar: _EarnBar(isRead: news.isRead),
+      // 하단 상태 바
+      bottomNavigationBar: _StatusBar(isRead: isRead),
     );
-  }
-
-  Color _catColor(NewsCategory cat) {
-    switch (cat) {
-      case NewsCategory.economy:  return AppColors.economy;
-      case NewsCategory.realty:   return AppColors.realty;
-      case NewsCategory.issue:    return AppColors.issue;
-      case NewsCategory.tenancy:  return AppColors.tenancy;
-    }
   }
 }
 
@@ -176,33 +221,31 @@ class _ReactButton extends StatelessWidget {
   }
 }
 
-class _EarnBar extends StatelessWidget {
+class _StatusBar extends StatelessWidget {
   final bool isRead;
-  const _EarnBar({required this.isRead});
+  const _StatusBar({required this.isRead});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
       color: AppColors.card,
-      child: ElevatedButton(
-        onPressed: isRead ? null : () {
-          // TODO: 광고 SDK 호출 → 완료 콜백에서 earn() 처리
-          context.read<AppState>().earn('📰', '기사 읽기 적립', 10);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('₩10 적립! 기사를 다 읽었어요 🎉'), duration: Duration(seconds: 2)),
-          );
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: isRead ? AppColors.surface : AppColors.primary,
-          foregroundColor: isRead ? AppColors.muted : Colors.white,
-          minimumSize: const Size(double.infinity, 52),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          elevation: 0,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: isRead ? AppColors.surface : AppColors.primaryDim,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: isRead ? AppColors.border : AppColors.primary.withOpacity(0.3)),
         ),
         child: Text(
-          isRead ? '✅ 이미 읽은 기사 (+₩10 완료)' : '📺 광고 보고 ₩10 받기',
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900),
+          isRead ? '✅ 이미 읽은 기사 (+₩10 완료)' : '⬇️ 기사를 끝까지 읽으면 ₩10 자동 적립',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: isRead ? AppColors.muted : AppColors.primary,
+          ),
         ),
       ),
     );

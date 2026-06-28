@@ -72,6 +72,7 @@ class _MyMingAppState extends State<MyMingApp> with WidgetsBindingObserver {
       title: '마이밍',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.theme,
+      scrollBehavior: const MaterialScrollBehavior().copyWith(overscroll: false),
       initialRoute: '/login',
       // ── 전체 라우트 테이블 ────────────────────────────────
       routes: {
