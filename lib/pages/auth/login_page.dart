@@ -53,10 +53,9 @@ class _LoginPageState extends State<LoginPage> {
 
               // 로고
               Column(children: [
-                Container(
-                  width: 80, height: 80,
-                  decoration: BoxDecoration(color: AppColors.primaryDim, borderRadius: BorderRadius.circular(24)),
-                  child: const Center(child: Text('🏠', style: TextStyle(fontSize: 40))),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: Image.asset('assets/images/logo.png', width: 80, height: 80, fit: BoxFit.cover),
                 ),
                 const SizedBox(height: 16),
                 Text('마이밍', style: AppTheme.headline1.copyWith(color: AppColors.primary, fontSize: 28)),
