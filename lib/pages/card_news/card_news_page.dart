@@ -63,10 +63,6 @@ class _CardNewsPageState extends State<CardNewsPage> {
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
     final trigger = state.cardNewsTabTrigger;
-    // API 모드가 새로 활성화되면 로드
-    if (state.apiEnabled && _apiNewsList == null && !_loading) {
-      _loadFromApi();
-    }
     if (trigger != _prevTabTrigger) {
       _prevTabTrigger = trigger;
       WidgetsBinding.instance.addPostFrameCallback((_) {

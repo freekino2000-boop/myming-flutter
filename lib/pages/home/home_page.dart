@@ -45,14 +45,13 @@ class _HomePageState extends State<HomePage> {
     _stepSub = Pedometer.stepCountStream.listen(
       (StepCount event) {
         if (!mounted) return;
-        final state = context.read<AppState>();
         if (!_pedometerStarted) {
           _initialSteps = event.steps;
           _pedometerStarted = true;
         }
         final todaySteps = event.steps - _initialSteps;
-        state.steps = todaySteps;
-        state.refresh();
+        // addSteps()가 내부적으로 notifyListeners + prefs 저장을 처리
+        context.read<AppState>().addSteps(todaySteps - context.read<AppState>().steps);
       },
       onError: (error) => debugPrint('Pedometer error: $error'),
     );

@@ -1,8 +1,17 @@
+import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// 개발: Android 에뮬레이터는 10.0.2.2, iOS/실기기는 로컬 IP로 변경
-const String kBaseUrl = 'http://10.0.2.2:3000/api';
+// ── 환경별 Base URL ───────────────────────────────────────
+// Android 에뮬레이터 : 10.0.2.2 (호스트 루프백)
+// iOS 시뮬레이터     : localhost
+// 실기기(개발)       : 실제 서버 IP로 교체
+String get kBaseUrl {
+  if (kIsWeb) return 'http://localhost:3000/api';
+  if (Platform.isIOS) return 'http://localhost:3000/api';
+  return 'http://10.0.2.2:3000/api';
+}
 
 class ApiClient {
   ApiClient._();
@@ -24,10 +33,14 @@ class ApiClient {
       headers: {'Content-Type': 'application/json'},
     ));
 
-    _dio.interceptors.addAll([
-      _AuthInterceptor(_dio),
-      LogInterceptor(requestBody: true, responseBody: false, error: true),
-    ]);
+    _dio.interceptors.add(_AuthInterceptor(_dio));
+
+    // 개발 빌드에서만 요청 로그 출력
+    if (kDebugMode) {
+      _dio.interceptors.add(
+        LogInterceptor(requestBody: true, responseBody: false, error: true),
+      );
+    }
 
     _initialized = true;
   }
@@ -80,7 +93,7 @@ class _AuthInterceptor extends Interceptor {
   }
 }
 
-// 편의 래퍼
+// ── 편의 래퍼 ─────────────────────────────────────────────
 final _dio = ApiClient.instance.dio;
 
 Future<T> apiGet<T>(String path, {Map<String, dynamic>? params}) async {

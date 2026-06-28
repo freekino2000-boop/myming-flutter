@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_state.dart';
+import '../../services/auth_service.dart';
 import '../../theme/app_theme.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -140,14 +141,47 @@ class ProfilePage extends StatelessWidget {
               decoration: AppTheme.cardDecoration,
               child: Column(
                 children: [
-                  _SettingItem(icon: '🔔', title: '알림 설정',     onTap: () {}),
+                  _SettingItem(icon: '🔔', title: '알림 설정',      onTap: () {}),
                   _SettingItem(icon: '🔒', title: '개인정보 처리방침', onTap: () {}),
-                  _SettingItem(icon: '📄', title: '이용약관',       onTap: () {}),
-                  _SettingItem(icon: '🆘', title: '고객센터',       onTap: () {}),
+                  _SettingItem(icon: '📄', title: '이용약관',        onTap: () {}),
+                  _SettingItem(icon: '🆘', title: '고객센터',        onTap: () {}),
                   const _SettingItem(icon: '📱', title: '앱 버전 1.0.0', onTap: null, trailing: '최신'),
                 ],
               ),
             ),
+
+            const SizedBox(height: 16),
+
+            // 로그아웃
+            if (context.read<AppState>().apiEnabled)
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () async {
+                    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        title: const Text('로그아웃'),
+                        content: const Text('정말 로그아웃 하시겠습니까?'),
+                        actions: [
+                          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('취소')),
+                          TextButton(onPressed: () => Navigator.pop(context, true),  child: const Text('로그아웃', style: TextStyle(color: Colors.red))),
+                        ],
+                      ),
+                    );
+                    if (confirmed != true) return;
+                    await AuthService.instance.logout();
+                    if (!context.mounted) return;
+                    Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
+                  },
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Colors.redAccent),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                  child: const Text('로그아웃', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w700)),
+                ),
+              ),
 
             const SizedBox(height: 80),
           ],

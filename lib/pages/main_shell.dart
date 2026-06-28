@@ -14,21 +14,25 @@ import 'home/home_page.dart';
 import 'card_news/card_news_page.dart';
 import 'game/game_select_page.dart';
 
+// 탭 종류 식별자 (레이블 문자열 의존 제거)
+enum _TabId { home, cardNews, game }
+
 // 탭 한 항목을 나타내는 내부 데이터 구조
 class _TabItem {
+  final _TabId id;
   final String icon;
   final String label;
   final Widget page;
-  const _TabItem({required this.icon, required this.label, required this.page});
+  const _TabItem({required this.id, required this.icon, required this.label, required this.page});
 }
 
 // Features 플래그에 따라 활성화된 탭 목록을 반환
 List<_TabItem> _buildTabs() => [
-  const _TabItem(icon: '🏠', label: '홈',      page: HomePage()),
+  const _TabItem(id: _TabId.home,     icon: '🏠', label: '홈',      page: HomePage()),
   if (Features.cardNews)
-    const _TabItem(icon: '📰', label: '카드뉴스', page: CardNewsPage()),
+    const _TabItem(id: _TabId.cardNews, icon: '📰', label: '카드뉴스', page: CardNewsPage()),
   if (Features.game)
-    const _TabItem(icon: '🎮', label: '게임',     page: GameSelectPage(isInTab: true)),
+    const _TabItem(id: _TabId.game,   icon: '🎮', label: '게임',     page: GameSelectPage(isInTab: true)),
 ];
 
 class MainShell extends StatefulWidget {
@@ -52,7 +56,7 @@ class _MainShellState extends State<MainShell> {
   // 카드뉴스 탭으로 이동 요청 처리 (AppState.switchToCardNewsTab)
   void _handleCardNewsJump(int trigger) {
     if (!Features.cardNews) return;
-    final cardNewsIndex = _tabs.indexWhere((t) => t.label == '카드뉴스');
+    final cardNewsIndex = _tabs.indexWhere((t) => t.id == _TabId.cardNews);
     if (cardNewsIndex == -1) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) setState(() => _currentIndex = cardNewsIndex);
