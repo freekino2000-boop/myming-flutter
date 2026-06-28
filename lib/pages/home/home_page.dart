@@ -67,7 +67,8 @@ class _HomePageState extends State<HomePage> {
               floating: true,
               backgroundColor: AppColors.surface,
               elevation: 0,
-              title: Text('마이밍', style: AppTheme.headline2.copyWith(color: AppColors.primary)),
+              centerTitle: false,
+              title: Text('마이밍', style: AppTheme.headline2.copyWith(color: AppColors.primary, fontSize: 26)),
               actions: [
                 IconButton(
                   onPressed: () => Navigator.pushNamed(context, '/profile'),
