@@ -7,9 +7,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
 button,.opt{touch-action:manipulation;-webkit-touch-callout:none;}
-body{background:#05091a;font-family:'Noto Sans KR',sans-serif;overflow:hidden;height:100vh;display:flex;flex-direction:column;}
-.scr{display:none;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;padding:20px;}
+body{background:#05091a;display:flex;flex-direction:column;font-family:'Noto Sans KR',sans-serif;overflow:hidden;height:100%;display:flex;flex-direction:column;}
+.scr{display:none;flex-direction:column;align-items:center;justify-content:space-evenly;width:100%;flex:1;padding:24px 20px;}
 .scr.on{display:flex;}
 .timer-bar{width:100%;max-width:340px;height:8px;background:#1a3a5c;border-radius:4px;overflow:hidden;margin-bottom:16px;}
 .timer-fill{height:100%;background:#FF9F43;border-radius:4px;transition:width .1s linear;}

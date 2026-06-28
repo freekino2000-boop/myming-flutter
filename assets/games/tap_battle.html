@@ -7,9 +7,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;background:#05091a;}
 button{touch-action:manipulation;-webkit-touch-callout:none;}
-body{background:#05091a;font-family:'Press Start 2P',monospace;overflow:hidden;height:100vh;display:flex;flex-direction:column;}
-.scr{display:none;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;padding:20px;}
+body{font-family:'Press Start 2P',monospace;display:flex;flex-direction:column;}
+.scr{display:none;flex-direction:column;align-items:center;justify-content:space-evenly;width:100%;flex:1;padding:24px 20px;}
 .scr.on{display:flex;}
 .logo{font-size:22px;color:#2C7FFF;text-shadow:3px 3px #0a3a8a;margin-bottom:10px;text-align:center;line-height:1.8;}
 .timer{font-size:54px;color:#2C7FFF;text-shadow:0 0 20px #2C7FFF;margin-bottom:6px;min-width:60px;text-align:center;}
