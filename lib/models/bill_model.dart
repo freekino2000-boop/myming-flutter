@@ -1,6 +1,5 @@
 // ════════════════════════════════════════════════════════
 // bill_model.dart — 고정비 청구서 데이터 모델
-// 월세/관리비/전기/가스/인터넷/통신 등
 // ════════════════════════════════════════════════════════
 
 enum BillType { rent, manage, electric, gas, internet, mobile, water, insurance, other }
@@ -35,14 +34,33 @@ extension BillTypeExt on BillType {
   }
 }
 
+// ── 등록 카드 정보 ─────────────────────────────────────
+class CardInfo {
+  final String issuer;
+  final String last4;
+  final String expiry;
+  final String cardNickname;
+
+  const CardInfo({
+    required this.issuer,
+    required this.last4,
+    required this.expiry,
+    this.cardNickname = '',
+  });
+
+  String get masked => '**** **** **** $last4';
+  String get displayName => cardNickname.isNotEmpty ? cardNickname : issuer;
+}
+
+// ── 청구서 ─────────────────────────────────────────────
 class Bill {
   final String id;
   BillType type;
-  String name;       // 사용자 지정 이름
-  int amount;        // 월 납부액
-  int dayOfMonth;    // 납부일 (1~28)
-  bool autopay;      // 자동이체 여부
-  int? savedAmount;  // 마이밍으로 절감된 금액
+  String name;
+  int amount;
+  int dayOfMonth;
+  CardInfo? cardInfo;
+  int? savedAmount;
 
   Bill({
     required this.id,
@@ -50,32 +68,38 @@ class Bill {
     required this.name,
     required this.amount,
     required this.dayOfMonth,
-    this.autopay = false,
+    this.cardInfo,
     this.savedAmount,
   });
 
-  // 납부 D-day 계산
   int get dday {
     final now = DateTime.now();
     final target = DateTime(now.year, now.month, dayOfMonth);
     final diff = target.difference(DateTime(now.year, now.month, now.day)).inDays;
-    return diff >= 0 ? diff : DateTime(now.year, now.month + 1, dayOfMonth)
-        .difference(DateTime(now.year, now.month, now.day)).inDays;
+    return diff >= 0
+        ? diff
+        : DateTime(now.year, now.month + 1, dayOfMonth)
+            .difference(DateTime(now.year, now.month, now.day))
+            .inDays;
   }
 
-  String get ddayLabel {
-    final d = dday;
-    if (d == 0) return 'D-DAY';
-    return 'D-$d';
-  }
+  String get ddayLabel => dday == 0 ? 'D-DAY' : 'D-$dday';
 }
 
-// 목데이터
+// ── 주요 카드사 목록 ───────────────────────────────────
+const kCardIssuers = [
+  '신한카드', 'KB국민카드', '삼성카드', '현대카드',
+  '롯데카드', '우리카드', '하나카드', 'BC카드',
+  'NH농협카드', '카카오뱅크', '토스뱅크', '케이뱅크',
+];
+
+// ── 목데이터 ───────────────────────────────────────────
 final List<Bill> kMockBills = [
-  Bill(id: 'b1', type: BillType.rent,     name: '월세',      amount: 550000, dayOfMonth: 1,  autopay: true),
-  Bill(id: 'b2', type: BillType.manage,   name: '관리비',    amount: 85000,  dayOfMonth: 5,  autopay: false),
-  Bill(id: 'b3', type: BillType.electric, name: '전기요금',  amount: 38000,  dayOfMonth: 15, autopay: true),
-  Bill(id: 'b4', type: BillType.mobile,   name: '통신요금',  amount: 55000,  dayOfMonth: 18, autopay: true),
-  Bill(id: 'b5', type: BillType.internet, name: '인터넷',    amount: 33000,  dayOfMonth: 20, autopay: true),
-  Bill(id: 'b6', type: BillType.gas,      name: '가스요금',  amount: 24000,  dayOfMonth: 25, autopay: false),
+  Bill(id: 'b1', type: BillType.rent,     name: '월세',     amount: 550000, dayOfMonth: 1),
+  Bill(id: 'b2', type: BillType.manage,   name: '관리비',   amount: 85000,  dayOfMonth: 5),
+  Bill(id: 'b3', type: BillType.electric, name: '전기요금', amount: 38000,  dayOfMonth: 15),
+  Bill(id: 'b4', type: BillType.mobile,   name: '통신요금', amount: 55000,  dayOfMonth: 18,
+       cardInfo: const CardInfo(issuer: '신한카드', last4: '4521', expiry: '09/27')),
+  Bill(id: 'b5', type: BillType.internet, name: '인터넷',   amount: 33000,  dayOfMonth: 20),
+  Bill(id: 'b6', type: BillType.gas,      name: '가스요금', amount: 24000,  dayOfMonth: 25),
 ];
