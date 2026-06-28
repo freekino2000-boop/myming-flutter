@@ -22,7 +22,12 @@ body{background:#05091a;display:flex;flex-direction:column;overflow:hidden;heigh
 .mem-card.flipped .mc-front,.mem-card.matched .mc-front{display:block;}
 .stat{font-size:12px;color:#5a8ab0;margin-bottom:6px;font-family:'Press Start 2P',monospace;}
 .earn{font-size:18px;color:#C56CF0;font-weight:900;margin:8px 0;font-family:'Noto Sans KR',sans-serif;}
-.rbtn{padding:12px 22px;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;margin:4px;font-family:'Noto Sans KR',sans-serif;}
+.rbtn{font-size:12px;color:#5a8ab0;background:#1a3a5c;border:none;padding:14px 0;cursor:pointer;border-radius:12px;font-weight:700;width:100%;max-width:320px;margin:0;}
+.btn{font-size:14px;color:#fff;background:#C56CF0;border:none;padding:18px 0;cursor:pointer;border-radius:12px;font-weight:900;width:100%;max-width:320px;}
+.big-icon{font-size:80px;line-height:1;}
+h1.game-title{font-size:26px;color:#C56CF0;font-weight:900;text-align:center;line-height:1.5;}
+p.game-desc{color:#888;font-size:13px;text-align:center;line-height:1.9;}
+.rank-box{width:100%;max-width:320px;font-size:12px;color:#5a8ab0;text-align:center;}
 .rank-row{display:flex;gap:8px;font-size:12px;padding:4px 0;border-bottom:1px solid #1a3a5c;color:#888;font-family:'Noto Sans KR',sans-serif;}
 .rank-row.me{color:#C56CF0;}
 </style>
@@ -30,12 +35,12 @@ body{background:#05091a;display:flex;flex-direction:column;overflow:hidden;heigh
 <body>
 <!-- 타이틀 -->
 <div class="scr on" id="scrTitle">
-  <div style="font-size:28px;margin-bottom:6px;">🧩</div>
-  <div style="font-size:20px;color:#C56CF0;font-weight:900;margin-bottom:6px;font-family:'Press Start 2P',monospace;">MEMORY!</div>
-  <div style="font-size:12px;color:#5a8ab0;text-align:center;line-height:1.8;margin-bottom:20px;font-family:'Noto Sans KR',sans-serif;">8쌍의 카드를 짝 맞추자!<br>실수가 적을수록 더 많이 적립!</div>
-  <div id="topRanks" style="width:100%;max-width:280px;margin-bottom:16px;"></div>
-  <button ontouchend="event.preventDefault();memStart()" onclick="memStart()" style="background:#C56CF0;color:#fff;border:none;padding:13px 32px;border-radius:14px;font-size:15px;font-weight:900;cursor:pointer;box-shadow:0 4px 0 #7a2a9a;font-family:'Noto Sans KR',sans-serif;">▶ START</button>
-  <button class="rbtn" style="background:#1a3a5c;color:#5a8ab0;margin-top:12px;" ontouchend="event.preventDefault();goBack()" onclick="goBack()">← MENU</button>
+  <div class="big-icon">🧩</div>
+  <h1 class="game-title">MEMORY<br>MATCH!</h1>
+  <p class="game-desc">8쌍의 카드를 짝 맞추자!<br>실수가 적을수록 더 많이 적립!</p>
+  <div class="rank-box" id="topRanks"></div>
+  <button class="btn" ontouchend="event.preventDefault();memStart()" onclick="memStart()">▶ START</button>
+  <button class="rbtn" ontouchend="event.preventDefault();goBack()" onclick="goBack()">← MENU</button>
 </div>
 
 <!-- 게임 화면 -->
@@ -49,17 +54,15 @@ body{background:#05091a;display:flex;flex-direction:column;overflow:hidden;heigh
 </div>
 
 <!-- 결과 화면 -->
-<div class="scr" id="scrResult" style="gap:10px;">
-  <div style="font-size:24px;">🧩</div>
-  <div style="font-size:18px;color:#C56CF0;font-weight:900;font-family:'Press Start 2P',monospace;">CLEAR!</div>
-  <div id="resSub" style="font-size:13px;color:#888;text-align:center;line-height:1.8;font-family:'Noto Sans KR',sans-serif;"></div>
+<div class="scr" id="scrResult">
+  <div class="big-icon">🧩</div>
+  <h1 class="game-title">CLEAR!</h1>
+  <div id="resSub" style="font-size:13px;color:#888;text-align:center;line-height:1.8;"></div>
   <div id="resEarn" class="earn"></div>
-  <div id="resRank" style="font-size:13px;color:#FFD700;font-weight:900;font-family:'Noto Sans KR',sans-serif;"></div>
-  <div id="rankList" style="width:100%;max-width:280px;"></div>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:6px;">
-    <button class="rbtn" style="background:#C56CF0;color:#fff;" ontouchend="event.preventDefault();memStart()" onclick="memStart()">▶ RETRY</button>
-    <button class="rbtn" style="background:#1a3a5c;color:#5a8ab0;" ontouchend="event.preventDefault();goBack()" onclick="goBack()">← MENU</button>
-  </div>
+  <div id="resRank" style="font-size:13px;color:#FFD700;font-weight:900;"></div>
+  <div class="rank-box" id="rankList"></div>
+  <button class="btn" ontouchend="event.preventDefault();memStart()" onclick="memStart()">▶ RETRY</button>
+  <button class="rbtn" ontouchend="event.preventDefault();goBack()" onclick="goBack()">← MENU</button>
 </div>
 
 <script>

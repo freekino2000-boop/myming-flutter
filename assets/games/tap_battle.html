@@ -12,19 +12,22 @@ button{touch-action:manipulation;-webkit-touch-callout:none;}
 body{font-family:'Press Start 2P',monospace;display:flex;flex-direction:column;}
 .scr{display:none;flex-direction:column;align-items:center;justify-content:space-evenly;width:100%;flex:1;padding:24px 20px;}
 .scr.on{display:flex;}
-.logo{font-size:22px;color:#2C7FFF;text-shadow:3px 3px #0a3a8a;margin-bottom:10px;text-align:center;line-height:1.8;}
-.timer{font-size:54px;color:#2C7FFF;text-shadow:0 0 20px #2C7FFF;margin-bottom:6px;min-width:60px;text-align:center;}
-.count{font-size:70px;color:#fff;margin-bottom:4px;min-width:80px;text-align:center;}
-.label{font-size:9px;color:#5a8ab0;margin-bottom:20px;}
+.big-icon{font-size:80px;line-height:1;}
+h1.game-title{font-size:26px;color:#2C7FFF;font-family:'Press Start 2P',monospace;font-weight:900;text-align:center;line-height:1.5;}
+p.game-desc{color:#888;font-size:13px;text-align:center;line-height:1.9;}
+.rank-box{width:100%;max-width:320px;font-size:12px;color:#5a8ab0;text-align:center;}
+.btn{font-size:14px;color:#fff;background:#2C7FFF;border:none;padding:18px 0;cursor:pointer;border-radius:12px;font-weight:900;width:100%;max-width:320px;}
+.rbtn{font-size:12px;color:#5a8ab0;background:#1a3a5c;border:none;padding:14px 0;cursor:pointer;border-radius:12px;font-weight:700;width:100%;max-width:320px;margin:0;}
+.timer{font-size:54px;color:#2C7FFF;text-shadow:0 0 20px #2C7FFF;min-width:60px;text-align:center;}
+.count{font-size:70px;color:#fff;min-width:80px;text-align:center;}
+.label{font-size:9px;color:#5a8ab0;}
 .tap-btn{width:170px;height:170px;border-radius:50%;background:#2C7FFF;border:none;font-size:22px;cursor:pointer;box-shadow:0 0 40px rgba(44,127,255,.6);color:#fff;font-family:'Press Start 2P',monospace;transition:transform .06s,box-shadow .06s;user-select:none;-webkit-user-select:none;}
 .tap-btn:active{transform:scale(.9);box-shadow:0 0 15px rgba(44,127,255,.3);}
-.start-btn{font-family:'Press Start 2P',monospace;font-size:11px;color:#fff;background:#2C7FFF;border:none;padding:13px 30px;cursor:pointer;box-shadow:4px 4px #0a3a8a;margin-top:10px;}
 .rank-row{display:flex;align-items:center;gap:8px;font-size:9px;color:#5a8ab0;padding:5px 0;border-bottom:1px solid #1a3a5c;width:100%;max-width:280px;}
 .rank-row.me{color:#2C7FFF;}
 .rank-num{width:26px;text-align:right;flex-shrink:0;}
 .rank-name{flex:1;}
 .rank-score{color:#fff;white-space:nowrap;}
-.rbtn{font-family:'Press Start 2P',monospace;font-size:9px;padding:10px 14px;border:none;cursor:pointer;margin:3px;}
 .res-sub{font-size:9px;color:#888;line-height:2.5;text-align:center;}
 .res-earn{font-size:14px;color:#2C7FFF;}
 .res-rank{font-size:10px;color:#FFD700;}
@@ -33,11 +36,12 @@ body{font-family:'Press Start 2P',monospace;display:flex;flex-direction:column;}
 <body>
 <!-- 타이틀 화면 -->
 <div class="scr on" id="scrTitle">
-  <div class="logo">⚡ TAP<br>BATTLE!</div>
-  <div style="font-size:9px;color:#5a8ab0;margin:8px 0 18px;text-align:center;line-height:2.2;">10초 안에 최대한<br>많이 탭하라!</div>
-  <div id="topRanks" style="width:100%;max-width:280px;margin-bottom:18px;"></div>
-  <button class="start-btn" ontouchend="event.preventDefault();tapStart()" onclick="tapStart()">▶ START</button>
-  <button class="rbtn" style="background:#1a3a5c;color:#5a8ab0;margin-top:16px;" ontouchend="event.preventDefault();goBack()" onclick="goBack()">← MENU</button>
+  <div class="big-icon">⚡</div>
+  <h1 class="game-title">TAP<br>BATTLE!</h1>
+  <p class="game-desc">10초 안에 최대한<br>많이 탭하라!</p>
+  <div class="rank-box" id="topRanks"></div>
+  <button class="btn" ontouchend="event.preventDefault();tapStart()" onclick="tapStart()">▶ START</button>
+  <button class="rbtn" ontouchend="event.preventDefault();goBack()" onclick="goBack()">← MENU</button>
 </div>
 
 <!-- 게임 화면 -->
@@ -49,16 +53,15 @@ body{font-family:'Press Start 2P',monospace;display:flex;flex-direction:column;}
 </div>
 
 <!-- 결과 화면 -->
-<div class="scr" id="scrResult" style="gap:8px;">
-  <div style="font-size:18px;color:#2C7FFF;">RESULT!</div>
+<div class="scr" id="scrResult">
+  <div class="big-icon">⚡</div>
+  <h1 class="game-title">RESULT!</h1>
   <div id="resSub" class="res-sub"></div>
   <div id="resEarn" class="res-earn"></div>
   <div id="resRank" class="res-rank"></div>
-  <div id="rankList" style="width:100%;max-width:280px;margin:6px 0;"></div>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
-    <button class="rbtn" style="background:#2C7FFF;color:#fff;" ontouchend="event.preventDefault();tapStart()" onclick="tapStart()">▶ RETRY</button>
-    <button class="rbtn" style="background:#1a3a5c;color:#5a8ab0;" ontouchend="event.preventDefault();goBack()" onclick="goBack()">← MENU</button>
-  </div>
+  <div class="rank-box" id="rankList"></div>
+  <button class="btn" ontouchend="event.preventDefault();tapStart()" onclick="tapStart()">▶ RETRY</button>
+  <button class="rbtn" ontouchend="event.preventDefault();goBack()" onclick="goBack()">← MENU</button>
 </div>
 
 <script>
