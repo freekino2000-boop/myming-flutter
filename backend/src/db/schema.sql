@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS card_news (
   id         VARCHAR(20)  PRIMARY KEY,
   title      TEXT         NOT NULL,
   summary    TEXT,
-  category   VARCHAR(20)  NOT NULL DEFAULT 'economy',  -- economy|realestate|issue|lease
+  category   VARCHAR(20)  NOT NULL DEFAULT 'economy',  -- economy|realty|issue|tenancy
   tier       VARCHAR(10)  NOT NULL DEFAULT 'weekly',   -- top3|weekly
   rank       INT,
   img_url    TEXT,

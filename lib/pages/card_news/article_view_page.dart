@@ -48,8 +48,7 @@ class _ArticleViewPageState extends State<ArticleViewPage> {
       widget.news.isRead = true;
     });
     final state = context.read<AppState>();
-    state.readCNArticle();
-    state.earn('📰', '기사 읽기 적립', 10);
+    state.readCNArticle(widget.news.id);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('₩10 적립! 기사를 다 읽었어요 🎉'), duration: Duration(seconds: 2)),
     );

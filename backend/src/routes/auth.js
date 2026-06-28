@@ -79,7 +79,7 @@ router.post('/login', [
 // POST /api/auth/social — 소셜 로그인 (카카오/구글)
 // Flutter 클라이언트가 소셜 SDK로 취득한 사용자 정보를 서버에 전달
 router.post('/social', [
-  body('provider').isIn(['kakao', 'google']),
+  body('provider').isIn(['kakao', 'google', 'naver', 'apple']),
   body('socialId').notEmpty(),
   body('nickname').trim().isLength({ min: 1, max: 50 }),
 ], async (req, res, next) => {

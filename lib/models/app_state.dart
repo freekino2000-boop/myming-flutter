@@ -263,6 +263,7 @@ class AppState extends ChangeNotifier {
     lastAttendanceDate = prefs.getString('attendance');
     attendanceDates    = prefs.getStringList('attendanceDates') ?? [];
     firstAccessDate    = prefs.getString('firstAccess');
+    totalSecondsInApp  = prefs.getInt('totalSeconds') ?? 0;
     notifyListeners();
   }
 
@@ -279,5 +280,6 @@ class AppState extends ChangeNotifier {
     if (lastAttendanceDate != null) await prefs.setString('attendance', lastAttendanceDate!);
     await prefs.setStringList('attendanceDates', attendanceDates);
     if (firstAccessDate != null) await prefs.setString('firstAccess', firstAccessDate!);
+    await prefs.setInt('totalSeconds', totalSecondsInApp);
   }
 }

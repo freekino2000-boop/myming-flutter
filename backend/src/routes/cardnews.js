@@ -9,7 +9,7 @@ const MISSION_BONUS = 30;
 
 // GET /api/cardnews — 카드뉴스 목록
 router.get('/', auth, [
-  query('category').optional().isIn(['economy', 'realestate', 'issue', 'lease']),
+  query('category').optional().isIn(['economy', 'realty', 'issue', 'tenancy']),
   query('tier').optional().isIn(['top3', 'weekly']),
 ], async (req, res, next) => {
   const errors = validationResult(req);
@@ -36,6 +36,25 @@ router.get('/', auth, [
       params
     );
     res.json(rows);
+  } catch (err) { next(err); }
+});
+
+// GET /api/cardnews/mission/status — 오늘 기사 미션 현황 (/:id 보다 먼저 정의)
+router.get('/mission/status', auth, async (req, res, next) => {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const { rows } = await db.query(
+      `SELECT COUNT(*) AS cnt FROM news_reads
+       WHERE user_id = $1
+         AND created_at >= $2::date AND created_at < $2::date + INTERVAL '1 day'`,
+      [req.user.id, today]
+    );
+    const cnt = Number(rows[0].cnt);
+    res.json({
+      read_count:   cnt,
+      mission_done: cnt >= MISSION_COUNT,
+      required:     MISSION_COUNT,
+    });
   } catch (err) { next(err); }
 });
 
@@ -77,7 +96,7 @@ router.post('/:id/read', auth, async (req, res, next) => {
       [uid, READ_REWARD]
     );
 
-    // 오늘 읽은 기사 수 기준 일일 미션 보너스 체크 (3개 달성 시 +30원, 하루 1회)
+    // 오늘 읽은 기사 수 기준 일일 미션 보너스 (3건 달성 시 +30원, 하루 1회)
     const today = new Date().toISOString().slice(0, 10);
     const readCount = await db.query(
       `SELECT COUNT(*) AS cnt FROM news_reads
@@ -88,7 +107,6 @@ router.post('/:id/read', auth, async (req, res, next) => {
     const cnt = Number(readCount.rows[0].cnt);
     let missionBonus = 0;
     if (cnt === MISSION_COUNT) {
-      // 오늘 이미 미션 보너스를 받았는지 확인
       const alreadyBonus = await db.query(
         `SELECT id FROM wallet_ledger
          WHERE user_id = $1 AND name = '카드뉴스 미션 완료'
@@ -116,25 +134,6 @@ router.post('/:id/read', auth, async (req, res, next) => {
       mission_bonus:  missionBonus > 0,
       read_count:     cnt,
       balance:        Number(bal.rows[0].balance),
-    });
-  } catch (err) { next(err); }
-});
-
-// GET /api/cardnews/mission/status — 오늘 기사 미션 현황
-router.get('/mission/status', auth, async (req, res, next) => {
-  try {
-    const today = new Date().toISOString().slice(0, 10);
-    const { rows } = await db.query(
-      `SELECT COUNT(*) AS cnt FROM news_reads
-       WHERE user_id = $1
-         AND created_at >= $2::date AND created_at < $2::date + INTERVAL '1 day'`,
-      [req.user.id, today]
-    );
-    const cnt = Number(rows[0].cnt);
-    res.json({
-      read_count:   cnt,
-      mission_done: cnt >= MISSION_COUNT,
-      required:     MISSION_COUNT,
     });
   } catch (err) { next(err); }
 });
