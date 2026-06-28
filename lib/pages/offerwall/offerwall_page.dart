@@ -131,7 +131,7 @@ class _OfferwallPageState extends State<OfferwallPage> {
       context: context, isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-      builder: (_) => _OfferModal(offer: offer, onComplete: () async {
+      builder: (_) => OfferModal(offer: offer, onComplete: () async {
         setState(() => offer.clicked = true);
         Navigator.pop(context);
         final state = context.read<AppState>();
@@ -220,15 +220,15 @@ class _OfferCard extends StatelessWidget {
 }
 
 // ── 오퍼 상세 모달 ────────────────────────────────────────
-class _OfferModal extends StatefulWidget {
+class OfferModal extends StatefulWidget {
   final Offer offer;
   final VoidCallback onComplete;
-  const _OfferModal({required this.offer, required this.onComplete});
+  const OfferModal({super.key, required this.offer, required this.onComplete});
   @override
-  State<_OfferModal> createState() => _OfferModalState();
+  State<OfferModal> createState() => _OfferModalState();
 }
 
-class _OfferModalState extends State<_OfferModal> {
+class _OfferModalState extends State<OfferModal> {
   int _step = 0; // 0=설명, 1=진행중, 2=완료
 
   @override

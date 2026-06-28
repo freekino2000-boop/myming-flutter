@@ -9,7 +9,9 @@ import 'package:pedometer/pedometer.dart';
 
 import '../../models/app_state.dart';
 import '../../models/offer_model.dart';
+import '../../services/offerwall_service.dart';
 import '../../theme/app_theme.dart';
+import '../offerwall/offerwall_page.dart';
 import 'widgets/pedometer_card.dart';
 import 'widgets/quick_action_card.dart';
 import 'widgets/bill_history_entry.dart';
@@ -68,6 +70,7 @@ class _HomePageState extends State<HomePage> {
               backgroundColor: AppColors.surface,
               elevation: 0,
               centerTitle: false,
+              automaticallyImplyLeading: false,
               title: Text('마이밍', style: AppTheme.headline2.copyWith(color: AppColors.primary, fontSize: 26)),
               actions: [
                 IconButton(
@@ -353,6 +356,39 @@ class _OfferwallInlineSectionState extends State<_OfferwallInlineSection> {
       ? kOffers
       : kOffers.where((o) => o.category == _cat).toList();
 
+  void _openModal(BuildContext context, Offer offer) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (_) => OfferModal(
+        offer: offer,
+        onComplete: () async {
+          setState(() => offer.clicked = true);
+          Navigator.pop(context);
+          final state = context.read<AppState>();
+          if (state.apiEnabled) {
+            try {
+              final res = await OfferwallService.instance.complete(offer.id);
+              state.walletAmount = res.balance;
+              state.addLedger(offer.icon, offer.name, res.reward, 'earn');
+              state.notifyListeners();
+            } catch (_) {
+              state.earn(offer.icon, offer.name, offer.reward);
+            }
+          } else {
+            state.earn(offer.icon, offer.name, offer.reward);
+          }
+          if (!context.mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text('${offer.name} 완료! ₩${offer.reward} 적립 🎉')));
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -406,7 +442,10 @@ class _OfferwallInlineSectionState extends State<_OfferwallInlineSection> {
         const SizedBox(height: 10),
 
         // 미션 목록 (HTML owInlineList)
-        ..._filtered.map((offer) => _OfferwallInlineCard(offer: offer)),
+        ..._filtered.map((offer) => _OfferwallInlineCard(
+          offer: offer,
+          onTap: () => _openModal(context, offer),
+        )),
       ],
     );
   }
@@ -414,7 +453,8 @@ class _OfferwallInlineSectionState extends State<_OfferwallInlineSection> {
 
 class _OfferwallInlineCard extends StatelessWidget {
   final Offer offer;
-  const _OfferwallInlineCard({required this.offer});
+  final VoidCallback onTap;
+  const _OfferwallInlineCard({required this.offer, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -430,7 +470,7 @@ class _OfferwallInlineCard extends StatelessWidget {
             : '⚡ 간단';
 
     return GestureDetector(
-      onTap: () => Navigator.pushNamed(context, '/offerwall'),
+      onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
