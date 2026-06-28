@@ -43,35 +43,36 @@ class _CardNewsPageState extends State<CardNewsPage> {
 
     return Scaffold(
       backgroundColor: AppColors.surface,
+      appBar: AppBar(
+        backgroundColor: AppColors.card,
+        elevation: 0,
+        titleSpacing: 16,
+        title: Row(
+          children: [
+            const Text('마이밍뉴스',
+                style: TextStyle(fontWeight: FontWeight.w900, color: AppColors.text, fontSize: 17)),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+              decoration: BoxDecoration(
+                color: AppColors.primaryDim,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: const Text('LIVE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.primary)),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pushNamed(context, '/shop'),
+            child: const Text('🎁 교환소', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
       body: SafeArea(
+        top: false,
         child: CustomScrollView(
           slivers: [
-            // 앱바
-            SliverAppBar(
-              floating: true, backgroundColor: AppColors.card,
-              title: Row(
-                children: [
-                  const Text('마이밍뉴스',
-                      style: TextStyle(fontWeight: FontWeight.w900, color: AppColors.text, fontSize: 17)),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryDim,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: const Text('LIVE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppColors.primary)),
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pushNamed(context, '/shop'),
-                  child: const Text('🎁 교환소', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700)),
-                ),
-              ],
-            ),
-
             SliverToBoxAdapter(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
