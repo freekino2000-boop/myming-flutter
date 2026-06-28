@@ -29,4 +29,19 @@ class CardNewsService {
       missionDone: data['mission_done'] as bool,
     );
   }
+
+  // 좋아요 토글 → liked 여부 + 최신 카운트
+  Future<({bool liked, int likeCount})> toggleLike(String id) async {
+    final data = await apiPost<Map>('/cardnews/$id/like');
+    return (
+      liked:     data['liked']      as bool,
+      likeCount: (data['like_count'] as num).toInt(),
+    );
+  }
+
+  // 즐겨찾기 토글 → bookmarked 여부
+  Future<bool> toggleBookmark(String id) async {
+    final data = await apiPost<Map>('/cardnews/$id/bookmark');
+    return data['bookmarked'] as bool;
+  }
 }

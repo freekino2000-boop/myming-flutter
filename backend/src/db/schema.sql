@@ -92,6 +92,28 @@ CREATE TABLE IF NOT EXISTS news_reads (
   UNIQUE(user_id, news_id)
 );
 
+-- ── 기사 좋아요 ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS news_likes (
+  id         BIGSERIAL PRIMARY KEY,
+  user_id    UUID        NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  news_id    VARCHAR(20) NOT NULL REFERENCES card_news(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE(user_id, news_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_likes_news ON news_likes(news_id);
+
+-- ── 기사 즐겨찾기 ────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS news_bookmarks (
+  id         BIGSERIAL PRIMARY KEY,
+  user_id    UUID        NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  news_id    VARCHAR(20) NOT NULL REFERENCES card_news(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE(user_id, news_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_bookmarks_user ON news_bookmarks(user_id, created_at DESC);
+
 -- ── 게임 점수 ────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS game_scores (
   id         BIGSERIAL PRIMARY KEY,

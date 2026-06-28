@@ -58,17 +58,70 @@ router.get('/mission/status', auth, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-// GET /api/cardnews/:id — 기사 상세
+// GET /api/cardnews/:id — 기사 상세 (좋아요·즐겨찾기 상태 포함)
 router.get('/:id', auth, async (req, res, next) => {
   try {
+    const uid    = req.user.id;
+    const newsId = req.params.id;
     const { rows } = await db.query(
       `SELECT n.*,
-              (SELECT COUNT(*) FROM news_reads WHERE news_id = $1) AS read_count
+              (SELECT COUNT(*) FROM news_reads    WHERE news_id = $1) AS read_count,
+              (SELECT COUNT(*) FROM news_likes    WHERE news_id = $1) AS like_count,
+              (SELECT COUNT(*) FROM news_bookmarks WHERE news_id = $1) AS bookmark_count,
+              EXISTS(SELECT 1 FROM news_likes     WHERE news_id = $1 AND user_id = $2) AS is_liked,
+              EXISTS(SELECT 1 FROM news_bookmarks WHERE news_id = $1 AND user_id = $2) AS is_bookmarked
        FROM card_news n WHERE n.id = $1`,
-      [req.params.id]
+      [newsId, uid]
     );
     if (!rows.length) return res.status(404).json({ error: '기사를 찾을 수 없습니다.' });
     res.json(rows[0]);
+  } catch (err) { next(err); }
+});
+
+// POST /api/cardnews/:id/like — 좋아요 토글
+router.post('/:id/like', auth, async (req, res, next) => {
+  try {
+    const uid    = req.user.id;
+    const newsId = req.params.id;
+
+    const exists = await db.query(
+      'SELECT id FROM news_likes WHERE user_id = $1 AND news_id = $2',
+      [uid, newsId]
+    );
+    let liked;
+    if (exists.rows.length) {
+      await db.query('DELETE FROM news_likes WHERE user_id = $1 AND news_id = $2', [uid, newsId]);
+      liked = false;
+    } else {
+      await db.query('INSERT INTO news_likes (user_id, news_id) VALUES ($1, $2)', [uid, newsId]);
+      liked = true;
+    }
+    const { rows } = await db.query(
+      'SELECT COUNT(*) AS cnt FROM news_likes WHERE news_id = $1', [newsId]
+    );
+    res.json({ liked, like_count: Number(rows[0].cnt) });
+  } catch (err) { next(err); }
+});
+
+// POST /api/cardnews/:id/bookmark — 즐겨찾기 토글
+router.post('/:id/bookmark', auth, async (req, res, next) => {
+  try {
+    const uid    = req.user.id;
+    const newsId = req.params.id;
+
+    const exists = await db.query(
+      'SELECT id FROM news_bookmarks WHERE user_id = $1 AND news_id = $2',
+      [uid, newsId]
+    );
+    let bookmarked;
+    if (exists.rows.length) {
+      await db.query('DELETE FROM news_bookmarks WHERE user_id = $1 AND news_id = $2', [uid, newsId]);
+      bookmarked = false;
+    } else {
+      await db.query('INSERT INTO news_bookmarks (user_id, news_id) VALUES ($1, $2)', [uid, newsId]);
+      bookmarked = true;
+    }
+    res.json({ bookmarked });
   } catch (err) { next(err); }
 });
 

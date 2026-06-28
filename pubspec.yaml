@@ -30,6 +30,9 @@ dependencies:
   # WebView (HTML 게임 임베드)
   webview_flutter: ^4.7.0
 
+  # 공유하기 (링크 복사 · 카카오톡 등 외부 앱 공유)
+  share_plus: ^9.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
