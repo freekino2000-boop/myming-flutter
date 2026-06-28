@@ -110,13 +110,9 @@ class _LoginPageState extends State<LoginPage> {
                 _SocialBtn(
                   color: const Color(0xFF03C75A),
                   textColor: Colors.white,
-                  iconWidget: const Text(
-                    'N',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 18,
-                    ),
+                  iconWidget: SvgPicture.asset(
+                    'assets/images/logo_naver.svg',
+                    width: 22, height: 22,
                   ),
                   label: '네이버로 시작하기',
                   onTap: () => _login('naver'),
@@ -141,7 +137,10 @@ class _LoginPageState extends State<LoginPage> {
                 _SocialBtn(
                   color: Colors.black,
                   textColor: Colors.white,
-                  iconWidget: const Icon(Icons.apple, color: Colors.white, size: 24),
+                  iconWidget: SvgPicture.asset(
+                    'assets/images/logo_apple.svg',
+                    width: 22, height: 22,
+                  ),
                   label: 'Apple로 시작하기',
                   onTap: () => _login('apple'),
                 ),
