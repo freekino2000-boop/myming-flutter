@@ -17,6 +17,7 @@ import 'pages/game/global_rank_page.dart';
 import 'pages/bill/bill_page.dart';
 import 'pages/fortune/fortune_page.dart';
 import 'pages/auth/login_page.dart';
+import 'pages/splash/splash_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -73,10 +74,11 @@ class _MyMingAppState extends State<MyMingApp> with WidgetsBindingObserver {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.theme,
       scrollBehavior: const MaterialScrollBehavior().copyWith(overscroll: false),
-      initialRoute: '/login',
+      initialRoute: '/splash',
       // ── 전체 라우트 테이블 ────────────────────────────────
       routes: {
-        '/login':       (_) => const LoginPage(),     // 로그인 (첫 진입)
+        '/splash':      (_) => const SplashPage(),    // 스플래시 (첫 진입)
+        '/login':       (_) => const LoginPage(),     // 로그인
         '/':            (_) => const MainShell(),     // 하단탭 쉘 (홈/카드뉴스/게임)
         '/shop':        (_) => const ShopPage(),      // 교환소
         '/offerwall':   (_) => const OfferwallPage(), // 고정비 절감 미션
