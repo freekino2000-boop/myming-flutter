@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import 'config/features.dart';
 import 'models/app_state.dart';
 import 'theme/app_theme.dart';
 import 'pages/main_shell.dart';
@@ -76,18 +77,28 @@ class _MyMingAppState extends State<MyMingApp> with WidgetsBindingObserver {
       scrollBehavior: const MaterialScrollBehavior().copyWith(overscroll: false),
       initialRoute: '/splash',
       // ── 전체 라우트 테이블 ────────────────────────────────
+      // 기능 활성화 여부는 features.dart에서 제어합니다.
       routes: {
-        '/splash':      (_) => const SplashPage(),    // 스플래시 (첫 진입)
-        '/login':       (_) => const LoginPage(),     // 로그인
-        '/':            (_) => const MainShell(),     // 하단탭 쉘 (홈/카드뉴스/게임)
-        '/shop':        (_) => const ShopPage(),      // 교환소
-        '/offerwall':   (_) => const OfferwallPage(), // 고정비 절감 미션
-        '/coupon':      (_) => const CouponPage(),    // 쿠폰함
-        '/profile':     (_) => const ProfilePage(),   // 내 정보
-        '/game-select': (_) => const GameSelectPage(),// 게임 선택
-        '/rank':        (_) => const GlobalRankPage(),// 전체 랭킹
-        '/bill':        (_) => const BillPage(),      // 고정비 관리
-        '/fortune':     (_) => const FortunePage(),   // 오늘의 운세
+        '/splash':   (_) => const SplashPage(),   // 스플래시 (첫 진입) — 항상 활성
+        '/login':    (_) => const LoginPage(),    // 로그인 — 항상 활성
+        '/':         (_) => const MainShell(),    // 하단탭 쉘 — 항상 활성
+        '/profile':  (_) => const ProfilePage(),  // 내 정보 — 항상 활성
+
+        if (Features.shop)
+          '/shop':      (_) => const ShopPage(),      // 🎁 교환소
+        if (Features.offerwall)
+          '/offerwall': (_) => const OfferwallPage(), // 💡 고정비 절감 미션
+        if (Features.coupon)
+          '/coupon':    (_) => const CouponPage(),    // 🎫 쿠폰함
+        if (Features.bill)
+          '/bill':      (_) => const BillPage(),      // 📋 고정비 관리
+        if (Features.fortune)
+          '/fortune':   (_) => const FortunePage(),   // 🎁 행운 뽑기
+        if (Features.game) ...{
+          '/game-select': (_) => const GameSelectPage(), // 🎮 게임 선택
+          if (Features.rank)
+            '/rank':    (_) => const GlobalRankPage(),   // 🏆 전체 랭킹
+        },
       },
     );
   }

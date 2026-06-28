@@ -26,9 +26,13 @@ router.get('/', auth, [
     if (tier) { conditions.push(`n.tier = $${params.push(tier)}`); }
 
     const { rows } = await db.query(
-      `SELECT n.id, n.title, n.summary, n.category, n.tier, n.rank,
-              n.img_url, n.likes, n.scraps, n.published_at,
-              (nr.id IS NOT NULL) AS is_read
+      `SELECT n.id, n.emoji, n.title, n.summary, n.category, n.tier, n.rank,
+              n.keywords, n.stat, n.body, n.likes, n.scraps, n.published_at,
+              (SELECT COUNT(*) FROM news_likes    WHERE news_id = n.id) AS like_count,
+              (SELECT COUNT(*) FROM news_bookmarks WHERE news_id = n.id) AS bookmark_count,
+              (nr.id IS NOT NULL) AS is_read,
+              EXISTS(SELECT 1 FROM news_likes     WHERE news_id = n.id AND user_id = $1) AS is_liked,
+              EXISTS(SELECT 1 FROM news_bookmarks WHERE news_id = n.id AND user_id = $1) AS is_bookmarked
        FROM card_news n
        LEFT JOIN news_reads nr ON nr.news_id = n.id AND nr.user_id = $1
        WHERE ${conditions.join(' AND ')}

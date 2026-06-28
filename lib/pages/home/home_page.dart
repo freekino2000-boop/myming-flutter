@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pedometer/pedometer.dart';
 
+import '../../config/features.dart';
 import '../../models/app_state.dart';
 import '../../models/offer_model.dart';
 import '../../services/offerwall_service.dart';
@@ -101,28 +102,38 @@ class _HomePageState extends State<HomePage> {
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
 
-                  // ── 1. 월세 절감 포인트 메인 카드 ────────────
+                  // ── 1. 월세 절감 포인트 메인 카드 ── 항상 표시
                   const _RentSavingCard(),
-                  const SizedBox(height: 12),
 
-                  // ── 1-1. 고정비 등록하기 ──────────────────────
-                  const _FixedCostBanner(),
-                  const SizedBox(height: 12),
+                  // ── 1-1. 고정비 등록하기 배너 ── Features.bill
+                  if (Features.bill) ...[
+                    const SizedBox(height: 12),
+                    const _FixedCostBanner(),
+                  ],
 
-                  // ── 2. 만보기 카드 ───────────────────────────
-                  const PedometerCard(),
-                  const SizedBox(height: 12),
+                  // ── 2. 만보기 카드 ── Features.pedometer
+                  if (Features.pedometer) ...[
+                    const SizedBox(height: 12),
+                    const PedometerCard(),
+                  ],
 
-                  // ── 3. 절감머니 내역 진입 버튼 ──────────────
-                  const BillHistoryEntry(),
-                  const SizedBox(height: 12),
+                  // ── 3. 절감머니 내역 진입 ── Features.bill
+                  if (Features.bill) ...[
+                    const SizedBox(height: 12),
+                    const BillHistoryEntry(),
+                  ],
 
-                  // ── 4. 빠른 액션 (출석/행운뽑기/광고보너스) ──
+                  // ── 4. 빠른 액션 (출석/행운뽑기/광고보너스)
+                  //    내부 버튼도 features.dart로 제어됩니다
+                  const SizedBox(height: 12),
                   const QuickActionSection(),
-                  const SizedBox(height: 16),
 
-                  // ── 5. 고정비 절감 미션 (오퍼월 인라인) ────
-                  const _OfferwallInlineSection(),
+                  // ── 5. 고정비 절감 미션 인라인 ── Features.offerwall
+                  if (Features.offerwall) ...[
+                    const SizedBox(height: 16),
+                    const _OfferwallInlineSection(),
+                  ],
+
                   const SizedBox(height: 80),
                 ]),
               ),

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_state.dart';
 import '../../models/card_news_model.dart';
+import '../../services/cardnews_service.dart';
 import '../../theme/app_theme.dart';
 import 'article_view_page.dart';
 
@@ -17,23 +18,55 @@ class CardNewsPage extends StatefulWidget {
 }
 
 class _CardNewsPageState extends State<CardNewsPage> {
-  NewsCategory? _filter;   // null = 전체
-  int _prevTabTrigger = 0; // 광고보너스로 탭 전환 시 필터 초기화용
+  NewsCategory? _filter;
+  int _prevTabTrigger = 0;
+
+  // API 모드일 때 서버에서 받은 목록
+  List<CardNews>? _apiNewsList;
+  bool _loading = false;
+
+  // 현재 활성 목록 (API 우선, 없으면 목데이터)
+  List<CardNews> get _allNews => _apiNewsList ?? kCardNewsList;
 
   List<CardNews> get _top3 {
-    final list = _filter == null ? kCardNewsList : kCardNewsList.where((n) => n.category == _filter).toList();
-    return list.where((n) => n.tier == NewsTier.top3).toList()..sort((a, b) => (a.rank ?? 9).compareTo(b.rank ?? 9));
+    final list = _filter == null ? _allNews : _allNews.where((n) => n.category == _filter).toList();
+    return list.where((n) => n.tier == NewsTier.top3).toList()
+      ..sort((a, b) => (a.rank ?? 9).compareTo(b.rank ?? 9));
   }
 
   List<CardNews> get _weekly {
-    final list = _filter == null ? kCardNewsList : kCardNewsList.where((n) => n.category == _filter).toList();
+    final list = _filter == null ? _allNews : _allNews.where((n) => n.category == _filter).toList();
     return list.where((n) => n.tier == NewsTier.weekly).toList();
+  }
+
+  Future<void> _loadFromApi() async {
+    if (_loading) return;
+    setState(() => _loading = true);
+    try {
+      final news = await CardNewsService.instance.getList();
+      if (mounted) setState(() { _apiNewsList = news; _loading = false; });
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // apiEnabled 상태가 true면 최초 1회 서버에서 로드
+    if (context.read<AppState>().apiEnabled && _apiNewsList == null) {
+      _loadFromApi();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
     final trigger = state.cardNewsTabTrigger;
+    // API 모드가 새로 활성화되면 로드
+    if (state.apiEnabled && _apiNewsList == null && !_loading) {
+      _loadFromApi();
+    }
     if (trigger != _prevTabTrigger) {
       _prevTabTrigger = trigger;
       WidgetsBinding.instance.addPostFrameCallback((_) {

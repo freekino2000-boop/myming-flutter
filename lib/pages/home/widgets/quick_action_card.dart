@@ -5,6 +5,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../config/features.dart';
 import '../../../models/app_state.dart';
 import '../../../theme/app_theme.dart';
 
@@ -13,27 +14,33 @@ class QuickActionSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
+    // 활성화된 버튼만 리스트로 구성 (Features 기준)
+    final cards = <Widget>[
+      if (Features.attendance)
         Expanded(child: _ActionCard(
           icon: '📅', title: '출석 체크', sub: '+₩10',
           color: AppColors.primary,
           onTap: () => _doAttendance(context),
         )),
+      if (Features.attendance && (Features.fortune || Features.adBonus))
         const SizedBox(width: 8),
+      if (Features.fortune)
         Expanded(child: _ActionCard(
           icon: '🎁', title: '행운 뽑기', sub: '최대+₩50',
           color: const Color(0xFFFF6B35),
           onTap: () => _doLuckyBox(context),
         )),
+      if (Features.fortune && Features.adBonus)
         const SizedBox(width: 8),
+      if (Features.adBonus)
         Expanded(child: _ActionCard(
           icon: '📺', title: '광고 보너스', sub: '+₩10',
           color: AppColors.primary,
           onTap: () => _doAdBonus(context),
         )),
-      ],
-    );
+    ];
+    if (cards.isEmpty) return const SizedBox.shrink();
+    return Row(children: cards);
   }
 
   // ── 출석 체크: 오늘 여부 확인 후 달력 팝업 ──────────────
