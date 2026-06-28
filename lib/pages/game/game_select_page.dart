@@ -7,7 +7,8 @@ import 'global_rank_page.dart';
 import 'games/webview_game_page.dart';
 
 class GameSelectPage extends StatelessWidget {
-  const GameSelectPage({super.key});
+  final bool isInTab;
+  const GameSelectPage({super.key, this.isInTab = false});
 
   // HTML 기준 순서·이름·이모지·색상·최대보상
   static const List<_GameInfo> _games = [
@@ -34,11 +35,13 @@ class GameSelectPage extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(4, 4, 12, 4),
               child: Row(
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back, color: AppColors.text),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  const SizedBox(width: 4),
+                  if (!isInTab)
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back, color: AppColors.text),
+                      onPressed: () => Navigator.pop(context),
+                    )
+                  else
+                    const SizedBox(width: 12),
                   const Text('🎮 게임 선택',
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.text)),
                   const Spacer(),

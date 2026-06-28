@@ -25,7 +25,7 @@ class _MainShellState extends State<MainShell> {
   final List<Widget> _pages = const [
     HomePage(),
     CardNewsPage(),
-    GameSelectPage(),
+    GameSelectPage(isInTab: true),
   ];
 
   @override

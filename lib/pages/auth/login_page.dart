@@ -33,12 +33,11 @@ class _LoginPageState extends State<LoginPage> {
       // API 연결 불가 시 게스트 모드로 진입
     }
     if (!mounted) return;
-    Navigator.pushReplacementNamed(context, '/');
+    Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
   }
 
   Future<void> _guestLogin() async {
-    // 게스트: API 비활성화 상태로 진입
-    Navigator.pushReplacementNamed(context, '/');
+    Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
   }
 
   @override
