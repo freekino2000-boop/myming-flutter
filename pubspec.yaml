@@ -33,6 +33,9 @@ dependencies:
   # 공유하기 (링크 복사 · 카카오톡 등 외부 앱 공유)
   share_plus: ^9.0.0
 
+  # 소셜 로고 SVG 렌더링
+  flutter_svg: ^2.0.10+1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
