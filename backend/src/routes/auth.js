@@ -9,6 +9,8 @@ const signRefresh  = (id) => jwt.sign({ id }, process.env.JWT_REFRESH_SECRET,  {
 
 async function saveRefreshToken(userId, token) {
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+  // 만료된 토큰 정리 후 신규 토큰 저장
+  await db.query('DELETE FROM refresh_tokens WHERE user_id = $1 AND expires_at <= NOW()', [userId]);
   await db.query(
     `INSERT INTO refresh_tokens (user_id, token, expires_at)
      VALUES ($1, $2, $3)
@@ -123,6 +125,9 @@ router.post('/refresh', async (req, res, next) => {
       [refreshToken]
     );
     if (!rows.length) return res.status(401).json({ error: '유효하지 않은 리프레시 토큰입니다.' });
+
+    // 만료된 토큰 정리
+    await db.query('DELETE FROM refresh_tokens WHERE user_id = $1 AND expires_at <= NOW()', [payload.id]);
 
     const accessToken = signAccess(payload.id);
     res.json({ accessToken });

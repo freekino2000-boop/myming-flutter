@@ -8,7 +8,19 @@ const errorHandler = require('./middleware/errorHandler');
 const app = express();
 
 // ── 기본 미들웨어 ───────────────────────────────────────────
-app.use(cors({ origin: '*' }));
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+  : null;
+
+app.use(cors({
+  origin: allowedOrigins
+    ? (origin, cb) => {
+        // 앱(origin 없음) 또는 허용된 도메인만 통과
+        if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+        cb(new Error(`CORS: ${origin} is not allowed`));
+      }
+    : '*',
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

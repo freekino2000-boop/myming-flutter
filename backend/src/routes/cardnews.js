@@ -77,20 +77,32 @@ router.post('/:id/read', auth, async (req, res, next) => {
       [uid, READ_REWARD]
     );
 
-    // 미션 완료 보너스 체크 (3개 달성 시 +30원)
+    // 오늘 읽은 기사 수 기준 일일 미션 보너스 체크 (3개 달성 시 +30원, 하루 1회)
+    const today = new Date().toISOString().slice(0, 10);
     const readCount = await db.query(
-      'SELECT COUNT(*) AS cnt FROM news_reads WHERE user_id = $1',
-      [uid]
+      `SELECT COUNT(*) AS cnt FROM news_reads
+       WHERE user_id = $1
+         AND created_at >= $2::date AND created_at < $2::date + INTERVAL '1 day'`,
+      [uid, today]
     );
     const cnt = Number(readCount.rows[0].cnt);
     let missionBonus = 0;
     if (cnt === MISSION_COUNT) {
-      await db.query(
-        `INSERT INTO wallet_ledger (user_id, icon, name, amount, type)
-         VALUES ($1, '🎯', '카드뉴스 미션 완료', $2, 'earn')`,
-        [uid, MISSION_BONUS]
+      // 오늘 이미 미션 보너스를 받았는지 확인
+      const alreadyBonus = await db.query(
+        `SELECT id FROM wallet_ledger
+         WHERE user_id = $1 AND name = '카드뉴스 미션 완료'
+           AND created_at >= $2::date AND created_at < $2::date + INTERVAL '1 day'`,
+        [uid, today]
       );
-      missionBonus = MISSION_BONUS;
+      if (!alreadyBonus.rows.length) {
+        await db.query(
+          `INSERT INTO wallet_ledger (user_id, icon, name, amount, type)
+           VALUES ($1, '🎯', '카드뉴스 미션 완료', $2, 'earn')`,
+          [uid, MISSION_BONUS]
+        );
+        missionBonus = MISSION_BONUS;
+      }
     }
 
     const bal = await db.query(
@@ -108,12 +120,15 @@ router.post('/:id/read', auth, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-// GET /api/cardnews/mission/status — 기사 미션 현황
+// GET /api/cardnews/mission/status — 오늘 기사 미션 현황
 router.get('/mission/status', auth, async (req, res, next) => {
   try {
+    const today = new Date().toISOString().slice(0, 10);
     const { rows } = await db.query(
-      'SELECT COUNT(*) AS cnt FROM news_reads WHERE user_id = $1',
-      [req.user.id]
+      `SELECT COUNT(*) AS cnt FROM news_reads
+       WHERE user_id = $1
+         AND created_at >= $2::date AND created_at < $2::date + INTERVAL '1 day'`,
+      [req.user.id, today]
     );
     const cnt = Number(rows[0].cnt);
     res.json({

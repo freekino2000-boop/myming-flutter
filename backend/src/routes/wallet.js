@@ -42,25 +42,43 @@ router.get('/ledger', auth, [
   } catch (err) { next(err); }
 });
 
+const EARN_MAX_SINGLE  = 8000;   // 1회 최대 적립 (오퍼월 최대 보상)
+const EARN_DAILY_LIMIT = 20000;  // 일일 총 적립 한도
+
 // POST /api/wallet/earn — 보상 적립
 router.post('/earn', auth, [
   body('icon').notEmpty(),
   body('name').trim().notEmpty(),
-  body('amount').isInt({ min: 1 }),
+  body('amount').isInt({ min: 1, max: EARN_MAX_SINGLE }),
 ], async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
   try {
+    const uid          = req.user.id;
     const { icon, name, amount } = req.body;
+    const today        = new Date().toISOString().slice(0, 10);
+
+    // 일일 적립 한도 체크
+    const { rows: dayRows } = await db.query(
+      `SELECT COALESCE(SUM(amount), 0) AS day_total
+       FROM wallet_ledger
+       WHERE user_id = $1 AND type = 'earn'
+         AND created_at >= $2::date AND created_at < $2::date + INTERVAL '1 day'`,
+      [uid, today]
+    );
+    if (Number(dayRows[0].day_total) + amount > EARN_DAILY_LIMIT) {
+      return res.status(429).json({ error: '오늘 적립 한도에 도달했습니다.', daily_limit: EARN_DAILY_LIMIT });
+    }
+
     await db.query(
       `INSERT INTO wallet_ledger (user_id, icon, name, amount, type)
        VALUES ($1, $2, $3, $4, 'earn')`,
-      [req.user.id, icon, name, amount]
+      [uid, icon, name, amount]
     );
     const { rows } = await db.query(
       'SELECT COALESCE(SUM(amount), 0) AS balance FROM wallet_ledger WHERE user_id = $1',
-      [req.user.id]
+      [uid]
     );
     res.json({ balance: Number(rows[0].balance) });
   } catch (err) { next(err); }
@@ -74,30 +92,42 @@ router.post('/spend', auth, [
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
+  const client = await db.pool.connect();
   try {
     const uid = req.user.id;
     const { amount, name } = req.body;
 
-    const bal = await db.query(
-      'SELECT COALESCE(SUM(amount), 0) AS balance FROM wallet_ledger WHERE user_id = $1',
+    await client.query('BEGIN');
+
+    // 트랜잭션 내 잔액 잠금 조회 (SELECT FOR UPDATE)
+    const bal = await client.query(
+      'SELECT COALESCE(SUM(amount), 0) AS balance FROM wallet_ledger WHERE user_id = $1 FOR UPDATE',
       [uid]
     );
     if (Number(bal.rows[0].balance) < amount) {
+      await client.query('ROLLBACK');
       return res.status(400).json({ error: '잔액이 부족합니다.' });
     }
 
-    await db.query(
+    await client.query(
       `INSERT INTO wallet_ledger (user_id, icon, name, amount, type)
        VALUES ($1, '🛍', $2, $3, 'spend')`,
       [uid, name, -amount]
     );
 
-    const updated = await db.query(
+    const updated = await client.query(
       'SELECT COALESCE(SUM(amount), 0) AS balance FROM wallet_ledger WHERE user_id = $1',
       [uid]
     );
+
+    await client.query('COMMIT');
     res.json({ balance: Number(updated.rows[0].balance) });
-  } catch (err) { next(err); }
+  } catch (err) {
+    await client.query('ROLLBACK');
+    next(err);
+  } finally {
+    client.release();
+  }
 });
 
 module.exports = router;
