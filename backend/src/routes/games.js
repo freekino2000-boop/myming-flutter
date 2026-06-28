@@ -21,6 +21,19 @@ function calcReward(gameId, score) {
   }
 }
 
+// GET /api/games/popularity — 전체 게임 인기 순위 (플레이 수 기준)
+router.get('/popularity', auth, async (req, res, next) => {
+  try {
+    const { rows } = await db.query(
+      `SELECT game_id, COUNT(*) AS play_count
+       FROM game_scores
+       GROUP BY game_id
+       ORDER BY play_count DESC`
+    );
+    res.json(rows.map(r => ({ game_id: r.game_id, play_count: parseInt(r.play_count) })));
+  } catch (err) { next(err); }
+});
+
 // GET /api/games/ranking/:gameId — 게임별 랭킹 (상위 20명)
 router.get('/ranking/:gameId', auth, [
   query('limit').optional().isInt({ min: 1, max: 50 }).toInt(),
