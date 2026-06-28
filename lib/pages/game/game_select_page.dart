@@ -186,17 +186,6 @@ class _GameCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 뱃지 (WebView는 WEB, Flame은 RANK)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                        color: game.borderColor, borderRadius: BorderRadius.circular(7)),
-                    child: Text(
-                      game.webview ? 'WEB' : 'RANK',
-                      style: const TextStyle(
-                          fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white),
-                    ),
-                  ),
                   const Spacer(),
                   Text(game.emoji, style: const TextStyle(fontSize: 36)),
                   const SizedBox(height: 6),

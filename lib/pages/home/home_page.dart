@@ -179,18 +179,17 @@ class _FixedCostBanner extends StatelessWidget {
             const Text('월세·통신비·공과금 등 고정 지출을 등록해 절감 현황을 파악하세요',
                 style: TextStyle(fontSize: 11, color: AppColors.muted, height: 1.4)),
             const SizedBox(height: 10),
-            Row(
-              children: _items.map((item) => Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryDim,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text('${item.$1} ${item.$2}',
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primary)),
+            Wrap(
+              spacing: 8,
+              runSpacing: 6,
+              children: _items.map((item) => Container(
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryDim,
+                  borderRadius: BorderRadius.circular(8),
                 ),
+                child: Text('${item.$1} ${item.$2}',
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primary)),
               )).toList(),
             ),
           ],
