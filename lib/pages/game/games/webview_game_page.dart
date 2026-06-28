@@ -59,8 +59,8 @@ class _WebViewGamePageState extends State<WebViewGamePage> {
         GameService.instance.submitScore(widget.gameId, earn).then((res) {
           state.walletAmount = res.balance;
           state.addLedger(widget.emoji, '${widget.title} 보상', res.reward, 'earn');
-          state.notifyListeners();
-        }).catchError((_) => state.earn(widget.emoji, '${widget.title} 보상', earn));
+          state.refresh();
+        }).catchError((_) { state.earn(widget.emoji, '${widget.title} 보상', earn); });
       } else {
         state.earn(widget.emoji, '${widget.title} 보상', earn);
       }

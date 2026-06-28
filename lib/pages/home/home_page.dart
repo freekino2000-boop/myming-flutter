@@ -52,7 +52,7 @@ class _HomePageState extends State<HomePage> {
         }
         final todaySteps = event.steps - _initialSteps;
         state.steps = todaySteps;
-        state.notifyListeners();
+        state.refresh();
       },
       onError: (error) => debugPrint('Pedometer error: $error'),
     );
@@ -169,7 +169,7 @@ class _FixedCostBanner extends StatelessWidget {
           color: Colors.white,
           border: Border.all(color: AppColors.border),
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))],
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -235,7 +235,7 @@ class _RentSavingCard extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
-            BoxShadow(color: AppColors.primary.withOpacity(0.35), blurRadius: 16, offset: const Offset(0, 6)),
+            BoxShadow(color: AppColors.primary.withValues(alpha: 0.35), blurRadius: 16, offset: const Offset(0, 6)),
           ],
         ),
         child: Row(
@@ -264,9 +264,9 @@ class _RentSavingCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.18),
+                      color: Colors.white.withValues(alpha: 0.18),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.white.withOpacity(0.3)),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
                     ),
                     child: const Text('절감머니 내역 ›',
                         style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700)),
@@ -385,7 +385,7 @@ class _OfferwallInlineSectionState extends State<_OfferwallInlineSection> {
               final res = await OfferwallService.instance.complete(offer.id);
               state.walletAmount = res.balance;
               state.addLedger(offer.icon, offer.name, res.reward, 'earn');
-              state.notifyListeners();
+              state.refresh();
             } catch (_) {
               state.earn(offer.icon, offer.name, offer.reward);
             }
@@ -489,11 +489,11 @@ class _OfferwallInlineCard extends StatelessWidget {
           color: AppColors.card,
           border: Border.all(
               color: offer.type == OfferType.high
-                  ? const Color(0xFFE06C00).withOpacity(0.25)
+                  ? const Color(0xFFE06C00).withValues(alpha: 0.25)
                   : AppColors.border),
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 6, offset: const Offset(0, 2))
+            BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 6, offset: const Offset(0, 2))
           ],
         ),
         child: Row(
@@ -514,7 +514,7 @@ class _OfferwallInlineCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
                       decoration: BoxDecoration(
-                          color: typeColor.withOpacity(0.1),
+                          color: typeColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(4)),
                       child: Text(typeLabel,
                           style: TextStyle(

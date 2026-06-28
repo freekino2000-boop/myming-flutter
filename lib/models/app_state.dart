@@ -54,6 +54,9 @@ class AppState extends ChangeNotifier {
   int cardNewsTabTrigger = 0;
   void switchToCardNewsTab() { cardNewsTabTrigger++; notifyListeners(); }
 
+  // 외부에서 UI 갱신이 필요할 때 호출 (notifyListeners는 protected)
+  void refresh() => notifyListeners();
+
   // 원장 내역
   List<LedgerEntry> ledger = [];
 

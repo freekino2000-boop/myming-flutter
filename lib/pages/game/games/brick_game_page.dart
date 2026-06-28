@@ -25,11 +25,14 @@ class BrickGame extends FlameGame with HasCollisionDetection, TapCallbacks, PanD
   static const ballR = 7.0;
   static const paddleSpeed = 420.0;
 
+  // ignore: library_private_types_in_public_api
   late _Paddle paddle;
+  // ignore: library_private_types_in_public_api
   late _Ball ball;
   int score = 0;
   int lives = 3;
   int level = 1;
+  @override
   bool paused = false;
   bool _started = false;
   void Function(int score, int level)? onGameOver;
@@ -60,7 +63,7 @@ class BrickGame extends FlameGame with HasCollisionDetection, TapCallbacks, PanD
     add(ball);
 
     // 벽돌
-    final totalW = cols * (brickW + brickGap) - brickGap;
+    const totalW = cols * (brickW + brickGap) - brickGap;
     final startX = (size.x - totalW) / 2;
     for (int r = 0; r < rows; r++) {
       for (int c = 0; c < cols; c++) {
@@ -81,7 +84,9 @@ class BrickGame extends FlameGame with HasCollisionDetection, TapCallbacks, PanD
   @override
   void onTapDown(TapDownEvent event) {
     if (!_started) { _started = true; ball.launch(); }
-    else paused = !paused;
+    else {
+      paused = !paused;
+    }
   }
 
   @override
@@ -111,7 +116,7 @@ class _Paddle extends PositionComponent with CollisionCallbacks {
   }
 }
 
-class _Ball extends PositionComponent with CollisionCallbacks, HasGameRef<BrickGame> {
+class _Ball extends PositionComponent with CollisionCallbacks, HasGameReference<BrickGame> {
   final int level;
   Vector2 _vel = Vector2.zero();
   bool _launched = false;
@@ -132,7 +137,7 @@ class _Ball extends PositionComponent with CollisionCallbacks, HasGameRef<BrickG
   @override
   void update(double dt) {
     if (!_launched) return;
-    final g = gameRef as BrickGame;
+    final g = game;
     position += _vel * dt;
     // 벽 반사
     if (position.x <= 0) { position.x = 0; _vel.x = _vel.x.abs(); }
@@ -153,7 +158,7 @@ class _Ball extends PositionComponent with CollisionCallbacks, HasGameRef<BrickG
 
   @override
   void render(Canvas canvas) {
-    canvas.drawCircle(Offset(BrickGame.ballR, BrickGame.ballR), BrickGame.ballR,
+    canvas.drawCircle(const Offset(BrickGame.ballR, BrickGame.ballR), BrickGame.ballR,
       Paint()..color = Colors.white);
   }
 }
@@ -188,7 +193,7 @@ class _Brick extends PositionComponent with CollisionCallbacks {
     );
     canvas.drawRRect(
       RRect.fromRectAndRadius(Rect.fromLTWH(1, 1, size.x - 2, size.y / 2 - 1), const Radius.circular(3)),
-      Paint()..color = Colors.white.withOpacity(0.2),
+      Paint()..color = Colors.white.withValues(alpha: 0.2),
     );
   }
 }
@@ -223,8 +228,8 @@ class _BrickGamePageState extends State<BrickGamePage> {
       GameService.instance.submitScore('brick', score).then((res) {
         state.walletAmount = res.balance;
         state.addLedger('🧱', '벽돌깨기 보상', res.reward, 'earn');
-        state.notifyListeners();
-      }).catchError((_) => state.earn('🧱', '벽돌깨기 보상', reward));
+        state.refresh();
+      }).catchError((_) { state.earn('🧱', '벽돌깨기 보상', reward); });
     } else {
       state.earn('🧱', '벽돌깨기 보상', reward);
     }

@@ -152,7 +152,7 @@ class _GameSelectPageState extends State<GameSelectPage> {
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
                         color: const Color(0xFFFFF0E8),
-                        border: Border.all(color: const Color(0xFFFF6B35).withOpacity(0.3)),
+                        border: Border.all(color: const Color(0xFFFF6B35).withValues(alpha: 0.3)),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: const Row(
@@ -200,7 +200,7 @@ class _GameCard extends StatelessWidget {
   final int? rank;        // 인기 순위 (1~8), null이면 미표시
   final int? playCount;
 
-  const _GameCard({super.key, required this.game, this.rank, this.playCount});
+  const _GameCard({required this.game, this.rank, this.playCount});
 
   static const _assetMap = {
     'brick':  'assets/games/brick_breaker.html',
@@ -240,7 +240,7 @@ class _GameCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(
-                color: game.borderColor.withOpacity(0.15),
+                color: game.borderColor.withValues(alpha: 0.15),
                 blurRadius: 8, offset: const Offset(0, 3))
           ],
         ),
@@ -250,7 +250,7 @@ class _GameCard extends StatelessWidget {
             Positioned(
               right: -10, bottom: -10,
               child: Text(game.emoji,
-                  style: TextStyle(fontSize: 70, color: game.borderColor.withOpacity(0.08))),
+                  style: TextStyle(fontSize: 70, color: game.borderColor.withValues(alpha: 0.08))),
             ),
 
             // 인기 순위 배지 (1~3위)
@@ -292,14 +292,14 @@ class _GameCard extends StatelessWidget {
                       Text('최대 ${game.maxReward}',
                           style: TextStyle(
                               fontSize: 11,
-                              color: game.borderColor.withOpacity(0.7),
+                              color: game.borderColor.withValues(alpha: 0.7),
                               fontWeight: FontWeight.w600)),
                       if (playCount != null && playCount! > 0) ...[
                         const SizedBox(width: 6),
                         Text('· ${_formatCount(playCount!)}회',
                             style: TextStyle(
                                 fontSize: 10,
-                                color: game.borderColor.withOpacity(0.5),
+                                color: game.borderColor.withValues(alpha: 0.5),
                                 fontWeight: FontWeight.w500)),
                       ],
                     ],

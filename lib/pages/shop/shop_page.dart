@@ -87,7 +87,7 @@ class _ShopPageState extends State<ShopPage> {
                   // 서브 2열
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 10),
-                    decoration: BoxDecoration(color: Colors.white.withOpacity(0.08), borderRadius: BorderRadius.circular(12)),
+                    decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(12)),
                     child: Row(
                       children: [
                         Expanded(child: _WalletSub(
@@ -95,7 +95,7 @@ class _ShopPageState extends State<ShopPage> {
                           label: '오늘 걸음수',
                           value: '${steps.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')} 보',
                         )),
-                        Container(width: 1, height: 36, color: Colors.white.withOpacity(0.15)),
+                        Container(width: 1, height: 36, color: Colors.white.withValues(alpha: 0.15)),
                         Expanded(child: _WalletSub(
                           icon: '🏠',
                           label: '월세 절감',
@@ -124,7 +124,7 @@ class _ShopPageState extends State<ShopPage> {
                     child: LinearProgressIndicator(
                       value: (wallet / 5000).clamp(0.0, 1.0),
                       minHeight: 6,
-                      backgroundColor: Colors.white.withOpacity(0.15),
+                      backgroundColor: Colors.white.withValues(alpha: 0.15),
                       valueColor: const AlwaysStoppedAnimation(Colors.white),
                     ),
                   ),
@@ -205,37 +205,37 @@ class _ShopItemList extends StatelessWidget {
   static final List<List<_ShopItem>> _itemsByTab = [
     // 0: 부스터
     [
-      _ShopItem(emoji: '🚀', name: '만보 부스트',     desc: '걸음당 리워드 2배 (24시간)', price: 200,  boosterEffect: 'manhwaBoost'),
-      _ShopItem(emoji: '⚡', name: '속도 부스터 2x',  desc: '카드뉴스 리워드 2배',         price: 150,  boosterEffect: 'speed2x'),
-      _ShopItem(emoji: '🌟', name: '속도 부스터 5x',  desc: '카드뉴스 리워드 5배 (1시간)', price: 500,  boosterEffect: 'speed5x'),
-      _ShopItem(emoji: '🤖', name: '자동 수집기',     desc: '미션 자동 완료 (3건)',         price: 300,  boosterEffect: 'autoCollect'),
+      const _ShopItem(emoji: '🚀', name: '만보 부스트',     desc: '걸음당 리워드 2배 (24시간)', price: 200,  boosterEffect: 'manhwaBoost'),
+      const _ShopItem(emoji: '⚡', name: '속도 부스터 2x',  desc: '카드뉴스 리워드 2배',         price: 150,  boosterEffect: 'speed2x'),
+      const _ShopItem(emoji: '🌟', name: '속도 부스터 5x',  desc: '카드뉴스 리워드 5배 (1시간)', price: 500,  boosterEffect: 'speed5x'),
+      const _ShopItem(emoji: '🤖', name: '자동 수집기',     desc: '미션 자동 완료 (3건)',         price: 300,  boosterEffect: 'autoCollect'),
     ],
     // 1: 이용권
     [
-      _ShopItem(emoji: '☕', name: '카페 이용권',     desc: '스타벅스 아메리카노 1잔', price: 4500),
-      _ShopItem(emoji: '🎬', name: '영화관 이용권',   desc: 'CGV 일반관 1인',         price: 12000),
-      _ShopItem(emoji: '🚇', name: '교통카드 충전',   desc: '5,000원 충전',            price: 5000),
-      _ShopItem(emoji: '📚', name: '밀리의 서재',     desc: '1개월 구독권',            price: 9900),
+      const _ShopItem(emoji: '☕', name: '카페 이용권',     desc: '스타벅스 아메리카노 1잔', price: 4500),
+      const _ShopItem(emoji: '🎬', name: '영화관 이용권',   desc: 'CGV 일반관 1인',         price: 12000),
+      const _ShopItem(emoji: '🚇', name: '교통카드 충전',   desc: '5,000원 충전',            price: 5000),
+      const _ShopItem(emoji: '📚', name: '밀리의 서재',     desc: '1개월 구독권',            price: 9900),
     ],
     // 2: 상품권
     [
-      _ShopItem(emoji: '🎁', name: '네이버페이 1천원',  desc: '즉시 발행',  price: 1000),
-      _ShopItem(emoji: '🎁', name: '카카오페이 3천원',  desc: '즉시 발행',  price: 3000),
-      _ShopItem(emoji: '🎁', name: '신세계 5천원',      desc: '즉시 발행',  price: 5000),
-      _ShopItem(emoji: '🎁', name: '현금 환급 1만원',   desc: '계좌 입금',  price: 10000),
+      const _ShopItem(emoji: '🎁', name: '네이버페이 1천원',  desc: '즉시 발행',  price: 1000),
+      const _ShopItem(emoji: '🎁', name: '카카오페이 3천원',  desc: '즉시 발행',  price: 3000),
+      const _ShopItem(emoji: '🎁', name: '신세계 5천원',      desc: '즉시 발행',  price: 5000),
+      const _ShopItem(emoji: '🎁', name: '현금 환급 1만원',   desc: '계좌 입금',  price: 10000),
     ],
     // 3: 주거
     [
-      _ShopItem(emoji: '🔌', name: '전기요금 2천원',   desc: '전기세 할인 쿠폰', price: 2000),
-      _ShopItem(emoji: '💧', name: '수도요금 1천원',   desc: '수도세 할인 쿠폰', price: 1000),
-      _ShopItem(emoji: '🏘', name: '임차 컨설팅',      desc: '1:1 법률 상담 30분', price: 5000),
-      _ShopItem(emoji: '🔑', name: '이사 도움',        desc: '이사 업체 할인 쿠폰', price: 8000),
+      const _ShopItem(emoji: '🔌', name: '전기요금 2천원',   desc: '전기세 할인 쿠폰', price: 2000),
+      const _ShopItem(emoji: '💧', name: '수도요금 1천원',   desc: '수도세 할인 쿠폰', price: 1000),
+      const _ShopItem(emoji: '🏘', name: '임차 컨설팅',      desc: '1:1 법률 상담 30분', price: 5000),
+      const _ShopItem(emoji: '🔑', name: '이사 도움',        desc: '이사 업체 할인 쿠폰', price: 8000),
     ],
     // 4~7: 나머지 탭은 placeholder
-    [_ShopItem(emoji: '🍕', name: '배달 할인 3천원', desc: '배달의민족 쿠폰', price: 3000)],
-    [_ShopItem(emoji: '💄', name: '올리브영 3천원', desc: '올리브영 쿠폰', price: 3000)],
-    [_ShopItem(emoji: '📱', name: '통신비 할인',    desc: 'SKT/KT/LGU+ 할인', price: 5000)],
-    [_ShopItem(emoji: '🎲', name: '게임 아이템',    desc: '스페셜 아이템 박스', price: 500)],
+    [const _ShopItem(emoji: '🍕', name: '배달 할인 3천원', desc: '배달의민족 쿠폰', price: 3000)],
+    [const _ShopItem(emoji: '💄', name: '올리브영 3천원', desc: '올리브영 쿠폰', price: 3000)],
+    [const _ShopItem(emoji: '📱', name: '통신비 할인',    desc: 'SKT/KT/LGU+ 할인', price: 5000)],
+    [const _ShopItem(emoji: '🎲', name: '게임 아이템',    desc: '스페셜 아이템 박스', price: 500)],
   ];
 
   @override

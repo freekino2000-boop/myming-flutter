@@ -56,7 +56,7 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
                 const SizedBox(height: 8),
                 Text(
                   '걸을수록 월세가 내려가는 서비스',
-                  style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 13, fontWeight: FontWeight.w500),
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 13, fontWeight: FontWeight.w500),
                 ),
               ],
             ),

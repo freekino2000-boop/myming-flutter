@@ -88,7 +88,7 @@ class _BillPageState extends State<BillPage> {
                           margin: const EdgeInsets.only(right: 6),
                           width: 30, height: 30,
                           decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
+                              color: Colors.white.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(8)),
                           child: Center(
                               child: Text(b.type.icon,
@@ -99,7 +99,7 @@ class _BillPageState extends State<BillPage> {
                         margin: const EdgeInsets.only(right: 6),
                         width: 30, height: 30,
                         decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(8)),
                         child: Center(
                             child: Text('+${_bills.length - 5}',
@@ -110,9 +110,9 @@ class _BillPageState extends State<BillPage> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.18),
+                          color: Colors.white.withValues(alpha: 0.18),
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.white.withOpacity(0.35))),
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.35))),
                       child: Row(mainAxisSize: MainAxisSize.min, children: [
                         Text('${_bills.length}개 항목 확인',
                             style: const TextStyle(
@@ -128,7 +128,7 @@ class _BillPageState extends State<BillPage> {
                     child: LinearProgressIndicator(
                       value: (_totalMonthly > 0 ? wallet / _totalMonthly : 0.0).clamp(0.0, 1.0),
                       minHeight: 6,
-                      backgroundColor: Colors.white.withOpacity(0.2),
+                      backgroundColor: Colors.white.withValues(alpha: 0.2),
                       valueColor: const AlwaysStoppedAnimation(Colors.white),
                     ),
                   ),
@@ -235,15 +235,15 @@ class _BillPageState extends State<BillPage> {
             const Divider(height: 16, indent: 20, endIndent: 20),
             Expanded(
               child: _bills.isEmpty
-                  ? Center(
+                  ? const Center(
                       child: Column(mainAxisSize: MainAxisSize.min, children: [
-                        const Text('📋', style: TextStyle(fontSize: 40)),
-                        const SizedBox(height: 8),
-                        const Text('등록된 고정비 항목이 없습니다',
+                        Text('📋', style: TextStyle(fontSize: 40)),
+                        SizedBox(height: 8),
+                        Text('등록된 고정비 항목이 없습니다',
                             style: TextStyle(
                                 color: AppColors.muted, fontWeight: FontWeight.w700)),
-                        const SizedBox(height: 4),
-                        const Text('청구서 추가 버튼을 눌러 등록해 보세요',
+                        SizedBox(height: 4),
+                        Text('청구서 추가 버튼을 눌러 등록해 보세요',
                             style: TextStyle(color: AppColors.muted, fontSize: 12)),
                       ]))
                   : ListView.builder(
@@ -258,7 +258,7 @@ class _BillPageState extends State<BillPage> {
                             decoration: BoxDecoration(
                               color: AppColors.primaryDim,
                               borderRadius: BorderRadius.circular(14),
-                              border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                              border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
                             ),
                             child: Row(children: [
                               const Text('합계',
@@ -552,7 +552,7 @@ class _CardPreviewTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: AppColors.primaryDim,
-        border: Border.all(color: AppColors.primary.withOpacity(0.35)),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.35)),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(children: [

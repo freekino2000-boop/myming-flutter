@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../models/app_state.dart';
 import '../../../services/game_service.dart';
-import '../../../theme/app_theme.dart';
 
 const _cols = 20;
 const _rows = 30;
@@ -65,8 +64,8 @@ class _SnakeGamePageState extends State<SnakeGamePage> {
             GameService.instance.submitScore('snake', _score).then((res) {
               state.walletAmount = res.balance;
               state.addLedger('🐍', '뱀게임 보상', res.reward, 'earn');
-              state.notifyListeners();
-            }).catchError((_) => state.earn('🐍', '뱀게임 보상', reward));
+              state.refresh();
+            }).catchError((_) { state.earn('🐍', '뱀게임 보상', reward); });
           } else {
             context.read<AppState>().earn('🐍', '뱀게임 보상', reward);
           }
@@ -75,7 +74,9 @@ class _SnakeGamePageState extends State<SnakeGamePage> {
       }
       _snake = [head, ..._snake];
       if (head == _food) { _score++; _placeFood(); }
-      else _snake.removeLast();
+      else {
+        _snake.removeLast();
+      }
     });
   }
 
@@ -163,7 +164,7 @@ class _SnakeGamePageState extends State<SnakeGamePage> {
                   child: Center(child: Container(
                     margin: const EdgeInsets.all(40),
                     padding: const EdgeInsets.all(28),
-                    decoration: BoxDecoration(color: const Color(0xFF0D1F0D), border: Border.all(color: const Color(0xFF27AE60).withOpacity(0.5)), borderRadius: BorderRadius.circular(24)),
+                    decoration: BoxDecoration(color: const Color(0xFF0D1F0D), border: Border.all(color: const Color(0xFF27AE60).withValues(alpha: 0.5)), borderRadius: BorderRadius.circular(24)),
                     child: Column(mainAxisSize: MainAxisSize.min, children: [
                       const Text('💀 게임오버', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900)),
                       const SizedBox(height: 8),
@@ -248,7 +249,7 @@ class _DirBtn extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: 52, height: 52, margin: const EdgeInsets.all(2),
-        decoration: BoxDecoration(color: Colors.white.withOpacity(0.08), borderRadius: BorderRadius.circular(12)),
+        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(12)),
         child: Icon(icon, color: Colors.white70, size: 24),
       ),
     );

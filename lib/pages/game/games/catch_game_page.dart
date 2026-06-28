@@ -16,6 +16,7 @@ class CatchGame extends FlameGame with PanDetector, TapCallbacks {
   static const basketW = 70.0, basketH = 20.0;
   static const itemR = 14.0;
 
+  // ignore: library_private_types_in_public_api
   late _Basket basket;
   final List<_FallingItem> _items = [];
   final _rng = Random();
@@ -97,8 +98,8 @@ class _Basket extends PositionComponent {
   @override
   void render(Canvas canvas) {
     final p = Paint()..color = AppColors.primary;
-    canvas.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(0, 0, CatchGame.basketW, CatchGame.basketH), const Radius.circular(8)), p);
-    canvas.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(2, 2, CatchGame.basketW - 4, 7), const Radius.circular(6)), Paint()..color = Colors.white.withOpacity(0.25));
+    canvas.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(0, 0, CatchGame.basketW, CatchGame.basketH), const Radius.circular(8)), p);
+    canvas.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(2, 2, CatchGame.basketW - 4, 7), const Radius.circular(6)), Paint()..color = Colors.white.withValues(alpha: 0.25));
   }
 }
 
@@ -111,8 +112,8 @@ class _FallingItem extends PositionComponent {
 
   @override
   void render(Canvas canvas) {
-    canvas.drawCircle(Offset(CatchGame.itemR, CatchGame.itemR), CatchGame.itemR,
-      Paint()..color = _colors[type].withOpacity(0.8));
+    canvas.drawCircle(const Offset(CatchGame.itemR, CatchGame.itemR), CatchGame.itemR,
+      Paint()..color = _colors[type].withValues(alpha: 0.8));
     final tp = TextPainter(textDirection: TextDirection.ltr, textAlign: TextAlign.center);
     tp.text = TextSpan(text: _emojis[type], style: const TextStyle(fontSize: 16));
     tp.layout();
@@ -147,8 +148,8 @@ class _CatchGamePageState extends State<CatchGamePage> {
           GameService.instance.submitScore('catch', _score).then((res) {
             state.walletAmount = res.balance;
             state.addLedger('🎣', '낚시대전 보상', res.reward, 'earn');
-            state.notifyListeners();
-          }).catchError((_) => state.earn('🎣', '낚시대전 보상', reward));
+            state.refresh();
+          }).catchError((_) { state.earn('🎣', '낚시대전 보상', reward); });
         } else {
           context.read<AppState>().earn('🎣', '낚시대전 보상', reward);
         }
@@ -172,7 +173,7 @@ class _CatchGamePageState extends State<CatchGamePage> {
                 child: Center(child: Container(
                   margin: const EdgeInsets.all(40),
                   padding: const EdgeInsets.all(28),
-                  decoration: BoxDecoration(color: const Color(0xFF0A1628), border: Border.all(color: AppColors.primary.withOpacity(0.4)), borderRadius: BorderRadius.circular(24)),
+                  decoration: BoxDecoration(color: const Color(0xFF0A1628), border: Border.all(color: AppColors.primary.withValues(alpha: 0.4)), borderRadius: BorderRadius.circular(24)),
                   child: Column(mainAxisSize: MainAxisSize.min, children: [
                     const Text('🎣 게임종료', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900)),
                     const SizedBox(height: 8),

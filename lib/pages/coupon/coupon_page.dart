@@ -62,7 +62,7 @@ class _Coupon {
 
 class _CouponCard extends StatelessWidget {
   final _Coupon coupon;
-  const _CouponCard({super.key, required this.coupon});
+  const _CouponCard({required this.coupon});
 
   @override
   Widget build(BuildContext context) {
@@ -72,9 +72,9 @@ class _CouponCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
           color: AppColors.card,
-          border: Border.all(color: coupon.used ? AppColors.border : AppColors.primary.withOpacity(0.3)),
+          border: Border.all(color: coupon.used ? AppColors.border : AppColors.primary.withValues(alpha: 0.3)),
           borderRadius: BorderRadius.circular(18),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))],
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
         ),
         child: Column(
           children: [

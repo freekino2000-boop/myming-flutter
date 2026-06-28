@@ -15,7 +15,7 @@ class PedometerCard extends StatelessWidget {
     final state = context.watch<AppState>();
     final steps = state.steps;
     final wallet = state.walletAmount.floor();
-    final goalSteps = 10000;
+    const goalSteps = 10000;
     final progress = (steps / goalSteps).clamp(0.0, 1.0);
 
     return Container(

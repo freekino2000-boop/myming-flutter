@@ -35,9 +35,13 @@ class CardNewsService {
     String time = '방금 전';
     if (published != null) {
       final diff = DateTime.now().difference(published);
-      if (diff.inDays >= 1)       time = '${diff.inDays}일 전';
-      else if (diff.inHours >= 1) time = '${diff.inHours}시간 전';
-      else                        time = '${diff.inMinutes}분 전';
+      if (diff.inDays >= 1) {
+        time = '${diff.inDays}일 전';
+      } else if (diff.inHours >= 1) {
+        time = '${diff.inHours}시간 전';
+      } else {
+        time = '${diff.inMinutes}분 전';
+      }
     }
 
     final news = CardNews(

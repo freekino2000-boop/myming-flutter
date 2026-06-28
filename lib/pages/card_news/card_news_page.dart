@@ -131,7 +131,7 @@ class _CardNewsPageState extends State<CardNewsPage> {
                           width: double.infinity,
                           child: Text(
                             '기사 3건 읽으면 +₩30 보너스!\n오늘의 핵심 경제·부동산 이슈를 빠르게 확인하세요 📊',
-                            style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 12, height: 1.5),
+                            style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 12, height: 1.5),
                           ),
                         ),
                       ],
@@ -209,13 +209,13 @@ class _CardNewsPageState extends State<CardNewsPage> {
 
                   // ── 일간 탑3 ──────────────────────────────
                   if (_top3.isNotEmpty) ...[
-                    _SectionHeader(badge: '🔥 오늘의 탑3', desc: '가장 많이 읽은 기사', accent: const Color(0xFFFF4B4B)),
+                    const _SectionHeader(badge: '🔥 오늘의 탑3', desc: '가장 많이 읽은 기사', accent: Color(0xFFFF4B4B)),
                     ..._top3.map((news) => _Top3Card(news: news, onRead: () => _onRead(context, news))),
                   ],
 
                   // ── 주간 핫뉴스 ───────────────────────────
                   if (_weekly.isNotEmpty) ...[
-                    _SectionHeader(badge: '📅 주간 핫뉴스', desc: '이번 주 화제의 뉴스', accent: AppColors.primary),
+                    const _SectionHeader(badge: '📅 주간 핫뉴스', desc: '이번 주 화제의 뉴스', accent: AppColors.primary),
                     Container(
                       margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                       decoration: AppTheme.cardDecoration,
@@ -261,8 +261,8 @@ class _SectionHeader extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
             decoration: BoxDecoration(
-              color: accent.withOpacity(0.12),
-              border: Border.all(color: accent.withOpacity(0.25)),
+              color: accent.withValues(alpha: 0.12),
+              border: Border.all(color: accent.withValues(alpha: 0.25)),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(badge, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: accent)),
@@ -332,7 +332,7 @@ class _Top3Card extends StatelessWidget {
                 const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(color: _catColor(news.category).withOpacity(0.12), borderRadius: BorderRadius.circular(6)),
+                  decoration: BoxDecoration(color: _catColor(news.category).withValues(alpha: 0.12), borderRadius: BorderRadius.circular(6)),
                   child: Text(news.category.label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: _catColor(news.category))),
                 ),
                 if (news.isNew) ...[
@@ -445,7 +445,7 @@ class _WeeklyCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(children: [
-                      Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1), decoration: BoxDecoration(color: _catColor(news.category).withOpacity(0.12), borderRadius: BorderRadius.circular(5)), child: Text(news.category.label, style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: _catColor(news.category)))),
+                      Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1), decoration: BoxDecoration(color: _catColor(news.category).withValues(alpha: 0.12), borderRadius: BorderRadius.circular(5)), child: Text(news.category.label, style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: _catColor(news.category)))),
                       const SizedBox(width: 6),
                       Text(news.time, style: AppTheme.caption.copyWith(fontSize: 10)),
                     ]),

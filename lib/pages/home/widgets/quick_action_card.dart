@@ -75,7 +75,7 @@ class QuickActionSection extends StatelessWidget {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('$year년 ${month}월 · 총 ${checkedDays.length}일 출석',
+            Text('$year년 $month월 · 총 ${checkedDays.length}일 출석',
                 style: AppTheme.caption, textAlign: TextAlign.center),
             const SizedBox(height: 12),
             // 요일 헤더
@@ -182,7 +182,7 @@ class _ActionCard extends StatelessWidget {
           color: AppColors.card,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: const Color(0xFFC8DCFF)),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))],
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
         ),
         child: Column(
           children: [

@@ -70,11 +70,11 @@ class _OfferwallPageState extends State<OfferwallPage> {
                 const SizedBox(width: 12),
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   const Text('고정비 줄이고 월세 절감!', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13)),
-                  Text('미션 완료 시 최대 ₩8,000 적립', style: TextStyle(color: Colors.white.withOpacity(0.85), fontSize: 11)),
+                  Text('미션 완료 시 최대 ₩8,000 적립', style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 11)),
                 ])),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(color: Colors.white.withOpacity(0.15), borderRadius: BorderRadius.circular(10)),
+                  decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(10)),
                   child: const Text('누적 절감액', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700)),
                 ),
               ]),
@@ -140,7 +140,7 @@ class _OfferwallPageState extends State<OfferwallPage> {
             final res = await OfferwallService.instance.complete(offer.id);
             state.walletAmount = res.balance;
             state.addLedger(offer.icon, offer.name, res.reward, 'earn');
-            state.notifyListeners();
+            state.refresh();
           } catch (_) {
             state.earn(offer.icon, offer.name, offer.reward);
           }
@@ -176,9 +176,9 @@ class _OfferCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 8),
         decoration: BoxDecoration(
           color: AppColors.card,
-          border: Border.all(color: offer.type == OfferType.high ? const Color(0xFFE06C00).withOpacity(0.3) : AppColors.border),
+          border: Border.all(color: offer.type == OfferType.high ? const Color(0xFFE06C00).withValues(alpha: 0.3) : AppColors.border),
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 6, offset: const Offset(0, 2))],
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 6, offset: const Offset(0, 2))],
         ),
         child: Padding(
           padding: const EdgeInsets.all(14),
@@ -192,7 +192,7 @@ class _OfferCard extends StatelessWidget {
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
                 Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                  decoration: BoxDecoration(color: typeColor.withOpacity(0.1), borderRadius: BorderRadius.circular(5)),
+                  decoration: BoxDecoration(color: typeColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(5)),
                   child: Text(typeLabel, style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: typeColor))),
                 const SizedBox(width: 4),
                 Text(offer.category.label, style: AppTheme.caption.copyWith(fontSize: 9)),

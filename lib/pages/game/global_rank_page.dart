@@ -101,7 +101,7 @@ class _GlobalRankPageState extends State<GlobalRankPage> {
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                       decoration: BoxDecoration(
                         color: isTop ? AppColors.primaryDim : AppColors.card,
-                        border: Border.all(color: isTop ? AppColors.primary.withOpacity(0.3) : AppColors.border),
+                        border: Border.all(color: isTop ? AppColors.primary.withValues(alpha: 0.3) : AppColors.border),
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: Row(children: [
@@ -168,7 +168,7 @@ class _MockRanking extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
             color: isTop ? AppColors.primaryDim : AppColors.card,
-            border: Border.all(color: isTop ? AppColors.primary.withOpacity(0.3) : AppColors.border),
+            border: Border.all(color: isTop ? AppColors.primary.withValues(alpha: 0.3) : AppColors.border),
             borderRadius: BorderRadius.circular(14),
           ),
           child: Row(children: [

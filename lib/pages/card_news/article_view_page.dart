@@ -239,7 +239,7 @@ class _ArticleViewPageState extends State<ArticleViewPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                 decoration: BoxDecoration(
-                  color: _catColor(widget.news.category).withOpacity(0.12),
+                  color: _catColor(widget.news.category).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(widget.news.category.label,
@@ -389,7 +389,7 @@ class _ReactionBtn extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
           color: active ? AppColors.primaryDim : AppColors.card,
-          border: Border.all(color: active ? AppColors.primary.withOpacity(0.4) : AppColors.border),
+          border: Border.all(color: active ? AppColors.primary.withValues(alpha: 0.4) : AppColors.border),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -451,7 +451,7 @@ class _StatusBar extends StatelessWidget {
           color: isRead ? AppColors.surface : AppColors.primaryDim,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-              color: isRead ? AppColors.border : AppColors.primary.withOpacity(0.3)),
+              color: isRead ? AppColors.border : AppColors.primary.withValues(alpha: 0.3)),
         ),
         child: Text(
           isRead ? '✅ 이미 읽은 기사 (+₩10 완료)' : '⬇️ 기사를 끝까지 읽으면 ₩10 자동 적립',

@@ -20,6 +20,7 @@ class JumpGame extends FlameGame with TapCallbacks {
   static const double obsW = 22, obsH = 40;
   static const double coinR = 10;
 
+  // ignore: library_private_types_in_public_api
   late _Runner runner;
   double _speed = 220;
   double _dist = 0;
@@ -45,8 +46,11 @@ class JumpGame extends FlameGame with TapCallbacks {
 
   @override
   void onTapDown(TapDownEvent event) {
-    if (!_started) _started = true;
-    else runner.jump();
+    if (!_started) {
+      _started = true;
+    } else {
+      runner.jump();
+    }
   }
 
   @override
@@ -152,9 +156,9 @@ class _Runner extends PositionComponent {
   void render(Canvas canvas) {
     final paint = Paint()..color = AppColors.primary;
     // 몸통
-    canvas.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(4, 6, JumpGame.charW - 8, JumpGame.charH - 6), const Radius.circular(6)), paint);
+    canvas.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(4, 6, JumpGame.charW - 8, JumpGame.charH - 6), const Radius.circular(6)), paint);
     // 머리
-    canvas.drawCircle(Offset(JumpGame.charW / 2, 4), 8, paint..color = AppColors.primary.withOpacity(0.9));
+    canvas.drawCircle(const Offset(JumpGame.charW / 2, 4), 8, paint..color = AppColors.primary.withValues(alpha: 0.9));
     // 다리 (달리기 애니메이션)
     if (!_jumping) {
       final legOffset = (sin(_animT * 12) * 4).toInt().toDouble();
@@ -168,9 +172,9 @@ class _Obstacle extends PositionComponent {
   @override
   void render(Canvas canvas) {
     final paint = Paint()..color = const Color(0xFFEF4444);
-    canvas.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(0, 0, JumpGame.obsW, JumpGame.obsH), const Radius.circular(4)), paint);
+    canvas.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(0, 0, JumpGame.obsW, JumpGame.obsH), const Radius.circular(4)), paint);
     // 하이라이트
-    canvas.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(2, 2, JumpGame.obsW - 4, 8), const Radius.circular(3)), Paint()..color = Colors.white.withOpacity(0.2));
+    canvas.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(2, 2, JumpGame.obsW - 4, 8), const Radius.circular(3)), Paint()..color = Colors.white.withValues(alpha: 0.2));
   }
 }
 
@@ -215,8 +219,8 @@ class _JumpGamePageState extends State<JumpGamePage> {
           GameService.instance.submitScore('jump', score).then((res) {
             state.walletAmount = res.balance;
             state.addLedger('🏃', '무한점프 보상', res.reward, 'earn');
-            state.notifyListeners();
-          }).catchError((_) => state.earn('🏃', '무한점프 보상', reward));
+            state.refresh();
+          }).catchError((_) { state.earn('🏃', '무한점프 보상', reward); });
         } else {
           context.read<AppState>().earn('🏃', '무한점프 보상', reward);
         }
@@ -240,7 +244,7 @@ class _JumpGamePageState extends State<JumpGamePage> {
                 child: Center(child: Container(
                   margin: const EdgeInsets.all(40),
                   padding: const EdgeInsets.all(28),
-                  decoration: BoxDecoration(color: const Color(0xFF0D2137), border: Border.all(color: AppColors.primary.withOpacity(0.4)), borderRadius: BorderRadius.circular(24)),
+                  decoration: BoxDecoration(color: const Color(0xFF0D2137), border: Border.all(color: AppColors.primary.withValues(alpha: 0.4)), borderRadius: BorderRadius.circular(24)),
                   child: Column(mainAxisSize: MainAxisSize.min, children: [
                     const Text('💀 게임오버', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900)),
                     const SizedBox(height: 8),

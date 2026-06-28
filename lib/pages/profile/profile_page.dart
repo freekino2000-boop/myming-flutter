@@ -36,10 +36,10 @@ class ProfilePage extends StatelessWidget {
               padding: const EdgeInsets.all(20),
               child: Row(
                 children: [
-                  CircleAvatar(
+                  const CircleAvatar(
                     radius: 32,
                     backgroundColor: AppColors.primaryDim,
-                    child: const Text('😊', style: TextStyle(fontSize: 30)),
+                    child: Text('😊', style: TextStyle(fontSize: 30)),
                   ),
                   const SizedBox(width: 16),
                   Expanded(child: Column(
@@ -123,7 +123,7 @@ class ProfilePage extends StatelessWidget {
                           color: entry.type == 'spend' ? Colors.redAccent : AppColors.primary),
                       ),
                     ]),
-                  )).toList(),
+                  )),
                   if (state.ledger.isEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -144,7 +144,7 @@ class ProfilePage extends StatelessWidget {
                   _SettingItem(icon: '🔒', title: '개인정보 처리방침', onTap: () {}),
                   _SettingItem(icon: '📄', title: '이용약관',       onTap: () {}),
                   _SettingItem(icon: '🆘', title: '고객센터',       onTap: () {}),
-                  _SettingItem(icon: '📱', title: '앱 버전 1.0.0', onTap: null, trailing: '최신'),
+                  const _SettingItem(icon: '📱', title: '앱 버전 1.0.0', onTap: null, trailing: '최신'),
                 ],
               ),
             ),
