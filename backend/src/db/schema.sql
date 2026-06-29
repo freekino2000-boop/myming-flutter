@@ -86,6 +86,11 @@ CREATE TABLE IF NOT EXISTS card_news (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- 기존 테이블에 컬럼 누락 시 추가 (멱등)
+ALTER TABLE card_news ADD COLUMN IF NOT EXISTS emoji    VARCHAR(10);
+ALTER TABLE card_news ADD COLUMN IF NOT EXISTS keywords TEXT[];
+ALTER TABLE card_news ADD COLUMN IF NOT EXISTS stat     TEXT;
+
 -- ── 기사 읽기 기록 ──────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS news_reads (
   id          BIGSERIAL PRIMARY KEY,
