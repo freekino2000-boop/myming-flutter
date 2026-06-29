@@ -70,6 +70,7 @@ CREATE INDEX IF NOT EXISTS idx_attendance_user ON attendance(user_id, date DESC)
 -- ── 카드뉴스 ────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS card_news (
   id         VARCHAR(20)  PRIMARY KEY,
+  emoji      VARCHAR(10),
   title      TEXT         NOT NULL,
   summary    TEXT,
   category   VARCHAR(20)  NOT NULL DEFAULT 'economy',  -- economy|realty|issue|tenancy
@@ -77,6 +78,8 @@ CREATE TABLE IF NOT EXISTS card_news (
   rank       INT,
   img_url    TEXT,
   body       TEXT,
+  keywords   TEXT[],
+  stat       TEXT,
   likes      INT          NOT NULL DEFAULT 0,
   scraps     INT          NOT NULL DEFAULT 0,
   published_at DATE       NOT NULL DEFAULT CURRENT_DATE,
