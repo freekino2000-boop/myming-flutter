@@ -43,13 +43,25 @@ class _OfferwallPageState extends State<OfferwallPage> {
               color: Colors.white,
               padding: const EdgeInsets.fromLTRB(4, 4, 12, 4),
               child: Row(children: [
-                IconButton(icon: const Icon(Icons.arrow_back, color: AppColors.text), onPressed: () => Navigator.pop(context)),
-                const Text('🎯 고정비 절감 미션', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppColors.text)),
-                const Spacer(),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(color: AppColors.primaryDim, borderRadius: BorderRadius.circular(10)),
-                  child: Text('₩${_fmt(wallet)}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.primary)),
+                IconButton(
+                  icon: const Icon(Icons.arrow_back, color: AppColors.text),
+                  onPressed: () => Navigator.pop(context),
+                ),
+                const Flexible(
+                  child: Text(
+                    '🎯 고정비 절감 미션',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: AppColors.text),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(minWidth: 56),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(color: AppColors.primaryDim, borderRadius: BorderRadius.circular(10)),
+                    child: Text('₩${_fmt(wallet)}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppColors.primary)),
+                  ),
                 ),
               ]),
             ),

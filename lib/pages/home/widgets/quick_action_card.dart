@@ -177,7 +177,8 @@ class _ActionCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+        constraints: const BoxConstraints(minHeight: 90),
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 6),
         decoration: BoxDecoration(
           color: AppColors.card,
           borderRadius: BorderRadius.circular(18),
@@ -185,12 +186,25 @@ class _ActionCard extends StatelessWidget {
           boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
         ),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(icon, style: const TextStyle(fontSize: 28)),
-            const SizedBox(height: 8),
-            Text(title, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: color)),
-            const SizedBox(height: 3),
-            Text(sub, style: AppTheme.caption),
+            Text(icon, style: const TextStyle(fontSize: 26)),
+            const SizedBox(height: 6),
+            Text(
+              title,
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: color),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              sub,
+              style: AppTheme.caption.copyWith(fontSize: 10),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+            ),
           ],
         ),
       ),

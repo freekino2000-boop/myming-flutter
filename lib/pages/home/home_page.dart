@@ -533,21 +533,25 @@ class _OfferwallInlineCard extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text('+₩${_fmt(offer.reward)}',
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 14,
-                        color: AppColors.primary)),
-                if (offer.clicked)
-                  const Text('완료', style: TextStyle(fontSize: 10, color: AppColors.muted))
-                else
-                  const Text('참여하기 ›',
-                      style: TextStyle(fontSize: 10, color: AppColors.primary)),
-              ],
+            const SizedBox(width: 8),
+            ConstrainedBox(
+              constraints: const BoxConstraints(minWidth: 64),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('+₩${_fmt(offer.reward)}',
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 13,
+                          color: AppColors.primary)),
+                  if (offer.clicked)
+                    const Text('완료', style: TextStyle(fontSize: 10, color: AppColors.muted))
+                  else
+                    const Text('참여하기 ›',
+                        style: TextStyle(fontSize: 10, color: AppColors.primary)),
+                ],
+              ),
             ),
           ],
         ),

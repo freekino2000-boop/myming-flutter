@@ -92,9 +92,13 @@ class _CardNewsPageState extends State<CardNewsPage> {
         elevation: 0,
         titleSpacing: 16,
         title: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('마이밍뉴스',
-                style: TextStyle(fontWeight: FontWeight.w900, color: AppColors.text, fontSize: 17)),
+            const Flexible(
+              child: Text('마이밍뉴스',
+                  style: TextStyle(fontWeight: FontWeight.w900, color: AppColors.text, fontSize: 17),
+                  overflow: TextOverflow.ellipsis),
+            ),
             const SizedBox(width: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
@@ -107,9 +111,14 @@ class _CardNewsPageState extends State<CardNewsPage> {
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pushNamed(context, '/shop'),
-            child: const Text('🎁 교환소', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700)),
+          ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 72),
+            child: TextButton(
+              onPressed: () => Navigator.pushNamed(context, '/shop'),
+              child: const Text('🎁 교환소',
+                  style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700, fontSize: 13),
+                  overflow: TextOverflow.ellipsis),
+            ),
           ),
         ],
       ),

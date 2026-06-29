@@ -79,6 +79,19 @@ class _MyMingAppState extends State<MyMingApp> with WidgetsBindingObserver {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.theme,
       scrollBehavior: const MaterialScrollBehavior().copyWith(overscroll: false),
+      // 시스템 폰트 스케일이 커져도 레이아웃이 깨지지 않도록 최대 1.2배 제한
+      builder: (ctx, child) {
+        final mq = MediaQuery.of(ctx);
+        return MediaQuery(
+          data: mq.copyWith(
+            textScaler: mq.textScaler.clamp(
+              minScaleFactor: 1.0,
+              maxScaleFactor: 1.2,
+            ),
+          ),
+          child: child!,
+        );
+      },
       initialRoute: '/splash',
       // ── 전체 라우트 테이블 ────────────────────────────────
       // 기능 활성화 여부는 features.dart에서 제어합니다.
