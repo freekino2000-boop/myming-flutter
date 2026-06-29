@@ -19,7 +19,7 @@ async function start() {
     await db.query('SELECT 1');
     console.log('✅ PostgreSQL 연결 성공');
   } catch (err) {
-    console.error('❌ PostgreSQL 연결 실패:', err.message);
+    console.error('❌ PostgreSQL 연결 실패:', err.message || err.code, '| code:', err.code, '| errno:', err.errno, '| host:', err.address || err.hostname);
     process.exit(1);
   }
 
