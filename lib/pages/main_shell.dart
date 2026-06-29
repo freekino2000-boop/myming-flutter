@@ -79,7 +79,12 @@ class _MainShellState extends State<MainShell> {
       bottomNavigationBar: _BottomNav(
         tabs: _tabs,
         currentIndex: _currentIndex,
-        onTap: (i) => setState(() => _currentIndex = i),
+        onTap: (i) {
+          if (i == _currentIndex && _tabs[i].id == _TabId.home) {
+            context.read<AppState>().scrollHomeToTop();
+          }
+          setState(() => _currentIndex = i);
+        },
       ),
     );
   }

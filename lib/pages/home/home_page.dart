@@ -28,6 +28,8 @@ class _HomePageState extends State<HomePage> {
   StreamSubscription<StepCount>? _stepSub;
   int _initialSteps = 0;
   bool _pedometerStarted = false;
+  final _scrollController = ScrollController();
+  int _prevScrollTrigger = 0;
 
   @override
   void initState() {
@@ -38,6 +40,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     _stepSub?.cancel();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -59,10 +62,25 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final scrollTrigger = context.watch<AppState>().homeScrollTopTrigger;
+    if (scrollTrigger != _prevScrollTrigger) {
+      _prevScrollTrigger = scrollTrigger;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_scrollController.hasClients) {
+          _scrollController.animateTo(
+            0,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    }
+
     return Scaffold(
       backgroundColor: AppColors.surface,
       body: SafeArea(
         child: CustomScrollView(
+          controller: _scrollController,
           slivers: [
             // ── 앱바 ────────────────────────────────────────
             SliverAppBar(

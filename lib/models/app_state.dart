@@ -50,6 +50,9 @@ class AppState extends ChangeNotifier {
   int cardNewsTabTrigger = 0;
   void switchToCardNewsTab() { cardNewsTabTrigger++; notifyListeners(); }
 
+  int homeScrollTopTrigger = 0;
+  void scrollHomeToTop() { homeScrollTopTrigger++; notifyListeners(); }
+
   // 외부에서 UI 갱신이 필요할 때 호출 (notifyListeners는 protected)
   void refresh() => notifyListeners();
 
