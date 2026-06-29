@@ -1,7 +1,3 @@
-// ════════════════════════════════════════════════════════
-// offerwall_page.dart — 고정비 절감 미션 오퍼월
-// 카테고리 탭 + 추천/일반/고가 보상 구분 / HTML OW_OFFERS 완전 이식
-// ════════════════════════════════════════════════════════
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_state.dart';

@@ -2,7 +2,7 @@ const router = require('express').Router();
 const db   = require('../config/db');
 const auth = require('../middleware/auth');
 
-const ATTEND_REWARD = 10; // 출석 보상 ₩10
+const ATTEND_REWARD = 10;
 
 // GET /api/attendance — 이번 달 출석 목록
 router.get('/', auth, async (req, res, next) => {

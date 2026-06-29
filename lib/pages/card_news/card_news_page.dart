@@ -1,7 +1,3 @@
-// ════════════════════════════════════════════════════════
-// card_news_page.dart — 마이밍 뉴스 (카드뉴스)
-// 일간 탑3 + 주간 핫뉴스 / 경제·부동산·이슈·임차 카테고리
-// ════════════════════════════════════════════════════════
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_state.dart';

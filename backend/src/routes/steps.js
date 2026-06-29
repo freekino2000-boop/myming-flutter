@@ -27,7 +27,7 @@ router.post('/sync', auth, [
     const uid   = req.user.id;
     const today = req.body.date ?? new Date().toISOString().slice(0, 10);
     const steps = req.body.steps;
-    const rate  = 0.01; // 걸음당 적립율
+    const rate  = 0.01;
 
     const prev = await db.query(
       'SELECT steps FROM steps WHERE user_id = $1 AND date = $2',
@@ -43,7 +43,6 @@ router.post('/sync', auth, [
       [uid, today, steps]
     );
 
-    // 증분 걸음수만 원장에 적립
     if (added > 0) {
       const earnAmount = Math.ceil(added * rate);
       await db.query(

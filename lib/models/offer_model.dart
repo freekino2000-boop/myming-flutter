@@ -1,8 +1,3 @@
-// ════════════════════════════════════════════════════════
-// offer_model.dart — 오퍼월 미션 데이터 모델
-// HTML OW_OFFERS 배열 그대로 이식
-// ════════════════════════════════════════════════════════
-
 enum OfferType { simple, recom, high }
 enum OfferCategory { rent, telecom, utility, subscribe, manage, insurance, transit, news }
 

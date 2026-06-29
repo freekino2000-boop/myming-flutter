@@ -1,8 +1,3 @@
-// ════════════════════════════════════════════════════════
-// card_news_model.dart — 카드뉴스 데이터 모델 및 목데이터
-// 경제·부동산·이슈·임차 카테고리
-// ════════════════════════════════════════════════════════
-
 enum NewsCategory { economy, realty, issue, tenancy }
 enum NewsTier     { top3, weekly }
 

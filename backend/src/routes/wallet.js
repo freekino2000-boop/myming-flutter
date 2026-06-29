@@ -42,8 +42,8 @@ router.get('/ledger', auth, [
   } catch (err) { next(err); }
 });
 
-const EARN_MAX_SINGLE  = 8000;   // 1회 최대 적립 (오퍼월 최대 보상)
-const EARN_DAILY_LIMIT = 20000;  // 일일 총 적립 한도
+const EARN_MAX_SINGLE  = 8000;
+const EARN_DAILY_LIMIT = 20000;
 
 // POST /api/wallet/earn — 보상 적립
 router.post('/earn', auth, [
@@ -59,7 +59,6 @@ router.post('/earn', auth, [
     const { icon, name, amount } = req.body;
     const today        = new Date().toISOString().slice(0, 10);
 
-    // 일일 적립 한도 체크
     const { rows: dayRows } = await db.query(
       `SELECT COALESCE(SUM(amount), 0) AS day_total
        FROM wallet_ledger
@@ -99,7 +98,6 @@ router.post('/spend', auth, [
 
     await client.query('BEGIN');
 
-    // 트랜잭션 내 잔액 잠금 조회 (SELECT FOR UPDATE)
     const bal = await client.query(
       'SELECT COALESCE(SUM(amount), 0) AS balance FROM wallet_ledger WHERE user_id = $1 FOR UPDATE',
       [uid]

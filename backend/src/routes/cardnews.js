@@ -153,7 +153,6 @@ router.post('/:id/read', auth, async (req, res, next) => {
       [uid, READ_REWARD]
     );
 
-    // 오늘 읽은 기사 수 기준 일일 미션 보너스 (3건 달성 시 +30원, 하루 1회)
     const today = new Date().toISOString().slice(0, 10);
     const readCount = await db.query(
       `SELECT COUNT(*) AS cnt FROM news_reads

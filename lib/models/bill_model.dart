@@ -1,7 +1,3 @@
-// ════════════════════════════════════════════════════════
-// bill_model.dart — 고정비 청구서 데이터 모델
-// ════════════════════════════════════════════════════════
-
 enum BillType { rent, manage, electric, gas, internet, mobile, water, insurance, other }
 
 extension BillTypeExt on BillType {

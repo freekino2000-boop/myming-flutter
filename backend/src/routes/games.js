@@ -3,8 +3,7 @@ const { body, query, validationResult } = require('express-validator');
 const db   = require('../config/db');
 const auth = require('../middleware/auth');
 
-const GAME_IDS   = ['brick', 'jump', 'catch', 'snake', 'tap', 'quiz', 'memory', 'reflex'];
-const MAX_REWARD = { brick: 200, jump: 150, catch: 100, snake: 150, tap: 50, quiz: 50, memory: 60, reflex: 40 };
+const GAME_IDS = ['brick', 'jump', 'catch', 'snake', 'tap', 'quiz', 'memory', 'reflex'];
 
 function calcReward(gameId, score) {
   switch (gameId) {
@@ -12,7 +11,6 @@ function calcReward(gameId, score) {
     case 'jump':   return Math.min(score, 150);
     case 'catch':  return Math.min(Math.max(Math.floor(score / 15), 0), 100);
     case 'snake':  return Math.min(score * 3, 150);
-    // WebView 게임: 클라이언트가 이미 earn 계산 후 전달
     case 'tap':    return Math.min(score, 50);
     case 'quiz':   return Math.min(score, 50);
     case 'memory': return Math.min(score, 60);
@@ -45,7 +43,6 @@ router.get('/ranking/:gameId', auth, [
     const limit = req.query.limit ?? 20;
     const uid   = req.user.id;
 
-    // 상위 N명 (사용자당 최고 점수)
     const { rows } = await db.query(
       `SELECT u.nickname, MAX(gs.score) AS score, MAX(gs.reward) AS reward,
               RANK() OVER (ORDER BY MAX(gs.score) DESC) AS rank,
@@ -59,7 +56,6 @@ router.get('/ranking/:gameId', auth, [
       [uid, gameId, limit]
     );
 
-    // 내 순위 (상위 20에 없는 경우)
     const myRank = await db.query(
       `SELECT rank FROM (
          SELECT user_id, RANK() OVER (ORDER BY MAX(score) DESC) AS rank

@@ -1,7 +1,3 @@
-// ════════════════════════════════════════════════════════
-// app_state.dart — 전역 앱 상태 (ChangeNotifier)
-// 로컬 낙관적 업데이트 → 백그라운드 API 동기화
-// ════════════════════════════════════════════════════════
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/wallet_service.dart';
@@ -69,13 +65,11 @@ class AppState extends ChangeNotifier {
   int       totalSecondsInApp = 0;
   DateTime? _sessionStart;
 
-  // ── API 모드 활성화 (로그인 성공 시 호출) ─────────────────
   Future<void> enableApi() async {
     _apiEnabled = true;
     await _syncFromApi();
   }
 
-  // API에서 최신 상태 풀링 (잔액·출석·카드뉴스 미션)
   Future<void> _syncFromApi() async {
     await Future.wait([
       _syncBalance(),
@@ -107,7 +101,6 @@ class AppState extends ChangeNotifier {
     } catch (_) {}
   }
 
-  // ── 걸음수 (만보 부스트 + API 동기화) ─────────────────────
   void addSteps(int count) {
     steps += count;
     if (!_apiEnabled) {
@@ -128,7 +121,6 @@ class AppState extends ChangeNotifier {
     } catch (_) {}
   }
 
-  // ── 원장 추가 ────────────────────────────────────────────
   void addLedger(String icon, String name, int amount, String type) {
     final now = DateTime.now();
     ledger.insert(0, LedgerEntry(
@@ -138,7 +130,6 @@ class AppState extends ChangeNotifier {
     if (ledger.length > 100) ledger.removeLast();
   }
 
-  // ── 보상 적립 (낙관적 업데이트 → API 백그라운드) ───────────
   void earn(String icon, String name, int amount) {
     walletAmount += amount;
     addLedger(icon, name, amount, 'earn');
@@ -152,7 +143,6 @@ class AppState extends ChangeNotifier {
     }
   }
 
-  // ── 카드뉴스 기사 읽기 ────────────────────────────────────
   void readCNArticle([String? newsId]) {
     if (cnMissionDone) return;
     cnReadCount++;
@@ -175,7 +165,6 @@ class AppState extends ChangeNotifier {
     }
   }
 
-  // ── 지출 ─────────────────────────────────────────────────
   void spend(int amount) {
     if (walletAmount < amount) return;
     walletAmount -= amount;
@@ -190,7 +179,6 @@ class AppState extends ChangeNotifier {
     }
   }
 
-  // ── 부스터 구매 ──────────────────────────────────────────
   void buyBooster(String effect, String name, int price) {
     if (walletAmount < price) return;
     walletAmount -= price;
@@ -211,7 +199,6 @@ class AppState extends ChangeNotifier {
     }
   }
 
-  // ── 세션 ────────────────────────────────────────────────
   void startSession() {
     firstAccessDate ??= DateTime.now().toIso8601String().substring(0, 10);
     _sessionStart   ??= DateTime.now();
@@ -231,7 +218,6 @@ class AppState extends ChangeNotifier {
 
   int get totalSecondsWithCurrent => totalSecondsInApp + currentSessionSeconds;
 
-  // ── 출석 체크 (낙관적 업데이트 → API) ─────────────────────
   bool get canAttendToday {
     final today = DateTime.now().toIso8601String().substring(0, 10);
     return lastAttendanceDate != today;
@@ -252,7 +238,6 @@ class AppState extends ChangeNotifier {
     }
   }
 
-  // ── SharedPreferences 영속화 ─────────────────────────────
   Future<void> loadFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
     steps              = prefs.getInt('steps') ?? 0;

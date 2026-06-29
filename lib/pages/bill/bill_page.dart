@@ -1,6 +1,3 @@
-// ════════════════════════════════════════════════════════
-// bill_page.dart — 고정비 관리
-// ════════════════════════════════════════════════════════
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';

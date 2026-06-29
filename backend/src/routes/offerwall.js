@@ -3,7 +3,6 @@ const { query, validationResult } = require('express-validator');
 const db   = require('../config/db');
 const auth = require('../middleware/auth');
 
-// Flutter kOffers와 동일한 ID·데이터 (offer_completions FK 기준)
 const OFFERS = [
   // 월세
   { id:'ow_rent_extra',   icon:'🏠', name:'월세 수수료 0원 만들기',      desc:'미션 완료 시 월세 수수료 적립 지급',         category:'rent',      type:'high',   reward:5000 },
