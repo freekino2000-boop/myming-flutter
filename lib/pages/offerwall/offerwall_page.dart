@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_state.dart';
 import '../../models/offer_model.dart';
+import '../../services/ad_service.dart';
 import '../../services/offerwall_service.dart';
 import '../../theme/app_theme.dart';
 
@@ -226,6 +227,21 @@ class OfferModal extends StatefulWidget {
 
 class _OfferModalState extends State<OfferModal> {
   int _step = 0; // 0=설명, 1=진행중, 2=완료
+  bool _adLoading = false;
+
+  Future<void> _startMission() async {
+    if (widget.offer.id == 'ow_ad_watch') {
+      setState(() => _adLoading = true);
+      final rewarded = await AdService.instance.showRewardedAd(
+        onRewarded: () {
+          if (mounted) setState(() { _step = 2; _adLoading = false; });
+        },
+      );
+      if (!rewarded && mounted) setState(() => _adLoading = false);
+    } else {
+      setState(() => _step = 1);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -260,9 +276,12 @@ class _OfferModalState extends State<OfferModal> {
             if (_step == 0)
               SizedBox(width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () => setState(() => _step = 1),
+                  onPressed: _adLoading ? null : () => _startMission(),
                   style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, minimumSize: const Size(0, 50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
-                  child: const Text('미션 참여하기', style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontSize: 15)),
+                  child: _adLoading
+                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                      : Text(widget.offer.id == 'ow_ad_watch' ? '🎥 광고 보고 보상 받기' : '미션 참여하기',
+                          style: const TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontSize: 15)),
                 ),
               )
             else if (_step == 1)

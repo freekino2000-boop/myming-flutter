@@ -4,8 +4,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart' hide AppState;
 
 import 'config/features.dart';
+import 'services/ad_service.dart';
 import 'models/app_state.dart';
 import 'theme/app_theme.dart';
 import 'pages/main_shell.dart';
@@ -23,6 +25,8 @@ import 'pages/splash/splash_page.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  await MobileAds.instance.initialize();
+  AdService.instance.loadRewardedAd(); // 보상형 광고 미리 로드
 
   final state = AppState();
   await state.loadFromPrefs();

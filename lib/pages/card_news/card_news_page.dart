@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart' hide AppState;
 import 'package:provider/provider.dart';
 import '../../models/app_state.dart';
 import '../../models/card_news_model.dart';
+import '../../services/ad_service.dart';
 import '../../services/cardnews_service.dart';
 import '../../theme/app_theme.dart';
 import 'article_view_page.dart';
@@ -20,6 +22,9 @@ class _CardNewsPageState extends State<CardNewsPage> {
   // API 모드일 때 서버에서 받은 목록
   List<CardNews>? _apiNewsList;
   bool _loading = false;
+
+  BannerAd? _bannerAd;
+  bool _bannerLoaded = false;
 
   // 현재 활성 목록 (API 우선, 없으면 목데이터)
   List<CardNews> get _allNews => _apiNewsList ?? kCardNewsList;
@@ -44,6 +49,20 @@ class _CardNewsPageState extends State<CardNewsPage> {
     } catch (_) {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _bannerAd = AdService.instance.createBannerAd(
+      onLoaded: () { if (mounted) setState(() => _bannerLoaded = true); },
+    )..load();
+  }
+
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+    super.dispose();
   }
 
   @override
@@ -204,6 +223,17 @@ class _CardNewsPageState extends State<CardNewsPage> {
                     const _SectionHeader(badge: '🔥 오늘의 탑3', desc: '가장 많이 읽은 기사', accent: Color(0xFFFF4B4B)),
                     ..._top3.map((news) => _Top3Card(news: news, onRead: () => _onRead(context, news))),
                   ],
+
+                  // ── 배너 광고 ─────────────────────────────
+                  if (_bannerLoaded && _bannerAd != null)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: SizedBox(
+                        width: _bannerAd!.size.width.toDouble(),
+                        height: _bannerAd!.size.height.toDouble(),
+                        child: AdWidget(ad: _bannerAd!),
+                      ),
+                    ),
 
                   // ── 주간 핫뉴스 ───────────────────────────
                   if (_weekly.isNotEmpty) ...[

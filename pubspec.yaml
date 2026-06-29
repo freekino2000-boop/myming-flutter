@@ -36,6 +36,9 @@ dependencies:
   # 소셜 로고 SVG 렌더링
   flutter_svg: ^2.0.10+1
 
+  # 구글 애드몹
+  google_mobile_ads: ^9.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
