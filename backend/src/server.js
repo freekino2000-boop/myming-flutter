@@ -15,13 +15,11 @@ async function initDb() {
 }
 
 async function start() {
-  const dbUrl = process.env.DATABASE_URL || '';
-  console.log('🔍 DATABASE_URL host:', dbUrl.replace(/\/\/[^:]+:[^@]+@/, '//***:***@').split('/')[2]);
   try {
     await db.query('SELECT 1');
     console.log('✅ PostgreSQL 연결 성공');
   } catch (err) {
-    console.error('❌ PostgreSQL 연결 실패:', err.message || err.code, '| code:', err.code, '| errno:', err.errno, '| host:', err.address || err.hostname);
+    console.error('❌ PostgreSQL 연결 실패:', err.message);
     process.exit(1);
   }
 
